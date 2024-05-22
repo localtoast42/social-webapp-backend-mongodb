@@ -1,6 +1,6 @@
 import express from 'express';
 
-var usersRouter = express.Router();
+const usersRouter = express.Router();
 
 /* GET users listing. */
 usersRouter.get('/', function(req, res, next) {
