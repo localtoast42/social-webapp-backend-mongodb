@@ -3,11 +3,16 @@ import createError from 'http-errors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
+import mongoose from 'mongoose';
 
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 
 var app = express();
+
+mongoose.set("strictQuery", false);
+const mongoDB = process.env.MONGODB_URI;
+mongoose.connect(mongoDB);
 
 // view engine setup
 const viewsURL = new URL('views', import.meta.url);
