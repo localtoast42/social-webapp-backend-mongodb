@@ -4,9 +4,10 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('odin-social-backend:server');
-var http = require('http');
+import app from '../app.js';
+import debug from 'debug';
+debug('odin-social-backend:server');
+import http from 'http';
 
 /**
  * Get port from environment and store in Express.
