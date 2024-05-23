@@ -119,3 +119,36 @@ exports.user_delete = [
     res.status(200).end();
   }),
 ];
+
+exports.user_follow = [
+  isUserCreator,
+
+  asyncHandler(async (req, res, next) => {
+    const user = await User.findOne({ _id: req.params.userId });
+    const target = await User.findOne({ _id: req.params.targetId });
+
+    if (!user.following.includes(target._id)) {
+      user.following.push(target._id);
+    }
+
+    if (!target.followers.includes(user._id)) {
+      target.followers.push(user._id);
+    }
+
+    res.status(200).end();
+  }),
+];
+
+exports.user_unfollow = [
+  isUserCreator,
+
+  asyncHandler(async (req, res, next) => {
+    const user = await User.findOne({ _id: req.params.userId });
+    const target = await User.findOne({ _id: req.params.targetId });
+
+    user.following = user.following.filter((userid) => userid != target._id);
+    target.followers = target.followers.filter((userid) => userid != user._id);
+    
+    res.status(200).end();
+  }),
+];

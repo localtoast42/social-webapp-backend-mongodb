@@ -17,4 +17,14 @@ usersRouter.delete('/:userId',
   userController.user_delete
 );
 
+usersRouter.post('/:userId/follow/:targetId', 
+  isAuth,
+  userController.user_follow
+);
+
+usersRouter.delete('/:userId/follow/:targetId', 
+  isAuth,
+  userController.user_unfollow
+);
+
 export default usersRouter;
