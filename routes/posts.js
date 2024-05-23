@@ -15,4 +15,6 @@ postsRouter.put('/:postId', postController.post_update);
 
 postsRouter.delete('/:postId', postController.post_delete);
 
+postsRouter.post('/:postId/likes', postController.post_modify_likes);
+
 export default postsRouter;
