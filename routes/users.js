@@ -3,7 +3,7 @@ import passport from 'passport';
 import userController from '../controllers/userController';
 import { isAuth } from './auth';
 
-const usersRouter = express.Router({ mergeParams: true });
+const usersRouter = express.Router();
 
 usersRouter.post('/', userController.user_create);
 

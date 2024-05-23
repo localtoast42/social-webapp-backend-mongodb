@@ -3,7 +3,7 @@ import passport from 'passport';
 import commentController from '../controllers/commentController';
 import { isAuth } from './auth';
 
-const commentsRouter = express.Router();
+const commentsRouter = express.Router({ mergeParams: true });
 
 commentsRouter.post('/', 
   isAuth,
