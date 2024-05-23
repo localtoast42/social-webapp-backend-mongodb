@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 
 const PostSchema = new Schema({
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  text: { type: String },
-  postDate: { type: Date },
+  text: { type: String, minLength: 1, required: true },
+  postDate: { type: Date, required: true },
   likes: [{ type: Schema.Types.ObjectId, ref: "User" }]
 });
 
