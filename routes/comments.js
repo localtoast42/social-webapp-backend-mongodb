@@ -1,5 +1,4 @@
 import express from 'express';
-import passport from 'passport';
 import commentController from '../controllers/commentController';
 import { isAuth } from './auth';
 
