@@ -2,19 +2,35 @@ import express from 'express';
 import passport from 'passport';
 import commentsRouter from './comments';
 import postController from '../controllers/postController';
+import { isAuth } from './auth';
 
 const postsRouter = express.Router();
 
 postsRouter.use('/:postId/comments', commentsRouter);
 
-postsRouter.post('/', postController.post_create);
+postsRouter.post('/', 
+  isAuth, 
+  postController.post_create
+);
 
-postsRouter.get('/:postId', postController.post_get);
+postsRouter.get('/:postId', 
+  isAuth, 
+  postController.post_get
+);
 
-postsRouter.put('/:postId', postController.post_update);
+postsRouter.put('/:postId', 
+  isAuth, 
+  postController.post_update
+);
 
-postsRouter.delete('/:postId', postController.post_delete);
+postsRouter.delete('/:postId', 
+  isAuth, 
+  postController.post_delete
+);
 
-postsRouter.post('/:postId/likes', postController.post_modify_likes);
+postsRouter.post('/:postId/likes', 
+  isAuth, 
+  postController.post_modify_likes
+);
 
 export default postsRouter;
