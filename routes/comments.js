@@ -20,4 +20,9 @@ commentsRouter.delete('/:commentId',
   commentController.comment_delete
 );
 
+commentsRouter.post('/:postId/likes', 
+  isAuth, 
+  commentController.comment_modify_likes
+);
+
 export default commentsRouter;
