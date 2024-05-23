@@ -4,6 +4,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
+import passportConfig from './config/passport';
 
 import indexRouter from './routes/index.js';
 
@@ -12,6 +13,8 @@ const app = express();
 mongoose.set("strictQuery", false);
 const mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB);
+
+const mongoClient = mongoose.connection.getClient();
 
 // view engine setup
 const viewsURL = new URL('views', import.meta.url);
@@ -25,6 +28,18 @@ app.use(cookieParser());
 
 const staticURL = new URL('public', import.meta.url);
 app.use(express.static(staticURL.toString()));
+
+app.use(session({
+  secret: process.env.APP_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  store: MongoStore.create({ client: mongoClient }),
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24,
+  }
+}));
+app.use(passport.session());
+passportConfig(passport);
 
 app.use('/', indexRouter);
 
