@@ -4,6 +4,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
+import passport from 'passport';
 import passportConfig from './config/passport';
 
 import indexRouter from './routes/index.js';
