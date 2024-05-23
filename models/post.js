@@ -4,7 +4,6 @@ import { DateTime } from 'luxon';
 const Schema = mongoose.Schema;
 
 const PostSchema = new Schema({
-  title: { type: String, required: true, minLength: 3, maxLength: 100, default: "New Post" },
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   text: { type: String },
   postDate: { type: Date },
