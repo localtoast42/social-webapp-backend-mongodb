@@ -1,10 +1,13 @@
 import express from 'express';
+import passport from 'passport';
+import commentController from '../controllers/commentController';
 
 const commentsRouter = express.Router();
 
-/* GET users listing. */
-commentsRouter.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+commentsRouter.post('/', commentController.comment_create);
+
+commentsRouter.put('/:commentId', commentController.comment_update);
+
+commentsRouter.delete('/:commentId', commentController.comment_delete);
 
 export default commentsRouter;

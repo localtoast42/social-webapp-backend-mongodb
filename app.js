@@ -6,7 +6,6 @@ import logger from 'morgan';
 import mongoose from 'mongoose';
 
 import indexRouter from './routes/index.js';
-import usersRouter from './routes/users.js';
 
 const app = express();
 
@@ -28,7 +27,6 @@ const staticURL = new URL('public', import.meta.url);
 app.use(express.static(staticURL.toString()));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

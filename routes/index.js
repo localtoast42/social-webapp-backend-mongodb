@@ -1,10 +1,14 @@
 import express from 'express';
+import usersRouter from './users';
+import postsRouter from './posts';
+import userController from '../controllers/userController';
 
 const indexRouter = express.Router();
 
-/* GET home page. */
-indexRouter.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+indexRouter.post('/login', userController.user_login);
+indexRouter.post('/logout', userController.user_logout);
+
+indexRouter.use('/users', usersRouter)
+indexRouter.use('/posts', postsRouter)
 
 export default indexRouter;
