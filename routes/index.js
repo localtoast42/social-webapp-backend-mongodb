@@ -1,12 +1,15 @@
 import express from 'express';
+import passport from 'passport';
 import usersRouter from './users';
 import postsRouter from './posts';
-import userController from '../controllers/userController';
 
 const indexRouter = express.Router();
 
-indexRouter.post('/login', userController.user_login);
-indexRouter.post('/logout', userController.user_logout);
+indexRouter.post('/login', passport.authenticate('local'));
+indexRouter.post('/logout', (req, res) => {
+  req.logOut();
+  res.status(200).end();
+});
 
 indexRouter.use('/users', usersRouter)
 indexRouter.use('/posts', postsRouter)
