@@ -6,7 +6,9 @@ const UserSchema = new Schema({
   username: { type: String, required: true, minLength: 3, maxLength: 100 },
   password: { type: String, required: true },
   firstName: { type: String, required: true, maxLength: 100 },
-  lastName: { type: String, required: true, maxLength: 100 }
+  lastName: { type: String, required: true, maxLength: 100 },
+  followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  following: [{ type: Schema.Types.ObjectId, ref: "User" }],
 });
 
 UserSchema.virtual("fullName").get(function () {
