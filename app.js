@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import createError from 'http-errors';
 import express from 'express';
+import cors from cors;
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
@@ -10,6 +11,12 @@ import passportConfig from './config/passport';
 import indexRouter from './routes/index.js';
 
 const app = express();
+
+const corsOptions = {
+  origin: process.env.FRONTEND_URL
+};
+
+app.use(cors(corsOptions));
 
 mongoose.set("strictQuery", false);
 const mongoDB = process.env.MONGODB_URI;
