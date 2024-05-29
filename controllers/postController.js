@@ -34,6 +34,22 @@ export const get_posts = asyncHandler(async (req, res, next) => {
   res.status(200).json(followedPostsData);
 });
 
+export const post_get = asyncHandler(async (req, res, next) => {
+  const post = await Post.findById(req.params.postId)
+    .populate("author")
+    .exec();
+
+  const postData = {
+    id: post.id,
+    text: post.text,
+    date: post.postDateFormatted,
+    lastEditDate: post.lastEditDateFormatted,
+    author: post.author.fullName
+  }
+
+  res.status(200).json(postData);
+});
+
 export const post_create = [
   body("title")
     .trim()
