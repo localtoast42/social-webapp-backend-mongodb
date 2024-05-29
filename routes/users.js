@@ -16,6 +16,11 @@ usersRouter.delete('/:userId',
   userController.user_delete
 );
 
+usersRouter.get('/:userId/posts', 
+  isAuth,
+  userController.get_posts_by_user
+);
+
 usersRouter.post('/:userId/follow/:targetId', 
   isAuth,
   userController.user_follow

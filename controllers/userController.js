@@ -1,4 +1,5 @@
 import User from '../models/user';
+import Post from '../models/post';
 import bcrypt from 'bcryptjs'
 import asyncHandler from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
@@ -119,6 +120,24 @@ exports.user_delete = [
     res.status(200).end();
   }),
 ];
+
+exports.get_posts_by_user = asyncHandler(async (req, res, next) => {
+  const postsByUser = await Post.find({ author: req.user })
+    .populate("author")
+    .exec();
+
+  const postsByUserData = postsByUser.map(post => {
+    return {
+      id: post.id,
+      text: post.text,
+      date: post.postDateFormatted,
+      lastEditDate: post.lastEditDateFormatted,
+      author: post.author.fullName
+    }
+  })
+
+  res.status(200).json(postsByUserData);
+});
 
 exports.user_follow = [
   isUserCreator,
