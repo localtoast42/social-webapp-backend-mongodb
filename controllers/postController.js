@@ -14,6 +14,26 @@ function isPostAuthor(req, res, next) {
     .catch((err) => next(err));
 };
 
+exports.get_posts = asyncHandler(async (req, res, next) => {
+  const followedPosts = await Post.find()
+    .where("author").in(req.user.following)
+    .sort("-postDate")
+    .populate("author")
+    .exec();
+
+  const followedPostsData = followedPosts.map(post => {
+    return {
+      id: post.id,
+      text: post.text,
+      date: post.postDateFormatted,
+      lastEditDate: post.lastEditDateFormatted,
+      author: post.author.fullName
+    }
+  })
+
+  res.status(200).json(followedPostsData);
+});
+
 exports.post_create = [
   body("title")
     .trim()

@@ -7,6 +7,11 @@ const postsRouter = express.Router();
 
 postsRouter.use('/:postId/comments', commentsRouter);
 
+postsRouter.get('/', 
+  isAuth, 
+  postController.get_posts
+);
+
 postsRouter.post('/', 
   isAuth, 
   postController.post_create
