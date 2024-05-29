@@ -16,6 +16,18 @@ function isUserCreator(req, res, next) {
     .catch((err) => next(err));
 };
 
+export const user_self_get = asyncHandler(async (req, res, next) => {
+  const user = {
+    id: req.user.id,
+    firstName: req.user.firstName,
+    lastName: req.user.lastName,
+    username: req.user.username,
+    isAuthor: req.user.isAuthor
+  }
+
+  res.json(user);
+});
+
 export const user_create = [
   body("username")
     .trim()

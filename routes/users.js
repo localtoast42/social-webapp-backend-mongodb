@@ -4,6 +4,11 @@ import { isAuth } from './auth.js';
 
 const usersRouter = express.Router();
 
+usersRouter.get('/self', 
+  isAuth,
+  userController.user_self_get
+);
+
 usersRouter.post('/', userController.user_create);
 
 usersRouter.put('/:userId', 
