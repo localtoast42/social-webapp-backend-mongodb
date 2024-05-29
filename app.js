@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
 import passport from 'passport';
-import passportConfig from './config/passport';
+import passportConfig from './config/passport.js';
 
 import indexRouter from './routes/index.js';
 

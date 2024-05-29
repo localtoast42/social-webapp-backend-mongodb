@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
-import usersRouter from './users';
-import postsRouter from './posts';
+import usersRouter from './users.js';
+import postsRouter from './posts.js';
 
 const indexRouter = express.Router();
 

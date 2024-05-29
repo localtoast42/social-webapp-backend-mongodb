@@ -1,4 +1,4 @@
-import Post from '../models/post';
+import Post from '../models/post.js';
 import asyncHandler from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
 

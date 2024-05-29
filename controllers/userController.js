@@ -1,5 +1,5 @@
-import User from '../models/user';
-import Post from '../models/post';
+import User from '../models/user.js';
+import Post from '../models/post.js';
 import bcrypt from 'bcryptjs'
 import asyncHandler from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
