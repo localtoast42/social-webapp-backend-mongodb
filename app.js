@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import createError from 'http-errors';
 import express from 'express';
-import cors from cors;
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import mongoose from 'mongoose';
