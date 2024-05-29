@@ -14,7 +14,7 @@ function isPostAuthor(req, res, next) {
     .catch((err) => next(err));
 };
 
-exports.get_posts = asyncHandler(async (req, res, next) => {
+export const get_posts = asyncHandler(async (req, res, next) => {
   const followedPosts = await Post.find()
     .where("author").in(req.user.following)
     .sort("-postDate")
@@ -34,7 +34,7 @@ exports.get_posts = asyncHandler(async (req, res, next) => {
   res.status(200).json(followedPostsData);
 });
 
-exports.post_create = [
+export const post_create = [
   body("title")
     .trim()
     .isLength( { min: 1 })
@@ -65,7 +65,7 @@ exports.post_create = [
   }),
 ];
 
-exports.post_update = [
+export const post_update = [
   isPostAuthor,
 
   body("title")
@@ -97,7 +97,7 @@ exports.post_update = [
   }),
 ];
 
-exports.post_delete = [
+export const post_delete = [
   isPostAuthor,
 
   asyncHandler(async (req, res, next) => {    
@@ -107,7 +107,7 @@ exports.post_delete = [
   }),
 ]
 
-exports.post_modify_likes = asyncHandler(async (req, res, next) => {
+export const post_modify_likes = asyncHandler(async (req, res, next) => {
   const post = await Post.findOne({ _id: req.params.postId });
 
   if (post.likes.includes(req.user.id)) {

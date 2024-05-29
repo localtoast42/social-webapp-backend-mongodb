@@ -1,6 +1,6 @@
 import express from 'express';
 import commentsRouter from './comments.js';
-import postController from '../controllers/postController.js';
+import * as postController from '../controllers/postController.js';
 import { isAuth } from './auth.js';
 
 const postsRouter = express.Router();

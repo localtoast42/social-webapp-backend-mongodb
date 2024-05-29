@@ -16,7 +16,7 @@ function isUserCreator(req, res, next) {
     .catch((err) => next(err));
 };
 
-exports.user_create = [
+export const user_create = [
   body("username")
     .trim()
     .isLength( { min: 1 })
@@ -77,7 +77,7 @@ exports.user_create = [
   }),
 ];
 
-exports.user_update = [
+export const user_update = [
   isUserCreator,
 
   body("firstName")
@@ -112,7 +112,7 @@ exports.user_update = [
   }),
 ];
 
-exports.user_delete = [
+export const user_delete = [
   isUserCreator,
 
   asyncHandler(async (req, res, next) => {
@@ -121,7 +121,7 @@ exports.user_delete = [
   }),
 ];
 
-exports.get_posts_by_user = asyncHandler(async (req, res, next) => {
+export const get_posts_by_user = asyncHandler(async (req, res, next) => {
   const postsByUser = await Post.find({ author: req.user })
     .populate("author")
     .exec();
@@ -139,7 +139,7 @@ exports.get_posts_by_user = asyncHandler(async (req, res, next) => {
   res.status(200).json(postsByUserData);
 });
 
-exports.user_follow = [
+export const user_follow = [
   isUserCreator,
 
   asyncHandler(async (req, res, next) => {
@@ -158,7 +158,7 @@ exports.user_follow = [
   }),
 ];
 
-exports.user_unfollow = [
+export const user_unfollow = [
   isUserCreator,
 
   asyncHandler(async (req, res, next) => {

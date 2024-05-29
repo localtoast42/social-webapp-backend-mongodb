@@ -14,7 +14,7 @@ function isCommentAuthor(req, res, next) {
     .catch((err) => next(err));
 };
 
-exports.comment_create = [
+export const comment_create = [
   body("text")
     .trim()
     .isLength( { min: 1 })
@@ -40,7 +40,7 @@ exports.comment_create = [
   }),
 ];
 
-exports.comment_update = [
+export const comment_update = [
   isCommentAuthor,
 
   body("text")
@@ -66,7 +66,7 @@ exports.comment_update = [
   }),
 ];
 
-exports.comment_delete = [
+export const comment_delete = [
   isCommentAuthor,
 
   asyncHandler(async (req, res, next) => {   
@@ -75,7 +75,7 @@ exports.comment_delete = [
   }),
 ];
 
-exports.comment_modify_likes = asyncHandler(async (req, res, next) => {
+export const comment_modify_likes = asyncHandler(async (req, res, next) => {
   const comment = await Comment.findOne({ _id: req.params.commentId });
 
   if (comment.likes.includes(req.user.id)) {
