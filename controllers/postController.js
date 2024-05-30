@@ -51,11 +51,6 @@ export const post_get = asyncHandler(async (req, res, next) => {
 });
 
 export const post_create = [
-  body("title")
-    .trim()
-    .isLength( { min: 1 })
-    .escape()
-    .withMessage("Title must be provided."),
   body("text")
     .trim()
     .isLength( { min: 1 })
@@ -66,7 +61,6 @@ export const post_create = [
     const errors = validationResult(req);
 
     const post = new Post({
-      title: req.body.title,
       author: req.user.id,
       text: req.body.text,
       postDate: Date.now()
@@ -84,11 +78,6 @@ export const post_create = [
 export const post_update = [
   isPostAuthor,
 
-  body("title")
-    .trim()
-    .isLength( { min: 1 })
-    .escape()
-    .withMessage("Title must be provided."),
   body("text")
     .trim()
     .isLength( { min: 1 })
@@ -100,7 +89,6 @@ export const post_update = [
 
     const post = await Post.findOne({ _id: req.params.postId });
 
-    post.title = req.body.title;
     post.text = req.body.text;
     post.lastEditDate = Date.now();
 
