@@ -1,39 +1,39 @@
 import express from 'express';
+import passport from 'passport';
 import commentsRouter from './comments.js';
 import * as postController from '../controllers/postController.js';
-import { isAuth } from './auth.js';
 
 const postsRouter = express.Router();
 
 postsRouter.use('/:postId/comments', commentsRouter);
 
 postsRouter.get('/', 
-  isAuth, 
+  passport.authenticate('jwt', { session: false }),
   postController.get_posts
 );
 
 postsRouter.post('/', 
-  isAuth, 
+  passport.authenticate('jwt', { session: false }),
   postController.post_create
 );
 
 postsRouter.get('/:postId', 
-  isAuth, 
+  passport.authenticate('jwt', { session: false }),
   postController.post_get
 );
 
 postsRouter.put('/:postId', 
-  isAuth, 
+  passport.authenticate('jwt', { session: false }),
   postController.post_update
 );
 
 postsRouter.delete('/:postId', 
-  isAuth, 
+  passport.authenticate('jwt', { session: false }),
   postController.post_delete
 );
 
 postsRouter.post('/:postId/likes', 
-  isAuth, 
+  passport.authenticate('jwt', { session: false }), 
   postController.post_modify_likes
 );
 

@@ -1,26 +1,26 @@
 import express from 'express';
+import passport from 'passport';
 import * as commentController from '../controllers/commentController.js';
-import { isAuth } from './auth.js';
 
 const commentsRouter = express.Router({ mergeParams: true });
 
 commentsRouter.post('/', 
-  isAuth,
+  passport.authenticate('jwt', { session: false }),
   commentController.comment_create
 );
 
 commentsRouter.put('/:commentId', 
-  isAuth,
+  passport.authenticate('jwt', { session: false }), 
   commentController.comment_update
 );
 
 commentsRouter.delete('/:commentId', 
-  isAuth,
+  passport.authenticate('jwt', { session: false }),
   commentController.comment_delete
 );
 
 commentsRouter.post('/:postId/likes', 
-  isAuth, 
+  passport.authenticate('jwt', { session: false }),
   commentController.comment_modify_likes
 );
 

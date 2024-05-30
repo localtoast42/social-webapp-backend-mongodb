@@ -1,8 +1,6 @@
 import 'dotenv/config';
 import createError from 'http-errors';
 import express from 'express';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
@@ -24,7 +22,8 @@ mongoose.set("strictQuery", false);
 const mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB);
 
-const mongoClient = mongoose.connection.getClient();
+passportConfig(passport);
+app.use(passport.initialize());
 
 // view engine setup
 const viewsURL = new URL('views', import.meta.url);
@@ -38,18 +37,6 @@ app.use(cookieParser());
 
 const staticURL = new URL('public', import.meta.url);
 app.use(express.static(staticURL.toString()));
-
-app.use(session({
-  secret: process.env.APP_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  store: MongoStore.create({ client: mongoClient }),
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
-  }
-}));
-app.use(passport.session());
-passportConfig(passport);
 
 app.use('/api/v1', indexRouter);
 

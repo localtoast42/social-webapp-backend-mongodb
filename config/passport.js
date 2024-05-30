@@ -1,36 +1,28 @@
+import fs from 'fs';
 import User from '../models/user.js';
-import bcrypt from 'bcryptjs';
-import { Strategy as LocalStrategy } from 'passport-local';
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 
-const strategy = new LocalStrategy(async (username, password, done) => {
-  try {
-    const user = await User.findOne({ username: username });
-    if (!user) {
-      return done(null, false, { message: "Incorrect username" });
-    };
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return done(null, false, { message: "Incorrect password" });
-    };
-    return done(null, user);
-  } catch(err) {
-    return done(err);
-  };
+const pathToKey = new URL('../id_rsa_pub.pem', import.meta.url);
+const PUB_KEY = fs.readFileSync(pathToKey);
+
+const options = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: PUB_KEY,
+  algorithms: ['RS256'],
+};
+
+const strategy = new JwtStrategy(options, (payload, done) => {
+  User.findOne({ _id: payload.sub })
+    .then((user) => {
+      if (user) {
+        return done(null, user);
+      } else {
+        return done(null, false);
+      }
+    })
+    .catch(err => done(err, null));
 });
 
 export default (passport) => {
   passport.use(strategy);
-
-  passport.serializeUser((user, done) => {
-    done(null, user.id);
-  });
-
-  passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await User.findById(id);
-        done(null, user);
-    } catch(err) {
-        done(err);
-    };
-  });
 };

@@ -1,38 +1,40 @@
 import express from 'express';
+import passport from 'passport';
 import * as userController from '../controllers/userController.js';
-import { isAuth } from './auth.js';
 
 const usersRouter = express.Router();
 
+usersRouter.post('/', 
+  userController.user_create
+);
+
 usersRouter.get('/self', 
-  isAuth,
+  passport.authenticate('jwt', { session: false }),
   userController.user_self_get
 );
 
-usersRouter.post('/', userController.user_create);
-
 usersRouter.put('/:userId', 
-  isAuth,
+  passport.authenticate('jwt', { session: false }), 
   userController.user_update
 );
 
 usersRouter.delete('/:userId', 
-  isAuth,
+  passport.authenticate('jwt', { session: false }),
   userController.user_delete
 );
 
 usersRouter.get('/:userId/posts', 
-  isAuth,
+  passport.authenticate('jwt', { session: false }),
   userController.get_posts_by_user
 );
 
 usersRouter.post('/:userId/follow/:targetId', 
-  isAuth,
+  passport.authenticate('jwt', { session: false }),
   userController.user_follow
 );
 
 usersRouter.delete('/:userId/follow/:targetId', 
-  isAuth,
+  passport.authenticate('jwt', { session: false }),
   userController.user_unfollow
 );
 
