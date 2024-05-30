@@ -13,6 +13,7 @@ import indexRouter from './routes/index.js';
 const app = express();
 
 const corsOptions = {
+  credentials: true,
   origin: process.env.FRONTEND_URL
 };
 
