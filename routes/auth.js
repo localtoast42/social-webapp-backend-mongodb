@@ -1,4 +1,5 @@
 import User from '../models/user.js';
+import bcrypt from 'bcryptjs';
 import asyncHandler from 'express-async-handler';
 import { issueJWT } from '../lib/utils.js';
 
