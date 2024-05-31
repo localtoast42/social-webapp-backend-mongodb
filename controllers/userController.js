@@ -161,10 +161,12 @@ export const user_follow = [
 
     if (!user.following.includes(target._id)) {
       user.following.push(target._id);
+      await User.findByIdAndUpdate(req.params.userId, user, {});
     }
 
     if (!target.followers.includes(user._id)) {
       target.followers.push(user._id);
+      await User.findByIdAndUpdate(req.params.targetId, target, {});
     }
 
     res.status(200).end();
@@ -178,8 +180,11 @@ export const user_unfollow = [
     const user = await User.findOne({ _id: req.params.userId });
     const target = await User.findOne({ _id: req.params.targetId });
 
-    user.following = user.following.filter((userid) => userid != target._id);
-    target.followers = target.followers.filter((userid) => userid != user._id);
+    user.following = user.following.filter((userid) => userid.toString() !== target._id.toString());
+    target.followers = target.followers.filter((userid) => userid.toString() != user._id.toString());
+
+    await User.findByIdAndUpdate(req.params.userId, user, {});
+    await User.findByIdAndUpdate(req.params.targetId, target, {});
     
     res.status(200).end();
   }),
