@@ -136,6 +136,7 @@ export const user_delete = [
 export const get_posts_by_user = asyncHandler(async (req, res, next) => {
   const postsByUser = await Post.find({ author: req.user })
     .populate("author")
+    .sort("-postDate")
     .exec();
 
   const postsByUserData = postsByUser.map(post => {
