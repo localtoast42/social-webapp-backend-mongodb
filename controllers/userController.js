@@ -75,7 +75,7 @@ export const user_create = [
     });
 
     if (!errors.isEmpty()) {
-      res.send(errors.array());
+      res.send(errors.mapped());
     } else {
       bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
         if (err) {
