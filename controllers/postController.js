@@ -25,6 +25,7 @@ export const get_posts = asyncHandler(async (req, res, next) => {
     return {
       id: post.id,
       text: post.text,
+      dateTime: post.postDate,
       date: post.postDateFormatted,
       lastEditDate: post.lastEditDateFormatted,
       author: post.author.fullName
