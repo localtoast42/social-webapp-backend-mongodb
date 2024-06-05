@@ -157,7 +157,7 @@ export const user_delete = [
 ];
 
 export const get_posts_by_user = asyncHandler(async (req, res, next) => {
-  const postsByUser = await Post.find({ author: req.user })
+  const postsByUser = await Post.find({ author: req.params.userId })
     .populate("author")
     .sort("-postDate")
     .exec();
@@ -168,7 +168,12 @@ export const get_posts_by_user = asyncHandler(async (req, res, next) => {
       text: post.text,
       date: post.postDateFormatted,
       lastEditDate: post.lastEditDateFormatted,
-      author: post.author.fullName
+      author: {
+        id: post.author.id,
+        username: post.author.username,
+        fullName: post.author.fullName,
+        url: post.author.url
+      }
     }
   })
 
