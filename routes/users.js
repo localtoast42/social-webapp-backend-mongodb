@@ -42,12 +42,12 @@ usersRouter.get('/:userId/following',
   userController.user_following_get
 );
 
-usersRouter.post('/:userId/follow/:targetId', 
+usersRouter.post('/:userId/follow', 
   passport.authenticate('jwt', { session: false }),
   userController.user_follow
 );
 
-usersRouter.delete('/:userId/follow/:targetId', 
+usersRouter.delete('/:userId/follow', 
   passport.authenticate('jwt', { session: false }),
   userController.user_unfollow
 );
