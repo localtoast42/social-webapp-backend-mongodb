@@ -35,6 +35,21 @@ export const user_list_get = asyncHandler(async (req, res, next) => {
   res.status(200).json(allUsersData);
 });
 
+export const user_get = asyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ _id: req.params.userId });
+
+  const userData = {
+    id: user.id,
+    username: user.username,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    fullName: user.fullName,
+    url: user.url,
+  }
+
+  res.status(200).json(userData);
+});
+
 export const user_self_get = asyncHandler(async (req, res, next) => {
   const user = {
     id: req.user.id,

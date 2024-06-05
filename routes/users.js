@@ -22,6 +22,11 @@ usersRouter.get('/following',
   userController.self_following_get
 );
 
+usersRouter.get('/:userId', 
+  passport.authenticate('jwt', { session: false }), 
+  userController.user_get
+);
+
 usersRouter.put('/:userId', 
   passport.authenticate('jwt', { session: false }), 
   userController.user_update
