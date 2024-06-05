@@ -180,40 +180,32 @@ export const user_following_get = asyncHandler(async (req, res, next) => {
   res.status(200).json(following);
 });
 
-export const user_follow = [
-  isUserCreator,
+export const user_follow = asyncHandler(async (req, res, next) => {
+  const user = req.user;
+  const target = await User.findOne({ _id: req.params.userId });
 
-  asyncHandler(async (req, res, next) => {
-    const user = await User.findOne({ _id: req.params.userId });
-    const target = await User.findOne({ _id: req.params.targetId });
+  if (!user.following.includes(target._id)) {
+    user.following.push(target._id);
+    await User.findByIdAndUpdate(user.id, user, {});
+  }
 
-    if (!user.following.includes(target._id)) {
-      user.following.push(target._id);
-      await User.findByIdAndUpdate(req.params.userId, user, {});
-    }
+  if (!target.followers.includes(user.id)) {
+    target.followers.push(user.id);
+    await User.findByIdAndUpdate(req.params.targetId, target, {});
+  }
 
-    if (!target.followers.includes(user._id)) {
-      target.followers.push(user._id);
-      await User.findByIdAndUpdate(req.params.targetId, target, {});
-    }
+  res.status(200).end();
+});
 
-    res.status(200).end();
-  }),
-];
-
-export const user_unfollow = [
-  isUserCreator,
-
-  asyncHandler(async (req, res, next) => {
-    const user = await User.findOne({ _id: req.params.userId });
-    const target = await User.findOne({ _id: req.params.targetId });
+export const user_unfollow = asyncHandler(async (req, res, next) => {
+    const user = req.user;
+    const target = await User.findOne({ _id: req.params.userId });
 
     user.following = user.following.filter((userid) => userid.toString() !== target._id.toString());
-    target.followers = target.followers.filter((userid) => userid.toString() != user._id.toString());
+    target.followers = target.followers.filter((userid) => userid.toString() != user.id.toString());
 
-    await User.findByIdAndUpdate(req.params.userId, user, {});
+    await User.findByIdAndUpdate(user.id, user, {});
     await User.findByIdAndUpdate(req.params.targetId, target, {});
     
     res.status(200).end();
-  }),
-];
+});
