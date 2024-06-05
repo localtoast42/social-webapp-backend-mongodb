@@ -4,7 +4,8 @@ import * as userController from '../controllers/userController.js';
 
 const usersRouter = express.Router();
 
-usersRouter.get('/', 
+usersRouter.get('/',
+  passport.authenticate('jwt', { session: false }), 
   userController.user_list_get
 );
 
