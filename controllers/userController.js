@@ -18,6 +18,7 @@ function isUserCreator(req, res, next) {
 
 export const user_list_get = asyncHandler(async (req, res, next) => {
   const allUsers = await User.find()
+    .where("_id").ne(req.user.id)
     .sort("lastName")
     .exec();
 
