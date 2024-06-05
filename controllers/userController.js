@@ -18,7 +18,7 @@ function isUserCreator(req, res, next) {
 
 export const user_list_get = asyncHandler(async (req, res, next) => {
   const allUsers = await User.find()
-    .sort("-lastName")
+    .sort("lastName")
     .exec();
 
   const allUsersData = allUsers.map(user => {
