@@ -4,6 +4,10 @@ import * as userController from '../controllers/userController.js';
 
 const usersRouter = express.Router();
 
+usersRouter.get('/', 
+  userController.user_list_get
+);
+
 usersRouter.post('/', 
   userController.user_create
 );

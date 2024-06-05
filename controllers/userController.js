@@ -16,6 +16,25 @@ function isUserCreator(req, res, next) {
     .catch((err) => next(err));
 };
 
+export const user_list_get = asyncHandler(async (req, res, next) => {
+  const allUsers = await User.find()
+    .sort("-lastName")
+    .exec();
+
+  const allUsersData = allUsers.map(user => {
+    return {
+      id: user.id,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      fullName: user.fullName,
+      url: user.url,
+    }
+  })
+
+  res.status(200).json(allUsersData);
+});
+
 export const user_self_get = asyncHandler(async (req, res, next) => {
   const user = {
     id: req.user.id,
