@@ -47,6 +47,10 @@ export const user_self_get = asyncHandler(async (req, res, next) => {
   res.json(user);
 });
 
+export const self_following_get = asyncHandler(async (req, res, next) => {
+  res.status(200).json(req.user.following);
+});
+
 export const user_create = [
   body("username")
     .trim()
@@ -169,6 +173,11 @@ export const get_posts_by_user = asyncHandler(async (req, res, next) => {
   })
 
   res.status(200).json(postsByUserData);
+});
+
+export const user_following_get = asyncHandler(async (req, res, next) => {
+  const following = await User.findOne({ _id: req.params.userId }, "following");
+  res.status(200).json(following);
 });
 
 export const user_follow = [

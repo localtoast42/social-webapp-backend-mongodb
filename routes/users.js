@@ -17,6 +17,11 @@ usersRouter.get('/self',
   userController.user_self_get
 );
 
+usersRouter.get('/following', 
+  passport.authenticate('jwt', { session: false }),
+  userController.self_following_get
+);
+
 usersRouter.put('/:userId', 
   passport.authenticate('jwt', { session: false }), 
   userController.user_update
@@ -30,6 +35,11 @@ usersRouter.delete('/:userId',
 usersRouter.get('/:userId/posts', 
   passport.authenticate('jwt', { session: false }),
   userController.get_posts_by_user
+);
+
+usersRouter.get('/:userId/following', 
+  passport.authenticate('jwt', { session: false }),
+  userController.user_following_get
 );
 
 usersRouter.post('/:userId/follow/:targetId', 
