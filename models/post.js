@@ -8,7 +8,8 @@ const PostSchema = new Schema({
   text: { type: String, minLength: 1, required: true },
   postDate: { type: Date, required: true },
   lastEditDate: { type: Date },
-  likes: [{ type: Schema.Types.ObjectId, ref: "User" }]
+  likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }]
 });
 
 PostSchema.virtual("url").get(function () {
