@@ -32,7 +32,7 @@ postsRouter.delete('/:postId',
   postController.post_delete
 );
 
-postsRouter.post('/:postId/likes', 
+postsRouter.post('/:postId/like', 
   passport.authenticate('jwt', { session: false }), 
   postController.post_modify_likes
 );
