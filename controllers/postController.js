@@ -121,10 +121,10 @@ export const post_delete = [
 export const post_modify_likes = asyncHandler(async (req, res, next) => {
   const post = await Post.findOne({ _id: req.params.postId });
 
-  if (post.likes.includes(req.user.id)) {
-    post.likes = post.likes.filter((userid) => userid != req.user.id);
-  } else {
+  if (req.body.like && !post.likes.includes(req.user.id)) {
     post.likes.push(req.user.id);
+  } else {
+    post.likes = post.likes.filter((userid) => userid != req.user.id);
   }
 
   const updatedPost = await post.save();
