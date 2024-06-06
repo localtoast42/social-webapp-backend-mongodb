@@ -33,7 +33,8 @@ export const get_posts = asyncHandler(async (req, res, next) => {
         username: post.author.username,
         fullName: post.author.fullName,
         url: post.author.url
-      }
+      },
+      isLiked: post.likes.includes(req.user.id)
     }
   })
 
