@@ -35,7 +35,8 @@ export const get_posts = asyncHandler(async (req, res, next) => {
         url: post.author.url
       },
       numLikes: post.likes.length,
-      isLiked: post.likes.includes(req.user.id)
+      isLiked: post.likes.includes(req.user.id),
+      numComments: post.comments.length
     }
   })
 
