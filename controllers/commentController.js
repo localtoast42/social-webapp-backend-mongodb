@@ -38,7 +38,7 @@ export const comment_create = [
       res.status(400).json(errors);
     } else {
       const newComment = await comment.save();
-      
+
       post.comments.push(newComment._id);
       await Post.findByIdAndUpdate(post._id, post, {});
 
@@ -85,10 +85,10 @@ export const comment_delete = [
 export const comment_modify_likes = asyncHandler(async (req, res, next) => {
   const comment = await Comment.findOne({ _id: req.params.commentId });
 
-  if (comment.likes.includes(req.user.id)) {
-    comment.likes = comment.likes.filter((userid) => userid != req.user.id);
-  } else {
+  if (req.body.like && !comment.likes.includes(req.user.id)) {
     comment.likes.push(req.user.id);
+  } else {
+    comment.likes = comment.likes.filter((userid) => userid != req.user.id);
   }
 
   const updatedComment = await comment.save();
