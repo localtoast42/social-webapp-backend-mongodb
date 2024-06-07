@@ -65,7 +65,8 @@ export const post_get = asyncHandler(async (req, res, next) => {
         fullName: comment.author.fullName,
         url: comment.author.url
       },
-      likes: comment.likes
+      numLikes: comment.likes.length,
+      isLiked: comment.likes.includes(req.user.id),
     }
   })
 
