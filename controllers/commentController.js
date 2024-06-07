@@ -1,3 +1,4 @@
+import Post from '../models/post.js';
 import Comment from '../models/comment.js';
 import asyncHandler from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
@@ -24,6 +25,8 @@ export const comment_create = [
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
+    const post = await Post.findOne({ _id: req.params.postId });
+
     const comment = new Comment({
       author: req.user.id,
       text: req.body.text,
@@ -35,6 +38,10 @@ export const comment_create = [
       res.status(400).json(errors);
     } else {
       const newComment = await comment.save();
+      
+      post.comments.push(newComment._id);
+      await Post.findByIdAndUpdate(post._id, post, {});
+
       res.status(201).json(newComment);
     };
   }),
