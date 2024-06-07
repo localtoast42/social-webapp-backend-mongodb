@@ -47,8 +47,26 @@ export const get_posts = asyncHandler(async (req, res, next) => {
 export const post_get = asyncHandler(async (req, res, next) => {
   const post = await Post.findById(req.params.postId)
     .populate("author")
-    .populate("comments")
+    .populate({
+      path: "comments",
+      populate: { path: "author" }
+    })
     .exec();
+
+  const comments = post.comments.map(comment => {
+    return {
+      id: comment.id,
+      post: comment.post,
+      text: comment.text,
+      author: {
+        id: comment.author.id,
+        username: comment.author.username,
+        fullName: comment.author.fullName,
+        url: comment.author.url
+      },
+      likes: comment.likes
+    }
+  })
 
   const postData = {
     id: post.id,
@@ -61,7 +79,7 @@ export const post_get = asyncHandler(async (req, res, next) => {
       fullName: post.author.fullName,
       url: post.author.url
     },
-    comments: post.comments,
+    comments: comments,
     numLikes: post.likes.length,
     isLiked: post.likes.includes(req.user.id),
     numComments: post.comments.length
