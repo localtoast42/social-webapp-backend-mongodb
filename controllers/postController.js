@@ -49,6 +49,7 @@ export const post_get = asyncHandler(async (req, res, next) => {
     .populate("author")
     .populate({
       path: "comments",
+      options: { sort: { postDate: 1 }},
       populate: { path: "author" }
     })
     .exec();
