@@ -58,6 +58,7 @@ export const post_get = asyncHandler(async (req, res, next) => {
       id: comment.id,
       post: comment.post,
       text: comment.text,
+      date: comment.postDateFormatted,
       author: {
         id: comment.author.id,
         username: comment.author.username,
