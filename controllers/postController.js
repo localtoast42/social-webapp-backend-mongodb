@@ -16,7 +16,7 @@ function isPostAuthor(req, res, next) {
 
 export const get_posts = asyncHandler(async (req, res, next) => {
   const followedPosts = await Post.find()
-    .where("author").in(req.user.following)
+    .where("author").in([req.user.id, ...req.user.following])
     .sort("-postDate")
     .populate("author")
     .exec();
