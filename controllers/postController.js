@@ -24,6 +24,7 @@ export const get_posts = asyncHandler(async (req, res, next) => {
   const followedPostsData = followedPosts.map(post => {
     return {
       id: post.id,
+      url: post.url,
       text: post.text,
       dateTime: post.postDate,
       date: post.postDateFormatted,
@@ -46,6 +47,7 @@ export const get_posts = asyncHandler(async (req, res, next) => {
 export const post_get = asyncHandler(async (req, res, next) => {
   const post = await Post.findById(req.params.postId)
     .populate("author")
+    .populate("comments")
     .exec();
 
   const postData = {
@@ -53,7 +55,16 @@ export const post_get = asyncHandler(async (req, res, next) => {
     text: post.text,
     date: post.postDateFormatted,
     lastEditDate: post.lastEditDateFormatted,
-    author: post.author.fullName
+    author: {
+      id: post.author.id,
+      username: post.author.username,
+      fullName: post.author.fullName,
+      url: post.author.url
+    },
+    comments: post.comments,
+    numLikes: post.likes.length,
+    isLiked: post.likes.includes(req.user.id),
+    numComments: post.comments.length
   }
 
   res.status(200).json(postData);
