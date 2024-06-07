@@ -19,7 +19,7 @@ commentsRouter.delete('/:commentId',
   commentController.comment_delete
 );
 
-commentsRouter.post('/:postId/likes', 
+commentsRouter.post('/:commentId/like', 
   passport.authenticate('jwt', { session: false }),
   commentController.comment_modify_likes
 );
