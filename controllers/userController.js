@@ -181,7 +181,9 @@ export const get_posts_by_user = asyncHandler(async (req, res, next) => {
   const postsByUserData = postsByUser.map(post => {
     return {
       id: post.id,
+      url: post.url,
       text: post.text,
+      dateTime: post.postDate,
       date: post.postDateFormatted,
       lastEditDate: post.lastEditDateFormatted,
       author: {
@@ -189,7 +191,10 @@ export const get_posts_by_user = asyncHandler(async (req, res, next) => {
         username: post.author.username,
         fullName: post.author.fullName,
         url: post.author.url
-      }
+      },
+      numLikes: post.likes.length,
+      isLiked: post.likes.includes(req.user.id),
+      numComments: post.comments.length
     }
   })
 
