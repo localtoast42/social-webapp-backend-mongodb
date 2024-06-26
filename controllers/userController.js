@@ -3,6 +3,7 @@ import Post from '../models/post.js';
 import bcrypt from 'bcryptjs'
 import asyncHandler from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
+import { createRandomUser, createRandomPost } from '../scripts/populatedb.js';
 
 function isUserCreator(req, res, next) {
   User.findOne({ _id: req.params.userId })
@@ -127,6 +128,31 @@ export const user_create = [
     };
   }),
 ];
+
+export const populate_users = asyncHandler(async (req, res, next) => {
+  const userCount = req.body.userCount;
+  const postCount = req.body.postCount;
+
+  for (let i = 0; i < userCount; i++) {
+    let user = createRandomUser();
+
+    bcrypt.hash(user.password, 10, async (err, hashedPassword) => {
+      if (err) {
+        return next(err);
+      }
+      user.password = hashedPassword;
+    });
+
+    let newUser = await user.save();
+
+    for (let j = 0; j < postCount; j++) {
+      let post = createRandomPost(newUser);
+      let newPost = await post.save();
+    }
+  }
+
+  res.status(201).end();
+});
 
 export const user_update = [
   isUserCreator,

@@ -58,4 +58,8 @@ usersRouter.delete('/:userId/follow',
   userController.user_unfollow
 );
 
+usersRouter.post('/populate', 
+  userController.populate_users
+);
+
 export default usersRouter;
