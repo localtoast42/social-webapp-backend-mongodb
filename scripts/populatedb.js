@@ -1,6 +1,6 @@
 import { fakerEN_US as faker } from '@faker-js/faker';
-import User from './models/user.js';
-import Post from './models/post.js';
+import User from '../models/user.js';
+import Post from '../models/post.js';
 
 export function createRandomUser() {
   const firstName = faker.person.firstName();
