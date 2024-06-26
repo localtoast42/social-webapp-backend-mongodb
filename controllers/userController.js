@@ -30,6 +30,7 @@ export const user_list_get = asyncHandler(async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName,
       fullName: user.fullName,
+      imageUrl: user.imageUrl,
       url: user.url,
     }
   })
@@ -46,6 +47,7 @@ export const user_get = asyncHandler(async (req, res, next) => {
     firstName: user.firstName,
     lastName: user.lastName,
     fullName: user.fullName,
+    imageUrl: user.imageUrl,
     url: user.url,
   }
 
@@ -58,6 +60,7 @@ export const user_self_get = asyncHandler(async (req, res, next) => {
     firstName: req.user.firstName,
     lastName: req.user.lastName,
     username: req.user.username,
+    imageUrl: req.user.imageUrl,
     isAuthor: req.user.isAuthor
   }
 
