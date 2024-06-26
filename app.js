@@ -3,6 +3,7 @@ import createError from 'http-errors';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
 import logger from 'morgan';
 import mongoose from 'mongoose';
 import passport from 'passport';
@@ -11,6 +12,8 @@ import passportConfig from './config/passport.js';
 import indexRouter from './routes/index.js';
 
 const app = express();
+
+app.use(compression());
 
 const corsOptions = {
   credentials: true,
