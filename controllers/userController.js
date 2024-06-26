@@ -144,14 +144,14 @@ export const populate_users = asyncHandler(async (req, res, next) => {
         return next(err);
       }
       user.password = hashedPassword;
+
+      let newUser = await user.save();
+
+      for (let j = 0; j < postCount; j++) {
+        let post = createRandomPost(newUser);
+        let newPost = await post.save();
+      }
     });
-
-    let newUser = await user.save();
-
-    for (let j = 0; j < postCount; j++) {
-      let post = createRandomPost(newUser);
-      let newPost = await post.save();
-    }
   }
 
   res.status(201).end();
