@@ -33,6 +33,7 @@ export const get_posts = asyncHandler(async (req, res, next) => {
         id: post.author.id,
         username: post.author.username,
         fullName: post.author.fullName,
+        imageUrl: post.author.imageUrl,
         url: post.author.url
       },
       numLikes: post.likes.length,
@@ -64,6 +65,7 @@ export const post_get = asyncHandler(async (req, res, next) => {
         id: comment.author.id,
         username: comment.author.username,
         fullName: comment.author.fullName,
+        imageUrl: comment.author.imageUrl,
         url: comment.author.url
       },
       numLikes: comment.likes.length,
@@ -80,6 +82,7 @@ export const post_get = asyncHandler(async (req, res, next) => {
       id: post.author.id,
       username: post.author.username,
       fullName: post.author.fullName,
+      imageUrl: post.author.imageUrl,
       url: post.author.url
     },
     comments: comments,

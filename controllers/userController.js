@@ -219,6 +219,7 @@ export const get_posts_by_user = asyncHandler(async (req, res, next) => {
         id: post.author.id,
         username: post.author.username,
         fullName: post.author.fullName,
+        imageUrl: post.author.imageUrl,
         url: post.author.url
       },
       numLikes: post.likes.length,
