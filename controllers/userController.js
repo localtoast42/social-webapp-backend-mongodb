@@ -49,6 +49,7 @@ export const user_get = asyncHandler(async (req, res, next) => {
     fullName: user.fullName,
     imageUrl: user.imageUrl,
     url: user.url,
+    followedByMe: req.user.following.includes(user.id),
   }
 
   res.status(200).json(userData);
@@ -59,9 +60,11 @@ export const user_self_get = asyncHandler(async (req, res, next) => {
     id: req.user.id,
     firstName: req.user.firstName,
     lastName: req.user.lastName,
+    fullName: req.user.fullName,
     username: req.user.username,
     imageUrl: req.user.imageUrl,
-    isAuthor: req.user.isAuthor
+    isAdmin: req.user.isAdmin,
+    url: req.user.url,
   }
 
   res.json(user);
