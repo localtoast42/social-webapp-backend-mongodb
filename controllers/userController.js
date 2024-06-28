@@ -67,6 +67,7 @@ export const user_self_get = asyncHandler(async (req, res, next) => {
     imageUrl: req.user.imageUrl,
     isAdmin: req.user.isAdmin,
     url: req.user.url,
+    hasFollows: req.user.following.length !== 0,
   }
 
   res.json(user);
