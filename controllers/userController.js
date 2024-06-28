@@ -2,6 +2,7 @@ import User from '../models/user.js';
 import Post from '../models/post.js';
 import bcrypt from 'bcryptjs'
 import asyncHandler from 'express-async-handler';
+import { faker } from '@faker-js/faker';
 import { body, validationResult } from 'express-validator';
 import { createRandomUser, createRandomPost } from '../scripts/populatedb.js';
 
@@ -134,6 +135,28 @@ export const user_create = [
     };
   }),
 ];
+
+export const guest_create = asyncHandler(async (req, res, next) => {
+  const guestNum = faker.string.alphanumeric(8);
+
+  const user = new User({
+    username: `Guest_#${guestNum}`,
+    firstName: "Guest",
+    lastName: `#${guestNum}`,
+  });
+
+  bcrypt.hash("guest", 10, async (err, hashedPassword) => {
+    if (err) {
+      return next(err);
+    }
+    user.password = hashedPassword;
+    const result = await user.save();
+
+    req.body.username = result.username;
+    req.body.password = "guest";
+    next();
+  });
+});
 
 export const populate_users = asyncHandler(async (req, res, next) => {
   const userCount = req.body.userCount;
