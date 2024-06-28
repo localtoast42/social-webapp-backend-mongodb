@@ -12,6 +12,7 @@ const UserSchema = new Schema({
   state: { type: String, maxLength: 200 },
   country: { type: String, maxLength: 200 },
   isAdmin: { type: Boolean, required: true, default: false },
+  isGuest: { type: Boolean, required: true, default: false },
   followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: Schema.Types.ObjectId, ref: "User" }],
 });

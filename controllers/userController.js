@@ -143,6 +143,7 @@ export const guest_create = asyncHandler(async (req, res, next) => {
     username: `Guest_#${guestNum}`,
     firstName: "Guest",
     lastName: `#${guestNum}`,
+    isGuest: true,
   });
 
   bcrypt.hash("guest", 10, async (err, hashedPassword) => {
