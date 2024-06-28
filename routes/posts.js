@@ -17,6 +17,11 @@ postsRouter.post('/',
   postController.post_create
 );
 
+postsRouter.get('/following', 
+  passport.authenticate('jwt', { session: false }),
+  postController.get_followed_posts
+);
+
 postsRouter.get('/:postId', 
   passport.authenticate('jwt', { session: false }),
   postController.post_get

@@ -15,6 +15,37 @@ function isPostAuthor(req, res, next) {
 };
 
 export const get_posts = asyncHandler(async (req, res, next) => {
+  const posts = await Post.find()
+    .sort("-postDate")
+    .populate("author")
+    .limit(req.query.limit)
+    .exec();
+
+  const postsData = posts.map(post => {
+    return {
+      id: post.id,
+      url: post.url,
+      text: post.text,
+      dateTime: post.postDate,
+      date: post.postDateFormatted,
+      lastEditDate: post.lastEditDateFormatted,
+      author: {
+        id: post.author.id,
+        username: post.author.username,
+        fullName: post.author.fullName,
+        imageUrl: post.author.imageUrl,
+        url: post.author.url
+      },
+      numLikes: post.likes.length,
+      isLiked: post.likes.includes(req.user.id),
+      numComments: post.comments.length
+    }
+  })
+
+  res.status(200).json(postsData);
+});
+
+export const get_followed_posts = asyncHandler(async (req, res, next) => {
   const followedPosts = await Post.find()
     .where("author").in([req.user.id, ...req.user.following])
     .sort("-postDate")
