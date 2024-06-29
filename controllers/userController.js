@@ -73,7 +73,7 @@ export const user_self_get = asyncHandler(async (req, res, next) => {
     hasFollows: req.user.following.length !== 0,
   }
 
-  res.json(user);
+  res.status(200).json(user);
 });
 
 export const self_following_get = asyncHandler(async (req, res, next) => {
