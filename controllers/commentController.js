@@ -25,24 +25,30 @@ export const comment_create = [
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
-    const post = await Post.findOne({ _id: req.params.postId });
-
-    const comment = new Comment({
-      author: req.user.id,
-      text: req.body.text,
-      post: req.params.postId,
-      postDate: Date.now(),
-    });
-
     if (!errors.isEmpty()) {
       res.status(400).json(errors);
     } else {
-      const newComment = await comment.save();
+      Post.findOne({ _id: req.params.postId })
+        .then((post) => {
+          const comment = new Comment({
+            author: req.user.id,
+            text: req.body.text,
+            post: req.params.postId,
+            postDate: Date.now(),
+          });
 
-      post.comments.push(newComment._id);
-      await Post.findByIdAndUpdate(post._id, post, {});
+          const promise = comment.save()
+            .then((newComment) => {
+              post.comments.push(newComment._id);
+              return Post.findByIdAndUpdate(post._id, post, {});
+            });
 
-      res.status(201).json(newComment);
+          return promise;
+        })
+        .then((response) => {
+          return res.status(201).end();
+        })
+        .catch((err) => next(err));
     };
   }),
 ];
@@ -59,16 +65,20 @@ export const comment_update = [
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
-    const comment = await Comment.findOne({ _id: req.params.commentId });
-
-    comment.text = req.body.text;
-    comment.lastEditDate = Date.now();
-
     if (!errors.isEmpty()) {
       res.status(400).json(errors);
     } else {
-      const updatedComment = await Comment.findByIdAndUpdate(comment._id, comment, {});
-      res.status(200).end();
+      Comment.findOne({ _id: req.params.commentId })
+        .then((comment) => {
+          comment.text = req.body.text;
+          comment.lastEditDate = Date.now();
+
+          return Comment.findByIdAndUpdate(comment._id, comment, {});
+        })
+        .then((response) => {
+          return res.status(200).end();
+        })
+        .catch((err) => next(err));
     }
   }),
 ];
@@ -77,20 +87,27 @@ export const comment_delete = [
   isCommentAuthor,
 
   asyncHandler(async (req, res, next) => {   
-    await Comment.findByIdAndDelete(req.params.commentId);
-    res.status(200).end();
+    Comment.findByIdAndDelete(req.params.commentId)
+      .then((response) => {
+        return res.status(200).end();
+      })
+      .catch((err) => next(err));
   }),
 ];
 
 export const comment_modify_likes = asyncHandler(async (req, res, next) => {
-  const comment = await Comment.findOne({ _id: req.params.commentId });
+  Comment.findOne({ _id: req.params.commentId })
+    .then((comment) => {
+      if (req.body.like && !comment.likes.includes(req.user.id)) {
+        comment.likes.push(req.user.id);
+      } else {
+        comment.likes = comment.likes.filter((userid) => userid != req.user.id);
+      }
 
-  if (req.body.like && !comment.likes.includes(req.user.id)) {
-    comment.likes.push(req.user.id);
-  } else {
-    comment.likes = comment.likes.filter((userid) => userid != req.user.id);
-  }
-
-  const updatedComment = await comment.save();
-  res.status(200).json(updatedComment);
+      return comment.save();
+    })
+    .then((updatedComment) => {
+      return res.status(200).json(updatedComment);
+    })
+    .catch((err) => next(err));
 });
