@@ -19,42 +19,45 @@ function isUserCreator(req, res, next) {
 };
 
 export const user_list_get = asyncHandler(async (req, res, next) => {
-  const allUsers = await User.find()
+  User.find()
     .where("_id").ne(req.user.id)
     .where("isGuest").ne(true)
     .sort("lastName")
-    .exec();
-
-  const allUsersData = allUsers.map(user => {
-    return {
-      id: user.id,
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      fullName: user.fullName,
-      imageUrl: user.imageUrl,
-      url: user.url,
-    }
-  })
-
-  res.status(200).json(allUsersData);
+    .exec()
+    .then((allUsers) => {
+      const allUsersData = allUsers.map(user => {
+        return {
+          id: user.id,
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          fullName: user.fullName,
+          imageUrl: user.imageUrl,
+          url: user.url,
+        }
+      })
+      return res.status(200).json(allUsersData);
+    })
+    .catch((err) => next(err));
 });
 
 export const user_get = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ _id: req.params.userId });
+  User.findOne({ _id: req.params.userId })
+    .then((user) => {
+      const userData = {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        fullName: user.fullName,
+        imageUrl: user.imageUrl,
+        url: user.url,
+        followedByMe: req.user.following.includes(user.id),
+      }
 
-  const userData = {
-    id: user.id,
-    username: user.username,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    fullName: user.fullName,
-    imageUrl: user.imageUrl,
-    url: user.url,
-    followedByMe: req.user.following.includes(user.id),
-  }
-
-  res.status(200).json(userData);
+      return res.status(200).json(userData);
+    })
+    .catch((err) => next(err));
 });
 
 export const user_self_get = asyncHandler(async (req, res, next) => {
@@ -131,8 +134,12 @@ export const user_create = [
           return next(err);
         }
         user.password = hashedPassword;
-        const result = await user.save();
-        res.status(201).end();
+        
+        user.save()
+          .then((result) => {
+            return res.status(201).end();
+          })
+          .catch((err) => next(err));
       });
     };
   }),
@@ -153,11 +160,14 @@ export const guest_create = asyncHandler(async (req, res, next) => {
       return next(err);
     }
     user.password = hashedPassword;
-    const result = await user.save();
 
-    req.body.username = result.username;
-    req.body.password = "guest";
-    next();
+    user.save()
+      .then((result) => {
+        req.body.username = result.username;
+        req.body.password = "guest";
+        next();
+      })
+      .catch((err) => next(err));
   });
 });
 
@@ -215,8 +225,11 @@ export const user_update = [
     if (!errors.isEmpty()) {
       res.send(errors.array());
     } else {
-      const updatedUser = await User.findByIdAndUpdate(req.params.userId, user, {});
-      res.status(200).end();
+      User.findByIdAndUpdate(req.params.userId, user, {})
+        .then((updatedUser) => {
+          return res.status(200).end();
+        })
+        .catch((err) => next(err));
     }
   }),
 ];
@@ -225,72 +238,94 @@ export const user_delete = [
   isUserCreator,
 
   asyncHandler(async (req, res, next) => {
-    await User.findByIdAndDelete(req.params.userId);
-    res.status(200).end();
+    User.findByIdAndDelete(req.params.userId)
+      .then((result) => {
+        return res.status(200).end();
+      })
+      .catch((err) => next(err));
   }),
 ];
 
 export const get_posts_by_user = asyncHandler(async (req, res, next) => {
-  const postsByUser = await Post.find({ author: req.params.userId })
+  Post.find({ author: req.params.userId })
     .populate("author")
     .sort("-postDate")
-    .exec();
-
-  const postsByUserData = postsByUser.map(post => {
-    return {
-      id: post.id,
-      url: post.url,
-      text: post.text,
-      dateTime: post.postDate,
-      date: post.postDateFormatted,
-      lastEditDate: post.lastEditDateFormatted,
-      author: {
-        id: post.author.id,
-        username: post.author.username,
-        fullName: post.author.fullName,
-        imageUrl: post.author.imageUrl,
-        url: post.author.url
-      },
-      numLikes: post.likes.length,
-      isLiked: post.likes.includes(req.user.id),
-      numComments: post.comments.length
-    }
-  })
-
-  res.status(200).json(postsByUserData);
+    .exec()
+    .then((postsByUser) => {
+      const postsByUserData = postsByUser.map(post => {
+        return {
+          id: post.id,
+          url: post.url,
+          text: post.text,
+          dateTime: post.postDate,
+          date: post.postDateFormatted,
+          lastEditDate: post.lastEditDateFormatted,
+          author: {
+            id: post.author.id,
+            username: post.author.username,
+            fullName: post.author.fullName,
+            imageUrl: post.author.imageUrl,
+            url: post.author.url
+          },
+          numLikes: post.likes.length,
+          isLiked: post.likes.includes(req.user.id),
+          numComments: post.comments.length
+        }
+      });
+      return res.status(200).json(postsByUserData);
+    })
+    .catch((err) => next(err));
 });
 
 export const user_following_get = asyncHandler(async (req, res, next) => {
-  const following = await User.findOne({ _id: req.params.userId }, "following");
-  res.status(200).json(following);
+  User.findOne({ _id: req.params.userId }, "following")
+    .then((following) => {
+      return res.status(200).json(following);
+    })
+    .catch((err) => next(err));
 });
 
 export const user_follow = asyncHandler(async (req, res, next) => {
   const user = req.user;
-  const target = await User.findOne({ _id: req.params.userId });
+  
+  User.findOne({ _id: req.params.userId })
+    .then((target) => {
+      const promises = [];
 
-  if (!user.following.includes(target._id)) {
-    user.following.push(target._id);
-    await User.findByIdAndUpdate(user.id, user, {});
-  }
+      if (!user.following.includes(target._id)) {
+        user.following.push(target._id);
+        promises.push(User.findByIdAndUpdate(user.id, user, {}));
+      }
+    
+      if (!target.followers.includes(user.id)) {
+        target.followers.push(user.id);
+        promises.push(User.findByIdAndUpdate(req.params.targetId, target, {}));
+      }
 
-  if (!target.followers.includes(user.id)) {
-    target.followers.push(user.id);
-    await User.findByIdAndUpdate(req.params.targetId, target, {});
-  }
-
-  res.status(200).end();
+      return Promise.all(promises);
+    })
+    .then((responses) => {
+      return res.status(200).end();
+    })
+    .catch((err) => next(err));
 });
 
 export const user_unfollow = asyncHandler(async (req, res, next) => {
     const user = req.user;
-    const target = await User.findOne({ _id: req.params.userId });
-
-    user.following = user.following.filter((userid) => userid.toString() !== target._id.toString());
-    target.followers = target.followers.filter((userid) => userid.toString() != user.id.toString());
-
-    await User.findByIdAndUpdate(user.id, user, {});
-    await User.findByIdAndUpdate(req.params.targetId, target, {});
     
-    res.status(200).end();
+    User.findOne({ _id: req.params.userId })
+      .then((target) => {
+        user.following = user.following.filter((userid) => userid.toString() !== target._id.toString());
+        target.followers = target.followers.filter((userid) => userid.toString() != user.id.toString());
+
+        const promises = [];
+        promises.push(User.findByIdAndUpdate(user.id, user, {}));
+        promises.push(User.findByIdAndUpdate(req.params.targetId, target, {}));
+
+        return Promise.all(promises);
+      })
+      .then((responses) => {
+        return res.status(200).end();
+      })
+      .catch((err) => next(err));
 });
