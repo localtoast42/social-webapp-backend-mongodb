@@ -1,4 +1,5 @@
 import Post from '../models/post.js';
+import Comment from '../models/comment.js';
 import asyncHandler from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
 
