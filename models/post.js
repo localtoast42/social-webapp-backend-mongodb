@@ -8,6 +8,7 @@ const PostSchema = new Schema({
   text: { type: String, minLength: 1, required: true },
   postDate: { type: Date, required: true },
   lastEditDate: { type: Date },
+  isPublicPost: { type: Boolean, required: true },
   likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }]
 });
