@@ -87,6 +87,7 @@ export const post_get = asyncHandler(async (req, res, next) => {
     .populate("author")
     .populate({
       path: "comments",
+      match: { $or: [{ author: req.user.id }, { isPublicComment: true }] },
       options: { sort: { postDate: 1 }},
       populate: { path: "author" }
     })
