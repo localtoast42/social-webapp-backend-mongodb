@@ -123,15 +123,16 @@ export const user_create = [
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
-    const user = new User({
-      username: req.body.username,
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-    });
-
     if (!errors.isEmpty()) {
       res.send(errors.mapped());
     } else {
+      const user = new User({
+        username: req.body.username,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        isGuest: process.env.ALLOW_NEW_PUBLIC_USERS === "false",
+      });
+
       bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
         if (err) {
           return next(err);
