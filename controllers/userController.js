@@ -217,14 +217,18 @@ export const user_update = [
   asyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
 
-    const user = new User({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-    });
-
     if (!errors.isEmpty()) {
       res.send(errors.array());
     } else {
+      const user = new User({
+        username: req.body.username,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        city: req.body.city,
+        state: req.body.state,
+        country: req.body.country,
+      });
+
       User.findByIdAndUpdate(req.params.userId, user, {})
         .then((updatedUser) => {
           return res.status(200).end();
