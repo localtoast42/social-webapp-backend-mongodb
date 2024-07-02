@@ -220,16 +220,17 @@ export const user_update = [
     if (!errors.isEmpty()) {
       res.send(errors.array());
     } else {
-      const user = new User({
-        username: req.body.username,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        city: req.body.city,
-        state: req.body.state,
-        country: req.body.country,
-      });
+      User.findOne({ _id: req.params.userId })
+        .then((user) => {
+          user.username = req.body.username;
+          user.firstName = req.body.firstName;
+          user.lastName = req.body.lastName;
+          user.city = req.body.city;
+          user.state = req.body.state;
+          user.country = req.body.country;
 
-      User.findByIdAndUpdate(req.params.userId, user, {})
+          return User.findByIdAndUpdate(user._id, user, {})
+        })
         .then((updatedUser) => {
           return res.status(200).end();
         })
