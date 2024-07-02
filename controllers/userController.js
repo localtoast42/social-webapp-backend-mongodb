@@ -141,7 +141,7 @@ export const user_create = [
         
         user.save()
           .then((result) => {
-            return res.status(201).end();
+            next();
           })
           .catch((err) => next(err));
       });

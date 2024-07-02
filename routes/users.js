@@ -1,6 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 import * as userController from '../controllers/userController.js';
+import { login } from './auth.js';
 
 const usersRouter = express.Router();
 
@@ -10,7 +11,8 @@ usersRouter.get('/',
 );
 
 usersRouter.post('/', 
-  userController.user_create
+  userController.user_create,
+  login
 );
 
 usersRouter.get('/self', 
