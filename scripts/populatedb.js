@@ -29,7 +29,8 @@ export function createRandomPost(user) {
   const post = new Post({
     author: user.id,
     text: faker.lorem.paragraph({ min: 1, max: 4 }),
-    postDate: postDate
+    postDate: postDate,
+    isPublicPost: true
   });
 
   return post;
