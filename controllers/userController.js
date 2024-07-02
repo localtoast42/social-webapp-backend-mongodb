@@ -221,7 +221,7 @@ export const user_update = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      res.send(errors.array());
+      res.send(errors.mapped());
     } else {
       User.findOne({ _id: req.params.userId })
         .then((user) => {
