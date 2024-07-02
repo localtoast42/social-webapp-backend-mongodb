@@ -17,6 +17,7 @@ function isPostAuthor(req, res, next) {
 
 export const get_posts = asyncHandler(async (req, res, next) => {
   Post.find()
+    .or([{ author: req.user.id }, { publicPost: true }])
     .sort("-postDate")
     .populate("author")
     .limit(req.query.limit)
@@ -148,7 +149,8 @@ export const post_create = [
       const post = new Post({
         author: req.user.id,
         text: req.body.text,
-        postDate: Date.now()
+        postDate: Date.now(),
+        isPublicPost: !req.user.isGuest,
       });
       
       post.save()

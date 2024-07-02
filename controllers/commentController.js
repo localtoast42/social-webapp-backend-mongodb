@@ -35,6 +35,7 @@ export const comment_create = [
             text: req.body.text,
             post: req.params.postId,
             postDate: Date.now(),
+            isPublicComment: !req.user.isGuest,
           });
 
           const promise = comment.save()
