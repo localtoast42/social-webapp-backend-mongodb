@@ -6,6 +6,14 @@ import { faker } from '@faker-js/faker';
 import { body, validationResult } from 'express-validator';
 import { createRandomUser, createRandomPost } from '../scripts/populatedb.js';
 
+function isAdmin(req, res, next) {
+  if (req.user.isAdmin) {
+    next();
+  } else {
+    res.status(401).json({ success: false, msg: "Unauthorized" });
+  }
+};
+
 function isUserCreator(req, res, next) {
   User.findOne({ _id: req.params.userId })
     .then((user) => {
