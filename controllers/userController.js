@@ -192,30 +192,34 @@ export const guest_create = asyncHandler(async (req, res, next) => {
   });
 });
 
-export const populate_users = asyncHandler(async (req, res, next) => {
-  const userCount = req.body.userCount;
-  const postCount = req.body.postCount;
+export const populate_users = [
+  isAdmin,
+  
+  asyncHandler(async (req, res, next) => {
+    const userCount = req.body.userCount;
+    const postCount = req.body.postCount;
 
-  for (let i = 0; i < userCount; i++) {
-    let user = createRandomUser();
+    for (let i = 0; i < userCount; i++) {
+      let user = createRandomUser();
 
-    bcrypt.hash(user.password, 10, async (err, hashedPassword) => {
-      if (err) {
-        return next(err);
-      }
-      user.password = hashedPassword;
+      bcrypt.hash(user.password, 10, async (err, hashedPassword) => {
+        if (err) {
+          return next(err);
+        }
+        user.password = hashedPassword;
 
-      let newUser = await user.save();
+        let newUser = await user.save();
 
-      for (let j = 0; j < postCount; j++) {
-        let post = createRandomPost(newUser);
-        let newPost = await post.save();
-      }
-    });
-  }
+        for (let j = 0; j < postCount; j++) {
+          let post = createRandomPost(newUser);
+          let newPost = await post.save();
+        }
+      });
+    }
 
-  res.status(201).end();
-});
+    res.status(201).end();
+  })
+];
 
 export const user_update = [
   isUserCreator,
