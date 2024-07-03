@@ -19,9 +19,18 @@ function isUserCreator(req, res, next) {
 };
 
 export const user_list_get = asyncHandler(async (req, res, next) => {
+  const queryTerms = [{ _id: { $exists: true} }];
+
+  if (req.query.q) {
+    let regex = new RegExp(req.query.q,'i');
+    queryTerms.push({ $or: [{ firstName: regex }, { lastName: regex }]});
+  } 
+
+
   User.find()
     .where("_id").ne(req.user.id)
     .where("isGuest").ne(true)
+    .and(queryTerms)
     .sort("lastName")
     .exec()
     .then((allUsers) => {
