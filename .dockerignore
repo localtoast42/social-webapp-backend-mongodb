@@ -1,0 +1,5 @@
+node_modules
+.vscode
+.env
+generateKeypair.js
+id_rsa_priv.pem
