@@ -1,9 +1,5 @@
-import fs from 'fs';
 import User from '../models/user.js';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-
-const pathToKey = new URL('../id_rsa_pub.pem', import.meta.url);
-const PUB_KEY = fs.readFileSync(pathToKey);
 
 const options = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
