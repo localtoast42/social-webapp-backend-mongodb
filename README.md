@@ -5,7 +5,7 @@ The website is comprised of a frontend application built with React & Vite, whic
 
 **Link to project demo:** https://epeaco-microblog.netlify.app
 
-**Link to frontend repo:** https://github.com/localtoast42/odin-social-frontend
+**Link to frontend repo:** https://github.com/localtoast42/social-webapp-frontend
 
 ## Built with
  - Frontend:
