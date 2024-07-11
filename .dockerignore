@@ -1,5 +1,4 @@
 node_modules
+built
 .vscode
 .env
-generateKeypair.js
-id_rsa_priv.pem

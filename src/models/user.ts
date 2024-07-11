@@ -1,8 +1,24 @@
-import mongoose from 'mongoose';
+import { Schema, Types, model } from 'mongoose';
 
-const Schema = mongoose.Schema;
+export interface IUser {
+  id: Types.ObjectId;
+  username: string;
+  password: string;
+  imageUrl: string;
+  firstName: string;
+  lastName: string;
+  city: string;
+  state: string;
+  country: string;
+  isAdmin: boolean;
+  isGuest: boolean;
+  followers: Array<Types.ObjectId>;
+  following: Array<Types.ObjectId>;
+  fullName: string;
+  url: string;
+}
 
-const UserSchema = new Schema({
+const UserSchema = new Schema<IUser>({
   username: { type: String, required: true, minLength: 3, maxLength: 100 },
   password: { type: String, required: true },
   imageUrl: { type: String },
@@ -15,7 +31,7 @@ const UserSchema = new Schema({
   isGuest: { type: Boolean, required: true, default: false },
   followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: Schema.Types.ObjectId, ref: "User" }],
-});
+})
 
 UserSchema.virtual("fullName").get(function () {
   let fullName = "";
@@ -30,4 +46,4 @@ UserSchema.virtual("url").get(function () {
   return `/users/${this._id}`;
 });
 
-export default mongoose.model("User", UserSchema);
+export default model<IUser>("User", UserSchema);

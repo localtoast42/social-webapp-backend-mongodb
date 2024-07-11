@@ -1,9 +1,22 @@
-import mongoose from 'mongoose';
+import { Schema, Types, model, Document, PopulatedDoc } from 'mongoose';
 import { DateTime } from 'luxon';
+import { IUser } from './user.js';
 
-const Schema = mongoose.Schema;
+export interface IComment {
+  id: Types.ObjectId;
+  post: Types.ObjectId;
+  author: PopulatedDoc<Document<Types.ObjectId> & IUser>;
+  text: string;
+  postDate: Date;
+  lastEditDate: Date;
+  isPublicComment: boolean;
+  likes: Array<Types.ObjectId>;
+  url: string;
+  postDateFormatted: string;
+  lastEditDateFormatted: string;
+}
 
-const CommentSchema = new Schema({
+const CommentSchema = new Schema<IComment>({
   post: { type: Schema.Types.ObjectId, ref: "Post", required: true },
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   text: { type: String, required: true },
@@ -25,4 +38,4 @@ CommentSchema.virtual("lastEditDateFormatted").get(function () {
   return this.lastEditDate ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATETIME_SHORT) : '';
 });
 
-export default mongoose.model("Comment", CommentSchema);
+export default model<IComment>("Comment", CommentSchema);

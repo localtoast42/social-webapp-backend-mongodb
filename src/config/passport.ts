@@ -1,7 +1,8 @@
 import User from '../models/user.js';
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+import { PassportStatic } from 'passport';
+import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from 'passport-jwt';
 
-const options = {
+const options: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.APP_SECRET,
   algorithms: ['HS256'],
@@ -19,6 +20,6 @@ const strategy = new JwtStrategy(options, (payload, done) => {
     .catch(err => done(err, null));
 });
 
-export default (passport) => {
+export default (passport: PassportStatic) => {
   passport.use(strategy);
 };
