@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "npm run build && node ./built/bin/www",
+    "start": "node ./built/bin/www",
     "dev": "tsx watch ./src/bin/www",
     "build": "tsc"
   },
