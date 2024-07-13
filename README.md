@@ -15,6 +15,7 @@ The website is comprised of a frontend application built with React & Vite, whic
     - TailwindCSS
     - TailwindUI
  - Backend:
+    - TypeScript
     - NodeJS
     - Express
     - MongoDB
