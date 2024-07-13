@@ -1,12 +1,13 @@
-import User from '../models/user.js';
+import User, { IUser } from '../models/user.js';
 import Post from '../models/post.js';
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs';
 import asyncHandler from 'express-async-handler';
 import { faker } from '@faker-js/faker';
 import { body, validationResult } from 'express-validator';
+import { Request, Response, NextFunction } from 'express';
 import { createRandomUser, createRandomPost } from '../scripts/populatedb.js';
 
-function isAdmin(req, res, next) {
+function isAdmin(req: Request, res: Response, next: NextFunction) {
   if (req.user.isAdmin) {
     next();
   } else {
@@ -14,48 +15,49 @@ function isAdmin(req, res, next) {
   }
 };
 
-function isUserCreator(req, res, next) {
+function isUserCreator(req: Request, res: Response, next: NextFunction) {
   User.findOne({ _id: req.params.userId })
     .then((user) => {
       if (user.id === req.user.id) {
-        return next();
+        next();
       } else {
-        return res.status(401).json({ success: false, msg: "Unauthorized" });
+        res.status(401).json({ success: false, msg: "Unauthorized" });
       }
     })
     .catch((err) => next(err));
 };
 
 export const user_list_get = asyncHandler(async (req, res, next) => {
-  const queryTerms = [{ _id: { $exists: true} }];
+  const queryTerms: object[] = [];
+  queryTerms.push({ _id: { $exists: true} });
 
   if (req.query.q) {
-    let regex = new RegExp(req.query.q,'i');
+    const queryString = req.query.q as string;
+    let regex = new RegExp(queryString,'i');
     queryTerms.push({ $or: [{ firstName: regex }, { lastName: regex }]});
   } 
 
-
   User.find()
-    .where("_id").ne(req.user.id)
-    .where("isGuest").ne(true)
-    .and(queryTerms)
-    .sort("lastName")
-    .exec()
-    .then((allUsers) => {
-      const allUsersData = allUsers.map(user => {
-        return {
-          id: user.id,
-          username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          fullName: user.fullName,
-          imageUrl: user.imageUrl,
-          url: user.url,
-        }
-      })
-      return res.status(200).json(allUsersData);
+  .where("_id").ne(req.user.id)
+  .where("isGuest").ne(true)
+  .and(queryTerms)
+  .sort("lastName")
+  .exec()
+  .then((allUsers) => {
+    const allUsersData = allUsers.map(user => {
+      return {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        fullName: user.fullName,
+        imageUrl: user.imageUrl,
+        url: user.url,
+      }
     })
-    .catch((err) => next(err));
+    res.status(200).json(allUsersData);
+  })
+  .catch((err) => next(err));
 });
 
 export const user_get = asyncHandler(async (req, res, next) => {
@@ -72,7 +74,7 @@ export const user_get = asyncHandler(async (req, res, next) => {
         followedByMe: req.user.following.includes(user.id),
       }
 
-      return res.status(200).json(userData);
+      res.status(200).json(userData);
     })
     .catch((err) => next(err));
 });
@@ -152,7 +154,7 @@ export const user_create = [
 
       bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
         if (err) {
-          return next(err);
+          next(err);
         }
         user.password = hashedPassword;
         
@@ -178,7 +180,7 @@ export const guest_create = asyncHandler(async (req, res, next) => {
 
   bcrypt.hash("guest", 10, async (err, hashedPassword) => {
     if (err) {
-      return next(err);
+      next(err);
     }
     user.password = hashedPassword;
 
@@ -204,7 +206,7 @@ export const populate_users = [
 
       bcrypt.hash(user.password, 10, async (err, hashedPassword) => {
         if (err) {
-          return next(err);
+          next(err);
         }
         user.password = hashedPassword;
 
@@ -254,10 +256,10 @@ export const user_update = [
           user.state = req.body.state;
           user.country = req.body.country;
 
-          return User.findByIdAndUpdate(user._id, user, {})
+          User.findByIdAndUpdate(user._id, user, {})
         })
         .then((updatedUser) => {
-          return res.status(200).end();
+          res.status(200).end();
         })
         .catch((err) => next(err));
     }
@@ -270,7 +272,7 @@ export const user_delete = [
   asyncHandler(async (req, res, next) => {
     User.findByIdAndDelete(req.params.userId)
       .then((result) => {
-        return res.status(200).end();
+        res.status(200).end();
       })
       .catch((err) => next(err));
   }),
@@ -278,7 +280,7 @@ export const user_delete = [
 
 export const get_posts_by_user = asyncHandler(async (req, res, next) => {
   Post.find({ author: req.params.userId })
-    .populate("author")
+    .populate<{ author: IUser }>("author")
     .sort("-postDate")
     .exec()
     .then((postsByUser) => {
@@ -302,7 +304,7 @@ export const get_posts_by_user = asyncHandler(async (req, res, next) => {
           numComments: post.comments.length
         }
       });
-      return res.status(200).json(postsByUserData);
+      res.status(200).json(postsByUserData);
     })
     .catch((err) => next(err));
 });
@@ -310,7 +312,7 @@ export const get_posts_by_user = asyncHandler(async (req, res, next) => {
 export const user_following_get = asyncHandler(async (req, res, next) => {
   User.findOne({ _id: req.params.userId }, "following")
     .then((following) => {
-      return res.status(200).json(following);
+      res.status(200).json(following);
     })
     .catch((err) => next(err));
 });
@@ -332,10 +334,10 @@ export const user_follow = asyncHandler(async (req, res, next) => {
         promises.push(User.findByIdAndUpdate(req.params.targetId, target, {}));
       }
 
-      return Promise.all(promises);
+      Promise.all(promises);
     })
     .then((responses) => {
-      return res.status(200).end();
+      res.status(200).end();
     })
     .catch((err) => next(err));
 });
@@ -352,10 +354,10 @@ export const user_unfollow = asyncHandler(async (req, res, next) => {
         promises.push(User.findByIdAndUpdate(user.id, user, {}));
         promises.push(User.findByIdAndUpdate(req.params.targetId, target, {}));
 
-        return Promise.all(promises);
+        Promise.all(promises);
       })
       .then((responses) => {
-        return res.status(200).end();
+        res.status(200).end();
       })
       .catch((err) => next(err));
 });

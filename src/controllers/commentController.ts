@@ -1,15 +1,18 @@
 import Post from '../models/post.js';
+import { IUser } from '../models/user.js';
 import Comment from '../models/comment.js';
 import asyncHandler from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
+import { Request, Response, NextFunction } from 'express';
 
-function isCommentAuthor(req, res, next) {
+function isCommentAuthor(req: Request, res: Response, next: NextFunction) {
   Comment.findOne({ _id: req.params.commentId })
+    .populate<{ author: IUser }>("author")
     .then((comment) => {
-      if (comment.author.toString() === req.user.id) {
-        return next();
+      if (comment.author.id === req.user.id) {
+        next();
       } else {
-        return res.status(401).json({ success: false, msg: "Unauthorized" });
+        res.status(401).json({ success: false, msg: "Unauthorized" });
       }
     })
     .catch((err) => next(err));
@@ -40,14 +43,14 @@ export const comment_create = [
 
           const promise = comment.save()
             .then((newComment) => {
-              post.comments.push(newComment._id);
+              post.comments.push(newComment.id);
               return Post.findByIdAndUpdate(post._id, post, {});
             });
 
           return promise;
         })
         .then((response) => {
-          return res.status(201).end();
+          res.status(201).end();
         })
         .catch((err) => next(err));
     };
@@ -72,12 +75,12 @@ export const comment_update = [
       Comment.findOne({ _id: req.params.commentId })
         .then((comment) => {
           comment.text = req.body.text;
-          comment.lastEditDate = Date.now();
+          comment.lastEditDate = new Date(Date.now());
 
-          return Comment.findByIdAndUpdate(comment._id, comment, {});
+          Comment.findByIdAndUpdate(comment._id, comment, {});
         })
         .then((response) => {
-          return res.status(200).end();
+          res.status(200).end();
         })
         .catch((err) => next(err));
     }
@@ -90,7 +93,7 @@ export const comment_delete = [
   asyncHandler(async (req, res, next) => {   
     Comment.findByIdAndDelete(req.params.commentId)
       .then((response) => {
-        return res.status(200).end();
+        res.status(200).end();
       })
       .catch((err) => next(err));
   }),
@@ -105,10 +108,10 @@ export const comment_modify_likes = asyncHandler(async (req, res, next) => {
         comment.likes = comment.likes.filter((userid) => userid != req.user.id);
       }
 
-      return comment.save();
+      comment.save();
     })
     .then((updatedComment) => {
-      return res.status(200).json(updatedComment);
+      res.status(200).end();
     })
     .catch((err) => next(err));
 });

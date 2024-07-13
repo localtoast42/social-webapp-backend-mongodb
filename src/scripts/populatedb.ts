@@ -1,5 +1,6 @@
 import { fakerEN_US as faker } from '@faker-js/faker';
-import User from '../models/user.js';
+import { HydratedDocument } from 'mongoose';
+import User, { IUser } from '../models/user.js';
 import Post from '../models/post.js';
 
 export function createRandomUser() {
@@ -23,7 +24,7 @@ export function createRandomUser() {
   return user;
 }
 
-export function createRandomPost(user) {
+export function createRandomPost(user: HydratedDocument<IUser>) {
   const postDate = faker.date.between({ from: '2024-06-01T00:00:00.000Z', to: Date.now()})
 
   const post = new Post({

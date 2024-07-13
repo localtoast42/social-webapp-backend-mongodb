@@ -7,7 +7,7 @@ export const login = asyncHandler(async (req, res, next) => {
   try {
     const user = await User.findOne({ username: req.body.username });
     if (!user) {
-      return res.status(401).json(
+      res.status(401).json(
         { 
           success: false, 
           username: {
@@ -18,7 +18,7 @@ export const login = asyncHandler(async (req, res, next) => {
     };
     const match = await bcrypt.compare(req.body.password, user.password);
     if (!match) {
-      return res.status(401).json(
+      res.status(401).json(
         { 
           success: false, 
           password: {
@@ -32,6 +32,6 @@ export const login = asyncHandler(async (req, res, next) => {
       .status(200)
       .json({ success: true, token: tokenObject.token, expiresIn: tokenObject.expires });
   } catch(err) {
-    return next(err);
+    next(err);
   }
 });
