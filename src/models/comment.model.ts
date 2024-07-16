@@ -14,9 +14,9 @@ export interface IComment {
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
-}
+};
 
-const CommentSchema = new Schema<IComment>({
+const commentSchema = new Schema<IComment>({
   post: { type: Schema.Types.ObjectId, ref: "Post", required: true },
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   text: { type: String, required: true },
@@ -26,16 +26,18 @@ const CommentSchema = new Schema<IComment>({
   likes: [{ type: Schema.Types.ObjectId, ref: "User" }]
 });
 
-CommentSchema.virtual("url").get(function () {
+commentSchema.virtual("url").get(function () {
   return `/posts/${this.post.id}/comments/${this._id}`;
 });
 
-CommentSchema.virtual("postDateFormatted").get(function () {
+commentSchema.virtual("postDateFormatted").get(function () {
   return this.postDate ? DateTime.fromJSDate(this.postDate).toLocaleString(DateTime.DATETIME_SHORT) : '';
 });
 
-CommentSchema.virtual("lastEditDateFormatted").get(function () {
+commentSchema.virtual("lastEditDateFormatted").get(function () {
   return this.lastEditDate ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATETIME_SHORT) : '';
 });
 
-export default model<IComment>("Comment", CommentSchema);
+const Comment = model<IComment>("Comment", commentSchema);
+
+export default Comment;
