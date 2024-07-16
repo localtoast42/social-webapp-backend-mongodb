@@ -16,9 +16,9 @@ export interface IUser {
   following: Array<Types.ObjectId>;
   fullName: string;
   url: string;
-}
+};
 
-const UserSchema = new Schema<IUser>({
+const userSchema = new Schema<IUser>({
   username: { type: String, required: true, minLength: 3, maxLength: 100 },
   password: { type: String, required: true },
   imageUrl: { type: String },
@@ -31,9 +31,9 @@ const UserSchema = new Schema<IUser>({
   isGuest: { type: Boolean, required: true, default: false },
   followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: Schema.Types.ObjectId, ref: "User" }],
-})
+});
 
-UserSchema.virtual("fullName").get(function () {
+userSchema.virtual("fullName").get(function () {
   let fullName = "";
   if (this.firstName && this.lastName) {
     fullName = `${this.firstName} ${this.lastName}`;
@@ -42,8 +42,10 @@ UserSchema.virtual("fullName").get(function () {
   return fullName;
 });
 
-UserSchema.virtual("url").get(function () {
+userSchema.virtual("url").get(function () {
   return `/users/${this._id}`;
 });
 
-export default model<IUser>("User", UserSchema);
+const User = model<IUser>("User", userSchema);
+
+export default User;
