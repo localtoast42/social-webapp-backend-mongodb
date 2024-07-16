@@ -13,7 +13,7 @@ export interface IPost {
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
-}
+};
 
 const postSchema = new Schema<IPost>({
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
