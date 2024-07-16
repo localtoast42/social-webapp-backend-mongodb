@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node ./built/bin/www",
-    "dev": "tsx watch ./src/bin/www",
+    "dev": "tsx watch ./src/app.ts",
     "build": "tsc"
   },
   "dependencies": {
@@ -29,6 +29,8 @@
     "morgan": "~1.9.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "pino": "^9.3.1",
+    "pino-pretty": "^11.2.1",
     "pug": "^3.0.2"
   },
   "devDependencies": {
