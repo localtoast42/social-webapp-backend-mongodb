@@ -15,7 +15,7 @@ export interface IPost {
   lastEditDateFormatted: string;
 }
 
-const PostSchema = new Schema<IPost>({
+const postSchema = new Schema<IPost>({
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   text: { type: String, minLength: 1, required: true },
   postDate: { type: Date, required: true },
@@ -25,16 +25,18 @@ const PostSchema = new Schema<IPost>({
   comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }]
 });
 
-PostSchema.virtual("url").get(function () {
+postSchema.virtual("url").get(function () {
   return `/posts/${this._id}`;
 });
 
-PostSchema.virtual("postDateFormatted").get(function () {
+postSchema.virtual("postDateFormatted").get(function () {
   return this.postDate ? DateTime.fromJSDate(this.postDate).toLocaleString(DateTime.DATE_MED) : '';
 });
 
-PostSchema.virtual("lastEditDateFormatted").get(function () {
+postSchema.virtual("lastEditDateFormatted").get(function () {
   return this.lastEditDate ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATE_MED) : '';
 });
 
-export default model<IPost>("Post", PostSchema);
+const Post = model<IPost>("Post", postSchema);
+
+export default Post;
