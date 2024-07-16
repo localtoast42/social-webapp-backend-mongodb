@@ -1,6 +1,6 @@
 import { Schema, Types, model, Document, PopulatedDoc } from 'mongoose';
 import { DateTime } from 'luxon';
-import { IUser } from './user.js';
+import { IUser } from './user.model.js';
 
 export interface IComment {
   id: Types.ObjectId;
