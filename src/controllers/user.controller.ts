@@ -1,5 +1,5 @@
-import User, { IUser } from '../models/user.js';
-import Post from '../models/post.js';
+import User, { IUser } from '../models/user.model.js';
+import Post from '../models/post.model.js';
 import bcrypt from 'bcryptjs';
 import asyncHandler from 'express-async-handler';
 import { faker } from '@faker-js/faker';

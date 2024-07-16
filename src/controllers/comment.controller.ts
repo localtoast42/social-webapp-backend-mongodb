@@ -1,6 +1,6 @@
-import Post from '../models/post.js';
-import { IUser } from '../models/user.js';
-import Comment from '../models/comment.js';
+import Post from '../models/post.model.js';
+import { IUser } from '../models/user.model.js';
+import Comment from '../models/comment.model.js';
 import asyncHandler from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';

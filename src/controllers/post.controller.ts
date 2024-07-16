@@ -1,6 +1,6 @@
-import { IUser } from '../models/user.js';
-import Post from '../models/post.js';
-import Comment, { IComment } from '../models/comment.js';
+import { IUser } from '../models/user.model.js';
+import Post from '../models/post.model.js';
+import Comment, { IComment } from '../models/comment.model.js';
 import { Types } from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import { body, validationResult } from 'express-validator';
