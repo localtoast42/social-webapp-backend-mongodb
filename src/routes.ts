@@ -42,14 +42,14 @@ function routes(app: Express) {
   );
 
   app.post(
-    '/api/v1/posts', 
-    validateResource(createPostSchema), 
+    '/api/v1/posts',
+    [requireUser, validateResource(createPostSchema)], 
     createPostHandler
   );
 
   app.post(
-    '/api/v1/posts/:postId/comments', 
-    validateResource(createCommentSchema), 
+    '/api/v1/posts/:postId/comments',
+    [requireUser, validateResource(createCommentSchema)], 
     createCommentHandler
   );
 }
