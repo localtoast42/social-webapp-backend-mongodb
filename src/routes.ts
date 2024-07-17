@@ -6,7 +6,11 @@ import {
   deleteUserSessionHandler, 
   getUserSessionsHandler 
 } from './controllers/session.controller.js';
-import { createUserHandler } from './controllers/user.controller.js';
+import { 
+  createUserHandler, 
+  getUserHandler, 
+  getUserListHandler 
+} from './controllers/user.controller.js';
 import { createPostHandler } from './controllers/post.controller.js';
 import { createCommentHandler } from './controllers/comment.controller.js';
 import { createSessionSchema } from './schemas/session.schema.js';
@@ -39,6 +43,18 @@ function routes(app: Express) {
     '/api/v1/users', 
     validateResource(createUserSchema), 
     createUserHandler
+  );
+
+  app.get(
+    '/api/v1/users/:userId', 
+    requireUser,
+    getUserHandler
+  );
+
+  app.get(
+    '/api/v1/users', 
+    requireUser,
+    getUserListHandler
   );
 
   app.post(
