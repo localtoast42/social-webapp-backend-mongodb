@@ -1,10 +1,10 @@
 import { Schema, Types, model } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import bcrypt from 'bcrypt';
 import config from 'config';
 
-export interface UserInput {
+export interface UserBase {
   username: string;
-  password: string;
   firstName: string;
   lastName: string;
   city?: string;
@@ -12,7 +12,11 @@ export interface UserInput {
   country?: string;
 };
 
-export interface User extends UserInput {
+export interface UserCreate extends UserBase {
+  password: string;
+};
+
+export interface User extends UserCreate {
   id: Types.ObjectId;
   imageUrl?: string;
   isAdmin: boolean;
@@ -78,6 +82,8 @@ userSchema.virtual("fullName").get(function () {
 userSchema.virtual("url").get(function () {
   return `/users/${this._id}`;
 });
+
+userSchema.plugin(mongooseLeanVirtuals);
 
 const UserModel = model<User>("User", userSchema);
 
