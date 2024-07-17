@@ -1,4 +1,4 @@
-import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
+import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
 import { omit } from "lodash";
 import UserModel, { User, UserCreate } from "../models/user.model.js";
 
@@ -30,8 +30,11 @@ export async function validatePassword({
   return omit(user.toJSON(), "password");
 }
 
-export async function findUser(query: FilterQuery<User>) {
-  return UserModel.findOne(query).lean();
+export async function findUser(
+  query: FilterQuery<User>,
+  projection?: ProjectionType<User>
+) {
+  return UserModel.findOne(query, projection ?? '').lean({ virtuals: true });
 }
 
 export async function findUsersByName(
