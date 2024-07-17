@@ -25,7 +25,7 @@ export interface User extends UserInput {
 };
 
 const userSchema = new Schema<User>({
-  username: { type: String, required: true, minLength: 3, maxLength: 100 },
+  username: { type: String, required: true, unique: true, minLength: 3, maxLength: 100 },
   password: { type: String, required: true },
   imageUrl: { type: String },
   firstName: { type: String, required: true, maxLength: 100 },
