@@ -1,4 +1,6 @@
 import { Schema, Types, model } from 'mongoose';
+import bcrypt from 'bcrypt';
+import config from 'config';
 
 export interface UserInput {
   username: string;
@@ -19,6 +21,7 @@ export interface User extends UserInput {
   following: Array<Types.ObjectId>;
   fullName: string;
   url: string;
+  comparePassword(candidatePassword: string): Promise<Boolean>;
 };
 
 const userSchema = new Schema<User>({
@@ -35,6 +38,30 @@ const userSchema = new Schema<User>({
   followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: Schema.Types.ObjectId, ref: "User" }],
 });
+
+userSchema.pre("save", async function (next) {
+  let user = this;
+
+  if (!user.isModified("password")) {
+    return next();
+  }
+
+  const salt = await bcrypt.genSalt(config.get<number>("saltWorkFactor"));
+
+  const hash = await bcrypt.hashSync(user.password, salt);
+
+  user.password = hash;
+
+  return next();
+});
+
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  let user = this;
+
+  return bcrypt.compare(candidatePassword, user.password).catch((e) => false);
+};
 
 userSchema.virtual("fullName").get(function () {
   let fullName = "";
