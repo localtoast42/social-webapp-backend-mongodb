@@ -14,7 +14,7 @@ export interface UserInput {
 
 export interface User extends UserInput {
   id: Types.ObjectId;
-  imageUrl: string;
+  imageUrl?: string;
   isAdmin: boolean;
   isGuest: boolean;
   followers: Array<Types.ObjectId>;
