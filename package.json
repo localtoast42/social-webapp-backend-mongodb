@@ -1,6 +1,6 @@
 {
-  "name": "odin-social-backend",
-  "version": "0.0.0",
+  "name": "social-webapp-backend",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
