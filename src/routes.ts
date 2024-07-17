@@ -1,6 +1,11 @@
 import { Express, Request, Response } from 'express';
 import validateResource from './middleware/validateResource.js';
-import { createUserSessionHandler, getUserSessionsHandler } from './controllers/session.controller.js';
+import requireUser from './middleware/requireUser.js';
+import { 
+  createUserSessionHandler, 
+  deleteUserSessionHandler, 
+  getUserSessionsHandler 
+} from './controllers/session.controller.js';
 import { createUserHandler } from './controllers/user.controller.js';
 import { createPostHandler } from './controllers/post.controller.js';
 import { createCommentHandler } from './controllers/comment.controller.js';
@@ -20,8 +25,14 @@ function routes(app: Express) {
 
   app.get(
     '/api/v1/sessions', 
-    validateResource(createSessionSchema), 
+    requireUser, 
     getUserSessionsHandler
+  );
+
+  app.delete(
+    '/api/v1/sessions', 
+    requireUser, 
+    deleteUserSessionHandler
   );
   
   app.post(
