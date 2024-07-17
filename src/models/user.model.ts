@@ -23,10 +23,10 @@ export interface User extends UserCreate {
   isGuest: boolean;
   followers: Array<Types.ObjectId>;
   following: Array<Types.ObjectId>;
-  followedByMe: boolean;
+  followedByMe?: boolean;
   hasFollows?: boolean;
-  fullName: string;
-  url: string;
+  fullName?: string;
+  url?: string;
   comparePassword(candidatePassword: string): Promise<Boolean>;
 };
 
