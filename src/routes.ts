@@ -21,6 +21,7 @@ import { createCommentSchema } from './schemas/comment.schema.js';
 function routes(app: Express) {
   app.get('/healthcheck', (req: Request, res: Response) => res.sendStatus(200));
 
+  // Session Routes
   app.post(
     '/api/v1/sessions', 
     validateResource(createSessionSchema), 
@@ -39,6 +40,7 @@ function routes(app: Express) {
     deleteUserSessionHandler
   );
   
+  // User Routes
   app.post(
     '/api/v1/users', 
     validateResource(createUserSchema), 
@@ -57,12 +59,14 @@ function routes(app: Express) {
     getUserListHandler
   );
 
+  // Post Routes
   app.post(
     '/api/v1/posts',
     [requireUser, validateResource(createPostSchema)], 
     createPostHandler
   );
 
+  // Comment Routes
   app.post(
     '/api/v1/posts/:postId/comments',
     [requireUser, validateResource(createCommentSchema)], 
