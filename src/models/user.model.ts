@@ -19,6 +19,7 @@ export interface User extends UserInput {
   isGuest: boolean;
   followers: Array<Types.ObjectId>;
   following: Array<Types.ObjectId>;
+  followedByMe: boolean;
   fullName: string;
   url: string;
   comparePassword(candidatePassword: string): Promise<Boolean>;
