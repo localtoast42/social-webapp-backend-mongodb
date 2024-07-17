@@ -1,10 +1,14 @@
 import { Schema, Types, model } from 'mongoose';
 import { DateTime } from 'luxon';
+import { User } from './user.model.js';
 
-export interface IPost {
-  id: Types.ObjectId;
-  author: Types.ObjectId;
+export interface PostInput {
+  author: User["id"];
   text: string;
+};
+
+export interface Post extends PostInput {
+  id: Types.ObjectId;
   postDate: Date;
   lastEditDate: Date;
   isPublicPost: boolean;
@@ -15,7 +19,7 @@ export interface IPost {
   lastEditDateFormatted: string;
 };
 
-const postSchema = new Schema<IPost>({
+const postSchema = new Schema<Post>({
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   text: { type: String, minLength: 1, required: true },
   postDate: { type: Date, required: true },
@@ -37,6 +41,6 @@ postSchema.virtual("lastEditDateFormatted").get(function () {
   return this.lastEditDate ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATE_MED) : '';
 });
 
-const Post = model<IPost>("Post", postSchema);
+const PostModel = model<Post>("Post", postSchema);
 
-export default Post;
+export default PostModel;

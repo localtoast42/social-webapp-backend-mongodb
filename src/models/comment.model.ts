@@ -1,12 +1,16 @@
 import { Schema, Types, model, Document, PopulatedDoc } from 'mongoose';
 import { DateTime } from 'luxon';
-import { IUser } from './user.model.js';
+import { User } from './user.model.js';
+import { Post } from './post.model.js';
 
-export interface IComment {
-  id: Types.ObjectId;
-  post: Types.ObjectId;
-  author: PopulatedDoc<Document<Types.ObjectId> & IUser>;
+export interface CommentInput { 
+  post: Post["id"];
+  author: PopulatedDoc<Document<Types.ObjectId> & User>;
   text: string;
+}
+
+export interface Comment extends CommentInput {
+  id: Types.ObjectId;
   postDate: Date;
   lastEditDate: Date;
   isPublicComment: boolean;
@@ -16,7 +20,7 @@ export interface IComment {
   lastEditDateFormatted: string;
 };
 
-const commentSchema = new Schema<IComment>({
+const commentSchema = new Schema<Comment>({
   post: { type: Schema.Types.ObjectId, ref: "Post", required: true },
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   text: { type: String, required: true },
@@ -38,6 +42,6 @@ commentSchema.virtual("lastEditDateFormatted").get(function () {
   return this.lastEditDate ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATETIME_SHORT) : '';
 });
 
-const Comment = model<IComment>("Comment", commentSchema);
+const CommentModel = model<Comment>("Comment", commentSchema);
 
-export default Comment;
+export default CommentModel;

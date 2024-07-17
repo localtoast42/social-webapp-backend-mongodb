@@ -1,9 +1,12 @@
 import { Schema, Types, model } from 'mongoose';
 
-export interface IUser {
-  id: Types.ObjectId;
+export interface UserInput {
   username: string;
   password: string;
+};
+
+export interface User extends UserInput {
+  id: Types.ObjectId;
   imageUrl: string;
   firstName: string;
   lastName: string;
@@ -18,7 +21,7 @@ export interface IUser {
   url: string;
 };
 
-const userSchema = new Schema<IUser>({
+const userSchema = new Schema<User>({
   username: { type: String, required: true, minLength: 3, maxLength: 100 },
   password: { type: String, required: true },
   imageUrl: { type: String },
@@ -46,6 +49,6 @@ userSchema.virtual("url").get(function () {
   return `/users/${this._id}`;
 });
 
-const User = model<IUser>("User", userSchema);
+const UserModel = model<User>("User", userSchema);
 
-export default User;
+export default UserModel;
