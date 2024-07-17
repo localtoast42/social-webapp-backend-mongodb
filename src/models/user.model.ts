@@ -5,16 +5,16 @@ import config from 'config';
 export interface UserInput {
   username: string;
   password: string;
+  firstName: string;
+  lastName: string;
+  city?: string;
+  state?: string;
+  country?: string;
 };
 
 export interface User extends UserInput {
   id: Types.ObjectId;
   imageUrl: string;
-  firstName: string;
-  lastName: string;
-  city: string;
-  state: string;
-  country: string;
   isAdmin: boolean;
   isGuest: boolean;
   followers: Array<Types.ObjectId>;
