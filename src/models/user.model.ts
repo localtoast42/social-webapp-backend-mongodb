@@ -24,6 +24,7 @@ export interface User extends UserCreate {
   followers: Array<Types.ObjectId>;
   following: Array<Types.ObjectId>;
   followedByMe: boolean;
+  hasFollows?: boolean;
   fullName: string;
   url: string;
   comparePassword(candidatePassword: string): Promise<Boolean>;
@@ -81,6 +82,10 @@ userSchema.virtual("fullName").get(function () {
 
 userSchema.virtual("url").get(function () {
   return `/users/${this._id}`;
+});
+
+userSchema.virtual("hasFollows").get(function () {
+  return this.following.length !== 0;
 });
 
 userSchema.plugin(mongooseLeanVirtuals);
