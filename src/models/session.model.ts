@@ -1,10 +1,13 @@
 import mongoose from "mongoose";
 import { User } from "./user.model.js";
 
-export interface Session {
+export interface SessionInput {
   user: User["id"];
-  valid: boolean;
   userAgent: string;
+}
+
+export interface Session extends SessionInput {
+  valid: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
