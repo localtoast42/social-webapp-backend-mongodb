@@ -23,8 +23,8 @@ export async function createCommentHandler(
   const postId = req.params.postId;
 
   const [user, post] = await Promise.all([
-    findUser({ userId }),
-    findPost({ postId }),
+    findUser({ _id: userId }),
+    findPost({ _id: postId }),
   ])
 
   if (!user) {
@@ -51,7 +51,7 @@ export async function createCommentHandler(
     comments: post.comments,
   }
 
-  await findAndUpdatePost({ postId }, update, {});
+  await findAndUpdatePost({ _id: postId }, update, {});
 
   return res.status(201).json(comment);
 }
@@ -62,7 +62,7 @@ export async function getCommentHandler(
 ) {
   const userId = res.locals.user._id;
   const commentId = req.params.commentId;
-  const comment = await findComment({ commentId });
+  const comment = await findComment({ _id: commentId });
 
   if (!comment) {
     return res.sendStatus(404);
@@ -81,8 +81,8 @@ export async function updateCommentHandler(
   const commentId = req.params.commentId;
 
   const [user, comment] = await Promise.all([
-    findUser({ userId }),
-    findComment({ commentId }),
+    findUser({ _id: userId }),
+    findComment({ _id: commentId }),
   ])
 
   if (!comment) {
@@ -98,7 +98,7 @@ export async function updateCommentHandler(
     lastEditDate: new Date(Date.now()),
   };
 
-  const updatedComment = await findAndUpdateComment({ commentId }, update, {
+  const updatedComment = await findAndUpdateComment({ _id: commentId }, update, {
     new: true,
   });
 
@@ -114,9 +114,9 @@ export async function deleteCommentHandler(
   const commentId = req.params.commentId;
 
   const [user, post, comment] = await Promise.all([
-    findUser({ userId }),
-    findPost({ postId }),
-    findComment({ commentId }),
+    findUser({ _id: userId }),
+    findPost({ _id: postId }),
+    findComment({ _id: commentId }),
   ])
 
   if (!post || !comment) {
@@ -133,9 +133,9 @@ export async function deleteCommentHandler(
     comments: post.comments,
   }
 
-  await findAndUpdatePost({ postId }, update, {});
+  await findAndUpdatePost({ _id: postId }, update, {});
 
-  await deleteComment({ commentId });
+  await deleteComment({ _id: commentId });
 
   return res.sendStatus(200);
 }
@@ -149,8 +149,8 @@ export async function likeCommentHandler(
   const commentId = req.params.commentId;
 
   const [user, comment] = await Promise.all([
-    findUser({ userId }),
-    findComment({ commentId }),
+    findUser({ _id: userId }),
+    findComment({ _id: commentId }),
   ])
 
   if (!user) {
@@ -171,7 +171,7 @@ export async function likeCommentHandler(
     likes: comment.likes,
   }
 
-  const updatedComment = await findAndUpdateComment({ commentId }, update, {
+  const updatedComment = await findAndUpdateComment({ _id: commentId }, update, {
     new: true,
   });
 
