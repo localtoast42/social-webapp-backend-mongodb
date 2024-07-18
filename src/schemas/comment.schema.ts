@@ -1,4 +1,4 @@
-import { object, string, TypeOf } from 'zod';
+import { object, string, boolean, TypeOf } from 'zod';
 
 const payload = {
   body: object({
@@ -7,6 +7,13 @@ const payload = {
     }),
   }),
 };
+
+const like = object({
+  like: boolean({
+    required_error: 'Like bool must be set',
+  })
+});
+
 
 const params = object({
   postId: string({
@@ -31,6 +38,11 @@ export const updateCommentSchema = object({
   params: params.pick({ commentId: true }),
 });
 
+export const likeCommentSchema = object({
+  body: like,
+  params: params.pick({ commentId: true }),
+});
+
 export const deleteCommentSchema = object({
   params: params,
 });
@@ -38,4 +50,5 @@ export const deleteCommentSchema = object({
 export type CreateCommentInput = TypeOf<typeof createCommentSchema>
 export type ReadCommentInput = TypeOf<typeof getCommentSchema>
 export type UpdateCommentInput = TypeOf<typeof updateCommentSchema>
+export type LikeCommentInput = TypeOf<typeof likeCommentSchema>
 export type DeleteCommentInput = TypeOf<typeof deleteCommentSchema>
