@@ -91,6 +91,12 @@ function routes(app: Express) {
     getSelfHandler
   );
 
+  app.post(
+    '/api/v1/users/populate', 
+    requireAdmin,
+    populateUsers
+  );
+
   app.get(
     '/api/v1/users/:userId', 
     requireUser,
@@ -131,12 +137,6 @@ function routes(app: Express) {
     '/api/v1/users/:userId/follow', 
     requireUser,
     unfollowUserHandler
-  );
-
-  app.post(
-    '/api/v1/users/populate', 
-    requireAdmin,
-    populateUsers
   );
 
   // Post Routes
