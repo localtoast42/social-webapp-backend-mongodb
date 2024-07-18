@@ -1,6 +1,7 @@
 import { Express, Request, Response } from 'express';
 import validateResource from './middleware/validateResource.js';
 import requireUser from './middleware/requireUser.js';
+import requireAdmin from './middleware/requireAdmin.js';
 import { 
   createUserSessionHandler, 
   deleteUserSessionHandler, 
@@ -8,8 +9,15 @@ import {
 } from './controllers/session.controller.js';
 import { 
   createUserHandler, 
+  deleteUserHandler, 
+  followUserHandler, 
+  getSelfHandler, 
+  getUserFollowsHandler, 
   getUserHandler, 
-  getUserListHandler 
+  getUserListHandler, 
+  populateUsers, 
+  unfollowUserHandler, 
+  updateUserHandler
 } from './controllers/user.controller.js';
 import { createPostHandler } from './controllers/post.controller.js';
 import { createCommentHandler } from './controllers/comment.controller.js';
@@ -17,6 +25,7 @@ import { createSessionSchema } from './schemas/session.schema.js';
 import { createUserSchema } from './schemas/user.schema.js';
 import { createPostSchema } from './schemas/post.schema.js';
 import { createCommentSchema } from './schemas/comment.schema.js';
+import { createGuest } from './middleware/createGuest.js';
 
 function routes(app: Express) {
   app.get('/healthcheck', (req: Request, res: Response) => res.sendStatus(200));
@@ -39,8 +48,21 @@ function routes(app: Express) {
     requireUser, 
     deleteUserSessionHandler
   );
+
+  // Guest Routes
+  app.post(
+    '/api/v1/guest', 
+    [createGuest, validateResource(createSessionSchema)],
+    createUserSessionHandler
+  );
   
   // User Routes
+  app.post(
+    '/api/v1/users', 
+    validateResource(createUserSchema), 
+    createUserHandler
+  );
+
   app.post(
     '/api/v1/users', 
     validateResource(createUserSchema), 
@@ -54,9 +76,57 @@ function routes(app: Express) {
   );
 
   app.get(
+    '/api/v1/users/self', 
+    requireUser,
+    getSelfHandler
+  );
+
+  app.get(
     '/api/v1/users', 
     requireUser,
     getUserListHandler
+  );
+
+  app.put(
+    '/api/v1/users/:userId', 
+    requireUser,
+    updateUserHandler
+  );
+  
+  app.delete(
+    '/api/v1/users/:userId', 
+    requireUser,
+    deleteUserHandler
+  );
+
+  app.get(
+    '/api/v1/users/:userId/posts', 
+    requireUser,
+    
+  );
+
+  app.get(
+    '/api/v1/users/:userId/following', 
+    requireUser,
+    getUserFollowsHandler
+  );
+
+  app.post(
+    '/api/v1/users/:userId/follow', 
+    requireUser,
+    followUserHandler
+  );
+
+  app.delete(
+    '/api/v1/users/:userId/follow', 
+    requireUser,
+    unfollowUserHandler
+  );
+
+  app.post(
+    '/api/v1/users/populate', 
+    requireAdmin,
+    populateUsers
   );
 
   // Post Routes
