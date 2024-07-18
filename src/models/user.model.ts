@@ -10,6 +10,7 @@ export interface UserBase {
   city?: string;
   state?: string;
   country?: string;
+  imageUrl?: string;
 };
 
 export interface UserCreate extends UserBase {
@@ -18,7 +19,6 @@ export interface UserCreate extends UserBase {
 
 export interface User extends UserCreate {
   id: Types.ObjectId;
-  imageUrl?: string;
   isAdmin: boolean;
   isGuest: boolean;
   followers: Array<Types.ObjectId>;
