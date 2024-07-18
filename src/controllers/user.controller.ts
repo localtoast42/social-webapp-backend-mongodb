@@ -5,7 +5,7 @@ import logger from '../utils/logger.js';
 import { 
   createUser, 
   findUser, 
-  findUsersByName, 
+  findManyUsers, 
   findAndUpdateUser, 
   deleteUser 
 } from '../services/user.service.js';
@@ -92,13 +92,25 @@ export async function getUserListHandler(
     $and: queryTerms,
   }
 
+  const projection = {
+    username: 1,
+    firstName: 1,
+    lastName: 1,
+    city: 1,
+    state: 1,
+    country: 1,
+    imageUrl: 1,
+    fullName: 1,
+    url: 1,
+  }
+
   const options = {
     sort: { "lastName": 1 },
   }
 
-  const users = await findUsersByName(query, options);
+  const users = await findManyUsers(query, projection, options);
 
-  return res.send(users);
+  return res.json(users);
 }
 
 export async function updateUserHandler(
