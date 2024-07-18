@@ -1,57 +1,36 @@
 import 'dotenv/config';
-import createError from 'http-errors';
-import express, { Request, Response, NextFunction } from 'express';
+import config from 'config';
+import express from 'express';
 import cors from 'cors';
-import cookieParser from 'cookie-parser';
 import compression from 'compression';
-import logger from 'morgan';
-import mongoose from 'mongoose';
-import passport from 'passport';
-import passportConfig from './config/passport.js';
-
-import indexRouter from './routes/index.js';
+import connect from './utils/connect.js';
+import logger from './utils/logger.js';
+import routes from './routes.js';
+import deserializeUser from './middleware/deserializeUser.js';
 
 const app = express();
 
-app.use(compression());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 const corsOptions = {
   credentials: true,
-  origin: process.env.FRONTEND_URL
+  origin: config.get<string>('frontendUrl'),
 };
 
 app.use(cors(corsOptions));
+app.use(compression());
 
-mongoose.set("strictQuery", false);
-const mongoDB = process.env.MONGODB_URI;
-mongoose.connect(mongoDB);
+app.use(deserializeUser);
 
-passportConfig(passport);
-app.use(passport.initialize());
+const port = config.get<number>('port');
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.listen(port, async () => {
+  logger.info(`App is running at http://localhost:${port}`);
 
-const staticURL = new URL('public', import.meta.url);
-app.use(express.static(staticURL.toString()));
+  await connect();
 
-app.use('/api/v1', indexRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req: Request, res: Response, next: NextFunction) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function(err: any, req: Request, res: Response, next: NextFunction) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500).end();
+  routes(app);
 });
 
 export default app;
