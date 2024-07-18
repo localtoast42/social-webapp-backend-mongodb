@@ -14,7 +14,6 @@ const like = object({
   })
 });
 
-
 const params = object({
   postId: string({
     required_error: 'postId is required',
