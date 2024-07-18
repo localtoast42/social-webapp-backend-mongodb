@@ -35,7 +35,7 @@ export async function findUser(
   projection?: ProjectionType<User>
 ) {
   try {
-    const result = await UserModel.findOne(query, projection).lean();
+    const result = await UserModel.findOne(query, projection);
     return result;
   } catch (err) {
     throw err;
@@ -58,7 +58,7 @@ export async function findUsersByName(
     url: 1,
   }
 
-  return UserModel.find(query, options).select(publicFields).lean({ virtuals: true });
+  return UserModel.find(query, options).select(publicFields);
 }
 
 export async function findAndUpdateUser(
