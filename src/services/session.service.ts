@@ -1,5 +1,5 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
-import { get } from "lodash";
+import { get } from 'lodash-es';
 import config from "config";
 import SessionModel, { Session, SessionInput } from "../models/session.model.js";
 import { signJwt, verifyJwt } from "../utils/jwt.utils.js";

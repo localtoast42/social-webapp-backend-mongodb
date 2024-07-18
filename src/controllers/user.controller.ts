@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 import logger from '../utils/logger.js';
 import { 
   createUser, 
