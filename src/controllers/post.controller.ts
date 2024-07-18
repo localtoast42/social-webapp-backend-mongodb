@@ -4,7 +4,8 @@ import {
   ReadPostInput,
   UpdatePostInput, 
   DeletePostInput, 
-  ReadPostByUserInput
+  ReadPostByUserInput,
+  LikePostInput,
 } from '../schemas/post.schema.js';
 import { 
   createPost, 
@@ -140,7 +141,7 @@ export async function getPostsByUserHandler(
 }
 
 export async function updatePostHandler(
-  req: Request<UpdatePostInput["params"]>, 
+  req: Request<UpdatePostInput["params"], {}, UpdatePostInput["body"]>, 
   res: Response
 ) {
   const userId = res.locals.user._id;
@@ -172,7 +173,7 @@ export async function updatePostHandler(
 }
 
 export async function likePostHandler(
-  req: Request<UpdatePostInput["params"]>, 
+  req: Request<LikePostInput["params"], {}, LikePostInput["body"]>, 
   res: Response
 ) {
   const like = req.body.like;
