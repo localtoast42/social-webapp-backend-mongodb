@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { isValidObjectId } from 'mongoose';
 import { omit } from 'lodash-es';
 import logger from '../utils/logger.js';
 import { 
@@ -8,7 +9,7 @@ import {
   findAndUpdateUser, 
   deleteUser 
 } from '../services/user.service.js';
-import { CreateUserInput } from '../schemas/user.schema.js';
+import { CreateUserInput, DeleteUserInput, FollowUserInput, PopulateUsersInput, ReadUserInput, UnfollowUserInput, UpdateUserInput } from '../schemas/user.schema.js';
 import { createRandomPost, createRandomUser } from '../utils/populateDatabase.js';
 
 export async function createUserHandler(
@@ -25,10 +26,15 @@ export async function createUserHandler(
 }
 
 export async function getUserHandler(
-  req: Request, 
+  req: Request<ReadUserInput["params"]>, 
   res: Response
 ) {
   const userId = req.params.userId;
+
+  if (!isValidObjectId(userId)) {
+    return res.sendStatus(400);
+  }
+
   const user = await findUser({ _id: userId });
 
   if (!user) {
@@ -37,7 +43,7 @@ export async function getUserHandler(
 
   user.followedByMe = res.locals.user.following.includes(user._id);
 
-  return res.send(omit(user, "password"));
+  return res.send(omit(user.toJSON(), "password"));
 }
 
 export async function getSelfHandler(
@@ -51,7 +57,7 @@ export async function getSelfHandler(
     return res.sendStatus(404);
   }
 
-  return res.send(omit(user, "password"));
+  return res.send(omit(user.toJSON(), "password"));
 }
 
 export async function getUserListHandler(
@@ -85,12 +91,15 @@ export async function getUserListHandler(
 }
 
 export async function updateUserHandler(
-  req: Request, 
+  req: Request<UpdateUserInput["params"], {}, UpdateUserInput["body"]>, 
   res: Response
 ) {
   const requestingUserId = res.locals.user._id;
   const userId = req.params.userId;
-  const update = req.body;
+
+  if (!isValidObjectId(userId)) {
+    return res.sendStatus(400);
+  }
 
   const user = await findUser({ _id: userId });
 
@@ -102,6 +111,8 @@ export async function updateUserHandler(
     return res.sendStatus(403);
   }
 
+  const update = req.body;
+
   const updatedUser = await findAndUpdateUser({ _id: userId }, update, { 
     new: true, 
   });
@@ -110,11 +121,15 @@ export async function updateUserHandler(
 }
 
 export async function deleteUserHandler(
-  req: Request, 
+  req: Request<DeleteUserInput["params"]>, 
   res: Response
 ) {
   const requestingUserId = res.locals.user._id;
   const userId = req.params.userId;
+
+  if (!isValidObjectId(userId)) {
+    return res.sendStatus(400);
+  }
 
   const user = await findUser({ _id: userId });
 
@@ -132,21 +147,30 @@ export async function deleteUserHandler(
 }
 
 export async function getUserFollowsHandler(
-  req: Request, 
+  req: Request<ReadUserInput["params"]>, 
   res: Response
 ) {
   const userId = req.params.userId;
+
+  if (!isValidObjectId(userId)) {
+    return res.sendStatus(400);
+  }
+
   const userFollows = await findUser({ _id: userId }, "following" );
 
   return res.send(userFollows);
 }
 
 export async function followUserHandler(
-  req: Request, 
+  req: Request<FollowUserInput["params"]>, 
   res: Response
 ) {
   const requestingUserId = res.locals.user._id;
   const targetUserId = req.params.userId;
+
+  if (!isValidObjectId(targetUserId)) {
+    return res.sendStatus(400);
+  }
 
   const [requestingUser, targetUser] = await Promise.all([
     findUser({ _id: requestingUserId }),
@@ -190,11 +214,15 @@ export async function followUserHandler(
 }
 
 export async function unfollowUserHandler(
-  req: Request, 
+  req: Request<UnfollowUserInput["params"]>, 
   res: Response
 ) {
   const requestingUserId = res.locals.user._id;
   const targetUserId = req.params.userId;
+
+  if (!isValidObjectId(targetUserId)) {
+    return res.sendStatus(400);
+  }
 
   const [requestingUser, targetUser] = await Promise.all([
     findUser({ _id: requestingUserId }),
@@ -237,7 +265,7 @@ export async function unfollowUserHandler(
 }
 
 export async function populateUsers(
-  req: Request, 
+  req: Request<{}, {}, PopulateUsersInput["body"]>, 
   res: Response
 ) {
   const userCount = req.body.userCount;

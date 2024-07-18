@@ -1,4 +1,31 @@
-import { object, string, TypeOf } from 'zod';
+import { isValidObjectId } from 'mongoose';
+import { number, object, string, TypeOf } from 'zod';
+
+const payload = {
+  body: object({
+    firstName: string({
+      required_error: 'First name must be provided'
+    }),
+    lastName: string({
+      required_error: 'Last name must be provided'
+    }),
+    city: string(),
+    state: string(),
+    country: string(),
+    imageUrl: string(),
+  }),
+}
+
+const params = {
+  params: object({
+    userId: string({
+      required_error: 'userId is required',
+    }),
+  }).refine((data) => isValidObjectId(data.userId), {
+    message: "Invalid userId",
+    path: ["userId"],
+  })
+}
 
 export const createUserSchema = object({
   body: object({
@@ -27,4 +54,42 @@ export const createUserSchema = object({
   }),
 });
 
+export const getUserSchema = object({
+  ...params,
+});
+
+export const followUserSchema = object({
+  ...params,
+});
+
+export const unfollowUserSchema = object({
+  ...params,
+});
+
+export const updateUserSchema = object({
+  ...payload,
+  ...params,
+});
+
+export const deleteUserSchema = object({
+  ...params,
+});
+
+export const populateUsersSchema = object({
+  body: object({
+    userCount: number({
+      required_error: 'User count must be provided'
+    }),
+    postCount: number({
+      required_error: 'Post count must be provided'
+    }),
+  }),
+});
+
 export type CreateUserInput = TypeOf<typeof createUserSchema>
+export type ReadUserInput = TypeOf<typeof getUserSchema>
+export type FollowUserInput = TypeOf<typeof followUserSchema>
+export type UnfollowUserInput = TypeOf<typeof unfollowUserSchema>
+export type UpdateUserInput = TypeOf<typeof updateUserSchema>
+export type DeleteUserInput = TypeOf<typeof deleteUserSchema>
+export type PopulateUsersInput = TypeOf<typeof populateUsersSchema>
