@@ -1,4 +1,4 @@
-import { object, string, TypeOf } from 'zod';
+import { boolean, object, string, TypeOf } from 'zod';
 
 const payload = {
   body: object({
@@ -7,6 +7,12 @@ const payload = {
     }),
   }),
 };
+
+const like = object({
+  like: boolean({
+    required_error: 'Like bool must be set',
+  })
+});
 
 const params = object({
   postId: string({
@@ -34,6 +40,11 @@ export const updatePostSchema = object({
   params: params.pick({ postId: true }),
 });
 
+export const likePostSchema = object({
+  body: like,
+  params: params.pick({ postId: true }),
+});
+
 export const deletePostSchema = object({
   params: params.pick({ postId: true }),
 });
@@ -42,4 +53,5 @@ export type CreatePostInput = TypeOf<typeof createPostSchema>
 export type ReadPostInput = TypeOf<typeof getPostSchema>
 export type ReadPostByUserInput = TypeOf<typeof getPostByUserSchema>
 export type UpdatePostInput = TypeOf<typeof updatePostSchema>
+export type LikePostInput = TypeOf<typeof likePostSchema>
 export type DeletePostInput = TypeOf<typeof deletePostSchema>
