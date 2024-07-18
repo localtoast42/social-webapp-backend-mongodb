@@ -19,11 +19,11 @@ import {
   unfollowUserHandler, 
   updateUserHandler
 } from './controllers/user.controller.js';
-import { createPostHandler } from './controllers/post.controller.js';
+import { createPostHandler, deletePostHandler, getFollowedPostsHandler, getPostHandler, getRecentPostsHandler, likePostHandler, updatePostHandler } from './controllers/post.controller.js';
 import { createCommentHandler } from './controllers/comment.controller.js';
 import { createSessionSchema } from './schemas/session.schema.js';
 import { createUserSchema } from './schemas/user.schema.js';
-import { createPostSchema } from './schemas/post.schema.js';
+import { createPostSchema, updatePostSchema } from './schemas/post.schema.js';
 import { createCommentSchema } from './schemas/comment.schema.js';
 import { createGuest } from './middleware/createGuest.js';
 
@@ -134,6 +134,42 @@ function routes(app: Express) {
     '/api/v1/posts',
     [requireUser, validateResource(createPostSchema)], 
     createPostHandler
+  );
+
+  app.get(
+    '/api/v1/posts',
+    requireUser, 
+    getRecentPostsHandler
+  );
+
+  app.get(
+    '/api/v1/posts/following',
+    requireUser, 
+    getFollowedPostsHandler
+  );
+
+  app.get(
+    '/api/v1/posts/:postId',
+    requireUser, 
+    getPostHandler
+  );
+
+  app.put(
+    '/api/v1/posts/:postId',
+    [requireUser, validateResource(updatePostSchema)], 
+    updatePostHandler
+  );
+
+  app.post(
+    '/api/v1/posts/:postId/like',
+    requireUser, 
+    likePostHandler
+  );
+
+  app.delete(
+    '/api/v1/posts/:postId',
+    requireUser, 
+    deletePostHandler
   );
 
   // Comment Routes
