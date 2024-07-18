@@ -1,235 +1,234 @@
-import { IUser } from '../models/user.model.js';
-import Post from '../models/post.model.js';
-import Comment, { IComment } from '../models/comment.model.js';
-import { Types } from 'mongoose';
-import asyncHandler from 'express-async-handler';
-import { body, validationResult } from 'express-validator';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
+import { 
+  CreatePostInput, 
+  ReadPostInput,
+  UpdatePostInput, 
+  DeletePostInput 
+} from '../schemas/post.schema.js';
+import { 
+  createPost, 
+  findPost,
+  findAndUpdatePost,
+  deletePost,
+  findManyPosts
+} from '../services/post.service.js';
+import { findUser } from '../services/user.service.js';
 
-function isPostAuthor(req: Request, res: Response, next: NextFunction) {
-  Post.findOne({ _id: req.params.postId })
-    .populate<{ author: IUser }>("author")
-    .then((post) => {
-      if (post.author.id === req.user.id) {
-        next();
-      } else {
-        res.status(401).json({ success: false, msg: "Unauthorized" });
-      }
-    })
-    .catch((err) => next(err));
-};
+export async function createPostHandler(
+  req: Request<{}, {}, CreatePostInput["body"]>, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const user = await findUser({ userId });
 
-export const get_posts = asyncHandler(async (req, res, next) => {
-  const post_limit = parseInt(req.query.limit as string);
+  if (!user) {
+    return res.sendStatus(403);
+  }
 
-  Post.find()
-    .or([{ author: req.user.id }, { isPublicPost: true }])
-    .sort("-postDate")
-    .populate<{ author: IUser }>("author")
-    .limit(post_limit)
-    .exec()
-    .then((posts) => {
-      const postsData = posts.map(post => {
-        return {
-          id: post.id,
-          url: post.url,
-          text: post.text,
-          dateTime: post.postDate,
-          date: post.postDateFormatted,
-          lastEditDate: post.lastEditDateFormatted,
-          author: {
-            id: post.author.id,
-            username: post.author.username,
-            fullName: post.author.fullName,
-            imageUrl: post.author.imageUrl,
-            url: post.author.url
-          },
-          numLikes: post.likes.length,
-          isLiked: post.likes.includes(req.user.id),
-          numComments: post.comments.length
-        }
-      })
+  const body = req.body;
+  const postDate = new Date(Date.now());
 
-      res.status(200).json(postsData);
-    })
-    .catch((err) => next(err));
-});
+  const post = await createPost({ 
+    ...body, 
+    author: user._id, 
+    postDate: postDate 
+  });
 
-export const get_followed_posts = asyncHandler(async (req, res, next) => {
-  Post.find()
-    .where("author").in([req.user.id, ...req.user.following])
-    .sort("-postDate")
-    .populate<{ author: IUser }>("author")
-    .exec()
-    .then((followedPosts) => {
-      const followedPostsData = followedPosts.map(post => {
-        return {
-          id: post.id,
-          url: post.url,
-          text: post.text,
-          dateTime: post.postDate,
-          date: post.postDateFormatted,
-          lastEditDate: post.lastEditDateFormatted,
-          author: {
-            id: post.author.id,
-            username: post.author.username,
-            fullName: post.author.fullName,
-            imageUrl: post.author.imageUrl,
-            url: post.author.url
-          },
-          numLikes: post.likes.length,
-          isLiked: post.likes.includes(req.user.id),
-          numComments: post.comments.length
-        }
-      });
+  return res.status(201).send(post);
+}
 
-      res.status(200).json(followedPostsData);
-    })
-    .catch((err) => next(err));
-});
+export async function getPostHandler(
+  req: Request<ReadPostInput["params"]>, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const postId = req.params.postId;
+  const post = await findPost({ postId });
 
-export const post_get = asyncHandler(async (req, res, next) => {
-  Post.findById(req.params.postId)
-    .populate<{ author: IUser }>("author")
-    .populate<{ comments: IComment[] }>({
-      path: "comments",
-      match: { $or: [{ author: req.user.id }, { isPublicComment: true }] },
-      options: { sort: { postDate: 1 }},
-      populate: { path: "author" }
-    })
-    .exec()
-    .then((post) => {
-      const comments = post.comments.map(comment => {
-        if (comment.author == null || comment.author instanceof Types.ObjectId) {
-          throw new Error('should be populated');
-        } else {
-          return {
-            id: comment.id,
-            post: comment.post,
-            text: comment.text,
-            date: comment.postDateFormatted,
-            author: {
-              id: comment.author.id,
-              username: comment.author.username,
-              fullName: comment.author.fullName,
-              imageUrl: comment.author.imageUrl,
-              url: comment.author.url
-            },
-            numLikes: comment.likes.length,
-            isLiked: comment.likes.includes(req.user.id),
-          }
-        }
-      });
+  if (!post) {
+    return res.sendStatus(404);
+  }
 
-      const postData = {
-        id: post.id,
-        text: post.text,
-        date: post.postDateFormatted,
-        lastEditDate: post.lastEditDateFormatted,
-        author: {
-          id: post.author.id,
-          username: post.author.username,
-          fullName: post.author.fullName,
-          imageUrl: post.author.imageUrl,
-          url: post.author.url
-        },
-        comments: comments,
-        numLikes: post.likes.length,
-        isLiked: post.likes.includes(req.user.id),
-        numComments: post.comments.length
-      };
+  post.isLiked = post.likes.includes(userId);
 
-      res.status(200).json(postData);
-    })
-    .catch((err) => next(err));
-});
+  return res.send(post);
+}
 
-export const post_create = [
-  body("text")
-    .trim()
-    .isLength( { min: 1 })
-    .escape()
-    .withMessage("Post must not be empty."),
+export async function getRecentPostsHandler(
+  req: Request, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
 
-  asyncHandler(async (req, res, next) => {
-    const errors = validationResult(req);
+  const query = {
+    $or: [
+      { author: userId },
+      { isPublicPost: true },
+    ],
+  }
+  
+  const postLimit = parseInt(req.query.limit as string);
 
-    if (!errors.isEmpty()) {
-      res.status(400).json(errors);
-    } else {
-      const post = new Post({
-        author: req.user.id,
-        text: req.body.text,
-        postDate: Date.now(),
-        isPublicPost: !req.user.isGuest,
-      });
-      
-      post.save()
-        .then((newPost) => {
-          res.status(201).json(newPost);
-        })
-        .catch((err) => next(err));
-    };
-  }),
-];
+  const options = {
+    sort: { "postDate": -1 },
+    limit: postLimit
+  }
 
-export const post_update = [
-  isPostAuthor,
+  const posts = await findManyPosts(query, options);
 
-  body("text")
-    .trim()
-    .isLength( { min: 1 })
-    .escape()
-    .withMessage("Post must not be empty."),
+  if (!posts) {
+    return res.sendStatus(404);
+  }
 
-  asyncHandler(async (req, res, next) => {
-    const errors = validationResult(req);
+  return res.json(posts);
+}
 
-    if (!errors.isEmpty()) {
-      res.status(400).json(errors);
-    } else {
-      Post.findOne({ _id: req.params.postId })
-        .then((post) => {
-          post.text = req.body.text;
-          post.lastEditDate = new Date(Date.now());
-          Post.findByIdAndUpdate(post._id, post, {});
-        })
-        .then((updatedPost) => {
-          res.status(200).json(updatedPost);
-        })
-        .catch((err) => next(err));
-    };
-  }),
-];
+export async function getFollowedPostsHandler(
+  req: Request, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const following = res.locals.user.following;
 
-export const post_delete = [
-  isPostAuthor,
+  const query = {
+    $and: [
+      { author: { 
+        $in: [...following, userId]
+      }},
+      { isPublicPost: true },
+    ],
+  }
 
-  asyncHandler(async (req, res, next) => {    
-    Comment.deleteMany({ post: req.params.postId })
-      .then((response) => {
-        Post.findByIdAndDelete(req.params.postId);
-      })
-      .then((response) => {
-        res.status(200).end();
-      })
-      .catch((err) => next(err));
-  }),
-]
+  const options = {
+    sort: { "postDate": -1 }
+  }
 
-export const post_modify_likes = asyncHandler(async (req, res, next) => {
-  Post.findOne({ _id: req.params.postId })
-    .then((post) => {
-      if (req.body.like && !post.likes.includes(req.user.id)) {
-        post.likes.push(req.user.id);
-      } else {
-        post.likes = post.likes.filter((userid) => userid != req.user.id);
-      }
+  const posts = await findManyPosts(query, options);
 
-      post.save();
-    })
-    .then((updatedPost) => {
-      res.status(200).end();
-    })
-    .catch((err) => next(err));
-});
+  if (!posts) {
+    return res.sendStatus(404);
+  }
+
+  return res.json(posts);
+}
+
+export async function getPostsByUserHandler(
+  req: Request, 
+  res: Response
+) {
+  const userId = req.params.userId;
+
+  const query = {
+    $and: [
+      { author: userId },
+      { isPublicPost: true },
+    ],
+  }
+
+  const options = {
+    sort: { "postDate": -1 }
+  };
+
+  const posts = await findManyPosts(query, options);
+
+  if (!posts) {
+    return res.sendStatus(404);
+  }
+
+  return res.json(posts);
+}
+
+export async function updatePostHandler(
+  req: Request<UpdatePostInput["params"]>, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const postId = req.params.postId;
+
+  const [user, post] = await Promise.all([
+    findUser({ userId }),
+    findPost({ postId }),
+  ])
+
+  if (!post) {
+    return res.sendStatus(404);
+  }
+
+  if (!user || user._id !== post.author.id) {
+    return res.sendStatus(403);
+  }
+
+  const update = {
+    ...req.body,
+    lastEditDate: new Date(Date.now()),
+  };
+
+  const updatedPost = await findAndUpdatePost({ postId }, update, {
+    new: true,
+  });
+
+  return res.json(updatedPost);
+}
+
+export async function likePostHandler(
+  req: Request<UpdatePostInput["params"]>, 
+  res: Response
+) {
+  const like = req.body.like;
+  const userId = res.locals.user._id;
+  const postId = req.params.postId;
+
+  const [user, post] = await Promise.all([
+    findUser({ userId }),
+    findPost({ postId }),
+  ])
+
+  if (!user) {
+    return res.sendStatus(403);
+  }
+
+  if (!post) {
+    return res.sendStatus(404);
+  }
+
+  if (like && !post.likes.includes(user._id)) {
+    post.likes.push(user._id);
+  } else {
+    post.likes = post.likes.filter((userid) => userid != user._id);
+  }
+
+  const update = {
+    likes: post.likes,
+  }
+
+  const updatedPost = await findAndUpdatePost({ postId }, update, {
+    new: true,
+  });
+
+  return res.json(updatedPost);
+}
+
+export async function deletePostHandler(
+  req: Request<DeletePostInput["params"]>, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const postId = req.params.postId;
+
+  const [user, post] = await Promise.all([
+    findUser({ userId }),
+    findPost({ postId }),
+  ])
+
+  if (!post) {
+    return res.sendStatus(404);
+  }
+
+  if (!user || user._id !== post.author.id) {
+    return res.sendStatus(403);
+  }
+
+  await deletePost({ postId });
+
+  return res.sendStatus(200);
+}
