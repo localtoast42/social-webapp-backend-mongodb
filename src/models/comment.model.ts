@@ -1,4 +1,5 @@
 import { Schema, Types, model, Document, PopulatedDoc } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { DateTime } from 'luxon';
 import { User } from './user.model.js';
 import { Post } from './post.model.js';
@@ -47,6 +48,8 @@ commentSchema.virtual("lastEditDateFormatted").get(function () {
 commentSchema.virtual("numLikes").get(function () {
   return this.likes.length;
 });
+
+commentSchema.plugin(mongooseLeanVirtuals);
 
 const CommentModel = model<Comment>("Comment", commentSchema);
 
