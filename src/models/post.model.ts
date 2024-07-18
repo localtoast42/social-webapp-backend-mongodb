@@ -1,4 +1,5 @@
 import { Schema, Types, model } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { DateTime } from 'luxon';
 import { User } from './user.model.js';
 
@@ -51,6 +52,8 @@ postSchema.virtual("numLikes").get(function () {
 postSchema.virtual("numComments").get(function () {
   return this.comments.length;
 });
+
+postSchema.plugin(mongooseLeanVirtuals);
 
 const PostModel = model<Post>("Post", postSchema);
 
