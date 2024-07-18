@@ -29,7 +29,7 @@ export async function getUserHandler(
   res: Response
 ) {
   const userId = req.params.userId;
-  const user = await findUser({ userId });
+  const user = await findUser({ _id: userId });
 
   if (!user) {
     return res.sendStatus(404);
@@ -45,7 +45,7 @@ export async function getSelfHandler(
   res: Response
 ) {
   const userId = res.locals.user._id;
-  const user = await findUser({ userId });
+  const user = await findUser({ _id: userId });
 
   if (!user) {
     return res.sendStatus(404);
@@ -92,7 +92,7 @@ export async function updateUserHandler(
   const userId = req.params.userId;
   const update = req.body;
 
-  const user = await findUser({ userId });
+  const user = await findUser({ _id: userId });
 
   if (!user) {
     return res.sendStatus(404);
@@ -102,7 +102,7 @@ export async function updateUserHandler(
     return res.sendStatus(403);
   }
 
-  const updatedUser = await findAndUpdateUser({ userId }, update, { 
+  const updatedUser = await findAndUpdateUser({ _id: userId }, update, { 
     new: true, 
   });
 
@@ -116,7 +116,7 @@ export async function deleteUserHandler(
   const requestingUserId = res.locals.user._id;
   const userId = req.params.userId;
 
-  const user = await findUser({ userId });
+  const user = await findUser({ _id: userId });
 
   if (!user) {
     return res.sendStatus(404);
@@ -126,7 +126,7 @@ export async function deleteUserHandler(
     return res.sendStatus(403);
   }
 
-  await deleteUser({ userId });
+  await deleteUser({ _id: userId });
 
   return res.sendStatus(200);
 }
@@ -136,7 +136,7 @@ export async function getUserFollowsHandler(
   res: Response
 ) {
   const userId = req.params.userId;
-  const userFollows = await findUser({ userId }, "following" );
+  const userFollows = await findUser({ _id: userId }, "following" );
 
   return res.send(userFollows);
 }
@@ -149,8 +149,8 @@ export async function followUserHandler(
   const targetUserId = req.params.userId;
 
   const [requestingUser, targetUser] = await Promise.all([
-    findUser({ requestingUserId }),
-    findUser({ targetUserId })
+    findUser({ _id: requestingUserId }),
+    findUser({ _id: targetUserId })
   ])
 
   if (!targetUser || !requestingUser) {
@@ -170,12 +170,12 @@ export async function followUserHandler(
 
   await Promise.all([
     findAndUpdateUser(
-      { requestingUserId }, 
+      { _id: requestingUserId }, 
       requestingUserUpdates, 
       { new: true }
     ),
     findAndUpdateUser(
-      { targetUserId }, 
+      { _id: targetUserId }, 
       targetUserUpdates, 
       { new: true }
     )
@@ -192,8 +192,8 @@ export async function unfollowUserHandler(
   const targetUserId = req.params.userId;
 
   const [requestingUser, targetUser] = await Promise.all([
-    findUser({ requestingUserId }),
-    findUser({ targetUserId })
+    findUser({ _id: requestingUserId }),
+    findUser({ _id: targetUserId })
   ])
 
   if (!targetUser || !requestingUser) {
@@ -205,12 +205,12 @@ export async function unfollowUserHandler(
 
   await Promise.all([
     findAndUpdateUser(
-      { requestingUserId }, 
+      { _id: requestingUserId }, 
       requestingUserUpdates, 
       { new: true }
     ),
     findAndUpdateUser(
-      { targetUserId }, 
+      { _id: targetUserId }, 
       targetUserUpdates, 
       { new: true }
     )
