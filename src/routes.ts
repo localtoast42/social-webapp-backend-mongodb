@@ -19,7 +19,15 @@ import {
   unfollowUserHandler, 
   updateUserHandler
 } from './controllers/user.controller.js';
-import { createPostHandler, deletePostHandler, getFollowedPostsHandler, getPostHandler, getRecentPostsHandler, likePostHandler, updatePostHandler } from './controllers/post.controller.js';
+import { 
+  createPostHandler, 
+  deletePostHandler, 
+  getFollowedPostsHandler, 
+  getPostHandler, 
+  getRecentPostsHandler, 
+  likePostHandler, 
+  updatePostHandler 
+} from './controllers/post.controller.js';
 import { createCommentHandler } from './controllers/comment.controller.js';
 import { createSessionSchema } from './schemas/session.schema.js';
 import { createUserSchema } from './schemas/user.schema.js';
