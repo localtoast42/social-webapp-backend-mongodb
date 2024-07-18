@@ -28,7 +28,7 @@ import {
   likePostHandler, 
   updatePostHandler 
 } from './controllers/post.controller.js';
-import { createCommentHandler } from './controllers/comment.controller.js';
+import { createCommentHandler, deleteCommentHandler, likeCommentHandler, updateCommentHandler } from './controllers/comment.controller.js';
 import { createSessionSchema } from './schemas/session.schema.js';
 import { createUserSchema } from './schemas/user.schema.js';
 import { createPostSchema, updatePostSchema } from './schemas/post.schema.js';
@@ -185,6 +185,24 @@ function routes(app: Express) {
     '/api/v1/posts/:postId/comments',
     [requireUser, validateResource(createCommentSchema)], 
     createCommentHandler
+  );
+
+  app.put(
+    '/api/v1/posts/:postId/comments/:commentId',
+    requireUser, 
+    updateCommentHandler
+  );
+
+  app.delete(
+    '/api/v1/posts/:postId/comments/:commentId',
+    requireUser, 
+    deleteCommentHandler
+  );
+
+  app.post(
+    '/api/v1/posts/:postId/comments/:commentId/like',
+    requireUser, 
+    likeCommentHandler
   );
 }
 
