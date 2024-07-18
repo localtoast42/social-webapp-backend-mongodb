@@ -1,117 +1,178 @@
-import Post from '../models/post.model.js';
-import { IUser } from '../models/user.model.js';
-import Comment from '../models/comment.model.js';
-import asyncHandler from 'express-async-handler';
-import { body, validationResult } from 'express-validator';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
+import { 
+  CreateCommentInput, 
+  ReadCommentInput,
+  UpdateCommentInput,
+  DeleteCommentInput
+} from '../schemas/comment.schema.js';
+import { 
+  createComment, 
+  findComment,
+  findAndUpdateComment, 
+  deleteComment
+} from '../services/comment.service.js';
+import { findUser } from '../services/user.service.js';
+import { findAndUpdatePost, findPost } from '../services/post.service.js';
 
-function isCommentAuthor(req: Request, res: Response, next: NextFunction) {
-  Comment.findOne({ _id: req.params.commentId })
-    .populate<{ author: IUser }>("author")
-    .then((comment) => {
-      if (comment.author.id === req.user.id) {
-        next();
-      } else {
-        res.status(401).json({ success: false, msg: "Unauthorized" });
-      }
-    })
-    .catch((err) => next(err));
-};
+export async function createCommentHandler(
+  req: Request<CreateCommentInput["params"], {}, CreateCommentInput["body"]>, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const postId = req.params.postId;
 
-export const comment_create = [
-  body("text")
-    .trim()
-    .isLength( { min: 1 })
-    .escape()
-    .withMessage("Comment must not be empty."),
+  const [user, post] = await Promise.all([
+    findUser({ userId }),
+    findPost({ postId }),
+  ])
 
-  asyncHandler(async (req, res, next) => {
-    const errors = validationResult(req);
+  if (!user) {
+    return res.sendStatus(403);
+  }
 
-    if (!errors.isEmpty()) {
-      res.status(400).json(errors);
-    } else {
-      Post.findOne({ _id: req.params.postId })
-        .then((post) => {
-          const comment = new Comment({
-            author: req.user.id,
-            text: req.body.text,
-            post: req.params.postId,
-            postDate: Date.now(),
-            isPublicComment: !req.user.isGuest,
-          });
+  if (!post) {
+    return res.sendStatus(404);
+  }
 
-          const promise = comment.save()
-            .then((newComment) => {
-              post.comments.push(newComment.id);
-              return Post.findByIdAndUpdate(post._id, post, {});
-            });
+  const body = req.body;
+  const postDate = new Date(Date.now());
 
-          return promise;
-        })
-        .then((response) => {
-          res.status(201).end();
-        })
-        .catch((err) => next(err));
-    };
-  }),
-];
+  const comment = await createComment({ 
+    ...body, 
+    post: post._id, 
+    author: user._id,
+    postDate: postDate 
+  });
 
-export const comment_update = [
-  isCommentAuthor,
+  post.comments.push(comment._id);
 
-  body("text")
-    .trim()
-    .isLength( { min: 1 })
-    .escape()
-    .withMessage("Comment must not be empty."),
+  const update = {
+    comments: post.comments,
+  }
 
-  asyncHandler(async (req, res, next) => {
-    const errors = validationResult(req);
+  await findAndUpdatePost({ postId }, update, {});
 
-    if (!errors.isEmpty()) {
-      res.status(400).json(errors);
-    } else {
-      Comment.findOne({ _id: req.params.commentId })
-        .then((comment) => {
-          comment.text = req.body.text;
-          comment.lastEditDate = new Date(Date.now());
+  return res.status(201).json(comment);
+}
 
-          Comment.findByIdAndUpdate(comment._id, comment, {});
-        })
-        .then((response) => {
-          res.status(200).end();
-        })
-        .catch((err) => next(err));
-    }
-  }),
-];
+export async function getCommentHandler(
+  req: Request<ReadCommentInput["params"]>, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const commentId = req.params.commentId;
+  const comment = await findComment({ commentId });
 
-export const comment_delete = [
-  isCommentAuthor,
+  if (!comment) {
+    return res.sendStatus(404);
+  }
 
-  asyncHandler(async (req, res, next) => {   
-    Comment.findByIdAndDelete(req.params.commentId)
-      .then((response) => {
-        res.status(200).end();
-      })
-      .catch((err) => next(err));
-  }),
-];
+  comment.isLiked = comment.likes.includes(userId);
 
-export const comment_modify_likes = asyncHandler(async (req, res, next) => {
-  Comment.findOne({ _id: req.params.commentId })
-    .then((comment) => {
-      if (req.body.like && !comment.likes.includes(req.user.id)) {
-        comment.likes.push(req.user.id);
-      } else {
-        comment.likes = comment.likes.filter((userid) => userid != req.user.id);
-      }
+  return res.json(comment);
+}
 
-      comment.save();
-    })
-    .then((updatedComment) => {
-      res.status(200).end();
-    })
-    .catch((err) => next(err));
-});
+export async function updateCommentHandler(
+  req: Request<UpdateCommentInput["params"]>, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const commentId = req.params.commentId;
+
+  const [user, comment] = await Promise.all([
+    findUser({ userId }),
+    findComment({ commentId }),
+  ])
+
+  if (!comment) {
+    return res.sendStatus(404);
+  }
+
+  if (!user || user._id !== comment.author) {
+    return res.sendStatus(403);
+  }
+
+  const update = {
+    ...req.body,
+    lastEditDate: new Date(Date.now()),
+  };
+
+  const updatedComment = await findAndUpdateComment({ commentId }, update, {
+    new: true,
+  });
+
+  return res.json(updatedComment);
+}
+
+export async function deleteCommentHandler(
+  req: Request<DeleteCommentInput["params"]>, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const postId = req.params.postId;
+  const commentId = req.params.commentId;
+
+  const [user, post, comment] = await Promise.all([
+    findUser({ userId }),
+    findPost({ postId }),
+    findComment({ commentId }),
+  ])
+
+  if (!post || !comment) {
+    return res.sendStatus(404);
+  }
+
+  if (!user || user._id !== comment.author) {
+    return res.sendStatus(403);
+  }
+
+  post.comments.filter((commentid) => commentid != comment._id);
+
+  const update = {
+    comments: post.comments,
+  }
+
+  await findAndUpdatePost({ postId }, update, {});
+
+  await deleteComment({ commentId });
+
+  return res.sendStatus(200);
+}
+
+export async function likeCommentHandler(
+  req: Request<UpdateCommentInput["params"]>, 
+  res: Response
+) {
+  const like = req.body.like;
+  const userId = res.locals.user._id;
+  const commentId = req.params.commentId;
+
+  const [user, comment] = await Promise.all([
+    findUser({ userId }),
+    findComment({ commentId }),
+  ])
+
+  if (!user) {
+    return res.sendStatus(403);
+  }
+
+  if (!comment) {
+    return res.sendStatus(404);
+  }
+
+  if (like && !comment.likes.includes(user._id)) {
+    comment.likes.push(user._id);
+  } else {
+    comment.likes = comment.likes.filter((userid) => userid != user._id);
+  }
+
+  const update = {
+    likes: comment.likes,
+  }
+
+  const updatedComment = await findAndUpdateComment({ commentId }, update, {
+    new: true,
+  });
+
+  return res.json(updatedComment);
+}
