@@ -3,7 +3,8 @@ import {
   CreateCommentInput, 
   ReadCommentInput,
   UpdateCommentInput,
-  DeleteCommentInput
+  DeleteCommentInput,
+  LikeCommentInput
 } from '../schemas/comment.schema.js';
 import { 
   createComment, 
@@ -73,7 +74,7 @@ export async function getCommentHandler(
 }
 
 export async function updateCommentHandler(
-  req: Request<UpdateCommentInput["params"]>, 
+  req: Request<UpdateCommentInput["params"], {}, UpdateCommentInput["body"]>, 
   res: Response
 ) {
   const userId = res.locals.user._id;
@@ -140,7 +141,7 @@ export async function deleteCommentHandler(
 }
 
 export async function likeCommentHandler(
-  req: Request<UpdateCommentInput["params"]>, 
+  req: Request<LikeCommentInput["params"], {}, LikeCommentInput["body"]>, 
   res: Response
 ) {
   const like = req.body.like;
