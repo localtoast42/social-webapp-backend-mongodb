@@ -8,32 +8,38 @@ const payload = {
   }),
 };
 
-const params = {
-  params: object({
-    postId: string({
-      required_error: 'postId is required',
-    }),
+const params = object({
+  postId: string({
+    required_error: 'postId is required',
   }),
-};
+  userId: string({
+    required_error: 'userId is required',
+  }),
+})
 
 export const createPostSchema = object({
   ...payload,
 });
 
 export const getPostSchema = object({
-  ...params,
+  params: params.pick({ postId: true }),
+});
+
+export const getPostByUserSchema = object({
+  params: params.pick({ userId: true }),
 });
 
 export const updatePostSchema = object({
   ...payload,
-  ...params,
+  params: params.pick({ postId: true }),
 });
 
 export const deletePostSchema = object({
-  ...params,
+  params: params.pick({ postId: true }),
 });
 
 export type CreatePostInput = TypeOf<typeof createPostSchema>
 export type ReadPostInput = TypeOf<typeof getPostSchema>
+export type ReadPostByUserInput = TypeOf<typeof getPostByUserSchema>
 export type UpdatePostInput = TypeOf<typeof updatePostSchema>
 export type DeletePostInput = TypeOf<typeof deletePostSchema>
