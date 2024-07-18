@@ -1,38 +1,48 @@
 import { fakerEN_US as faker } from '@faker-js/faker';
-import { HydratedDocument } from 'mongoose';
-import User, { IUser } from '../models/user.js';
-import Post from '../models/post.js';
+import { User, UserCreate } from '../models/user.model.js';
+import { PostCreate } from '../models/post.model.js';
+import { createUser } from '../services/user.service.js';
+import { createPost } from '../services/post.service.js';
 
-export function createRandomUser() {
+export async function createRandomUser() {
   const firstName = faker.person.firstName();
   const lastName = faker.person.lastName();
   const password = firstName.concat('', lastName);
   const username = faker.internet.userName({ firstName: firstName, lastName: lastName });
 
-  const user = new User({
+  const input: UserCreate = {
     username: username,
     password: password,
-    imageUrl: faker.image.avatarGitHub(),
     firstName: firstName,
     lastName: lastName,
     city: faker.location.city(),
     state: faker.location.state(),
     country: 'United States',
-    isAdmin: false,
-  });
-  
-  return user;
+    imageUrl: faker.image.avatarGitHub(),
+  };
+
+  try {
+    const user = await createUser(input);
+    return user;
+  } catch (e: any) {
+    throw new Error(e);
+  }
 }
 
-export function createRandomPost(user: HydratedDocument<IUser>) {
+export async function createRandomPost(user: User) {
   const postDate = faker.date.between({ from: '2024-06-01T00:00:00.000Z', to: Date.now()})
 
-  const post = new Post({
+  const input: PostCreate = {
     author: user.id,
     text: faker.lorem.paragraph({ min: 1, max: 4 }),
     postDate: postDate,
     isPublicPost: true
-  });
+  };
 
-  return post;
+  try {
+    const post = await createPost(input);
+    return post;
+  } catch (e: any) {
+    throw new Error(e);
+  }
 }
