@@ -66,7 +66,12 @@ export async function findAndUpdateUser(
   update: UpdateQuery<User>,
   options: QueryOptions
 ) {
-  return UserModel.findOneAndUpdate(query, update, options);
+  try {
+    const result = await UserModel.findOneAndUpdate(query, update, options);
+    return result;
+  } catch (err) {
+    throw err;
+  }
 }
 
 export async function deleteUser(query: FilterQuery<User>) {
