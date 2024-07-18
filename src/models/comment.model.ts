@@ -3,21 +3,23 @@ import { DateTime } from 'luxon';
 import { User } from './user.model.js';
 import { Post } from './post.model.js';
 
-export interface CommentInput { 
+export interface CommentCreate { 
   post: Post["id"];
   author: PopulatedDoc<Document<Types.ObjectId> & User>;
   text: string;
+  postDate: Date;
+  isPublicComment?: boolean;
 }
 
-export interface Comment extends CommentInput {
+export interface Comment extends CommentCreate {
   id: Types.ObjectId;
-  postDate: Date;
   lastEditDate: Date;
-  isPublicComment: boolean;
   likes: Array<Types.ObjectId>;
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
+  isLiked?: boolean;
+  numLikes?: number;
 };
 
 const commentSchema = new Schema<Comment>({
