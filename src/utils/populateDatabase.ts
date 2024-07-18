@@ -1,5 +1,6 @@
+import { Types } from 'mongoose';
 import { fakerEN_US as faker } from '@faker-js/faker';
-import { User, UserCreate } from '../models/user.model.js';
+import { UserCreate } from '../models/user.model.js';
 import { PostCreate } from '../models/post.model.js';
 import { createUser } from '../services/user.service.js';
 import { createPost } from '../services/post.service.js';
@@ -29,11 +30,11 @@ export async function createRandomUser() {
   }
 }
 
-export async function createRandomPost(user: User) {
+export async function createRandomPost(userId: Types.ObjectId) {
   const postDate = faker.date.between({ from: '2024-06-01T00:00:00.000Z', to: Date.now()})
 
   const input: PostCreate = {
-    author: user.id,
+    author: userId,
     text: faker.lorem.paragraph({ min: 1, max: 4 }),
     postDate: postDate,
     isPublicPost: true
