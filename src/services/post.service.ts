@@ -1,5 +1,6 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
 import PostModel, { Post, PostCreate } from "../models/post.model.js";
+import { User } from "../models/user.model.js";
 
 export async function createPost(input: PostCreate) {
   try {
@@ -11,6 +12,13 @@ export async function createPost(input: PostCreate) {
 }
 
 export async function findPost(query: FilterQuery<Post>) {
+  const result = PostModel.findOne(query).
+    populate<{ author: User }>("author").
+    lean({ virtuals: true });
+  return result;
+}
+
+export async function findPostsByUser(query: FilterQuery<Post>) {
   return PostModel.findOne(query).lean();
 }
 
