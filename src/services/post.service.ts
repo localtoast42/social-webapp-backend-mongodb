@@ -1,4 +1,4 @@
-import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
+import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
 import PostModel, { Post, PostCreate } from "../models/post.model.js";
 import { User } from "../models/user.model.js";
 
@@ -20,9 +20,10 @@ export async function findPost(query: FilterQuery<Post>) {
 
 export async function findManyPosts(
   query: FilterQuery<Post>,
-  options: QueryOptions
+  projection?: ProjectionType<Post>,
+  options?: QueryOptions
 ) {
-  const result = PostModel.find(query, options).
+  const result = PostModel.find(query, projection, options).
     populate<{ author: User }>("author", "-password").
     lean({ virtuals: true });
   return result;
