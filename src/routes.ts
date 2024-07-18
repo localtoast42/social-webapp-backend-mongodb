@@ -29,6 +29,7 @@ import {
   deletePostHandler, 
   getFollowedPostsHandler, 
   getPostHandler, 
+  getPostsByUserHandler, 
   getRecentPostsHandler, 
   likePostHandler, 
   updatePostHandler 
@@ -117,7 +118,7 @@ function routes(app: Express) {
   app.get(
     '/api/v1/users/:userId/posts', 
     requireUser,
-    
+    getPostsByUserHandler
   );
 
   app.get(
