@@ -37,8 +37,8 @@ export async function findUser(
   try {
     const result = await UserModel.findOne(query, projection);
     return result;
-  } catch (err) {
-    throw err;
+  } catch (e: any) {
+    throw new Error(e);
   }
 }
 
