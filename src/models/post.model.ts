@@ -2,16 +2,16 @@ import { Schema, Types, model } from 'mongoose';
 import { DateTime } from 'luxon';
 import { User } from './user.model.js';
 
-export interface PostInput {
+export interface PostCreate {
   author: User["id"];
   text: string;
+  postDate: Date;
+  isPublicPost?: boolean;
 };
 
-export interface Post extends PostInput {
+export interface Post extends PostCreate {
   id: Types.ObjectId;
-  postDate: Date;
   lastEditDate: Date;
-  isPublicPost: boolean;
   likes: Array<Types.ObjectId>;
   comments: Array<Types.ObjectId>;
   url: string;
