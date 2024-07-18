@@ -157,15 +157,20 @@ export async function followUserHandler(
     return res.sendStatus(404);
   }
 
-  const requestingUserUpdates = requestingUser.following;
-  const targetUserUpdates = targetUser.followers;
-
   if (!requestingUser.following.includes(targetUser._id)) {
-    requestingUserUpdates.push(targetUser._id);
+    requestingUser.following.push(targetUser._id);
   }
 
   if (!targetUser.followers.includes(requestingUser._id)) {
-    targetUserUpdates.push(requestingUser._id);
+    targetUser.followers.push(requestingUser._id);
+  }
+
+  const requestingUserUpdates = {
+    following: requestingUser.following,
+  }
+
+  const targetUserUpdates = {
+    followers: targetUser.followers,
   }
 
   await Promise.all([
@@ -200,8 +205,20 @@ export async function unfollowUserHandler(
     return res.sendStatus(404);
   }
 
-  const requestingUserUpdates = requestingUser.following.filter((userId) => userId !== targetUser._id);
-  const targetUserUpdates = targetUser.followers.filter((userId) => userId !== requestingUser._id)
+  requestingUser.following = requestingUser.following.filter((userId) => {
+    return userId.toString() !== targetUser._id.toString();
+  });
+  targetUser.followers = targetUser.followers.filter((userId) => {
+    return userId.toString() !== requestingUser._id.toString();
+  })
+
+  const requestingUserUpdates = {
+    following: requestingUser.following,
+  }
+
+  const targetUserUpdates = {
+    followers: targetUser.followers,
+  }
 
   await Promise.all([
     findAndUpdateUser(
