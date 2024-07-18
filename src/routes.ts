@@ -5,7 +5,7 @@ import requireAdmin from './middleware/requireAdmin.js';
 import { createSessionSchema } from './schemas/session.schema.js';
 import { createUserSchema } from './schemas/user.schema.js';
 import { createPostSchema, updatePostSchema } from './schemas/post.schema.js';
-import { createCommentSchema } from './schemas/comment.schema.js';
+import { createCommentSchema, updateCommentSchema } from './schemas/comment.schema.js';
 import { createGuest } from './middleware/createGuest.js';
 import { 
   createUserSessionHandler, 
@@ -202,7 +202,7 @@ function routes(app: Express) {
 
   app.put(
     '/api/v1/posts/:postId/comments/:commentId',
-    requireUser, 
+    [requireUser, validateResource(updateCommentSchema)],
     updateCommentHandler
   );
 
