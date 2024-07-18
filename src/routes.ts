@@ -36,6 +36,7 @@ import {
 import { 
   createCommentHandler, 
   deleteCommentHandler, 
+  getCommentHandler, 
   likeCommentHandler, 
   updateCommentHandler 
 } from './controllers/comment.controller.js';
@@ -191,6 +192,12 @@ function routes(app: Express) {
     '/api/v1/posts/:postId/comments',
     [requireUser, validateResource(createCommentSchema)], 
     createCommentHandler
+  );
+
+  app.get(
+    '/api/v1/posts/:postId/comments/:commentId',
+    requireUser, 
+    getCommentHandler
   );
 
   app.put(
