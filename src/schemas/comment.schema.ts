@@ -8,33 +8,31 @@ const payload = {
   }),
 };
 
-const params = {
-  params: object({
-    postId: string({
-      required_error: 'postId is required',
-    }),
-    commentId: string({
-      required_error: 'commentId is required',
-    }),
+const params = object({
+  postId: string({
+    required_error: 'postId is required',
   }),
-};
+  commentId: string({
+    required_error: 'commentId is required',
+  }),
+})
 
 export const createCommentSchema = object({
   ...payload,
-  ...params,
+  params: params.pick({ postId: true }),
 });
 
 export const getCommentSchema = object({
-  ...params,
+  params: params.pick({ commentId: true }),
 });
 
 export const updateCommentSchema = object({
   ...payload,
-  ...params,
+  params: params.pick({ commentId: true }),
 });
 
 export const deleteCommentSchema = object({
-  ...params,
+  params: params,
 });
 
 export type CreateCommentInput = TypeOf<typeof createCommentSchema>
