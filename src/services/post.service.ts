@@ -18,6 +18,16 @@ export async function findPost(query: FilterQuery<Post>) {
   return result;
 }
 
+export async function findManyPosts(
+  query: FilterQuery<Post>,
+  options: QueryOptions
+) {
+  const result = PostModel.find(query, options).
+    populate<{ author: User }>("author").
+    lean({ virtuals: true });
+  return result;
+}
+
 export async function findPostsByUser(query: FilterQuery<Post>) {
   return PostModel.findOne(query).lean();
 }
