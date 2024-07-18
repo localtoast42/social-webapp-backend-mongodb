@@ -21,7 +21,7 @@ export async function createPostHandler(
   res: Response
 ) {
   const userId = res.locals.user._id;
-  const user = await findUser({ userId });
+  const user = await findUser({ _id: userId });
 
   if (!user) {
     return res.sendStatus(403);
@@ -45,7 +45,7 @@ export async function getPostHandler(
 ) {
   const userId = res.locals.user._id;
   const postId = req.params.postId;
-  const post = await findPost({ postId });
+  const post = await findPost({ _id: postId });
 
   if (!post) {
     return res.sendStatus(404);
@@ -148,8 +148,8 @@ export async function updatePostHandler(
   const postId = req.params.postId;
 
   const [user, post] = await Promise.all([
-    findUser({ userId }),
-    findPost({ postId }),
+    findUser({ _id: userId }),
+    findPost({ _id: postId }),
   ])
 
   if (!post) {
@@ -165,7 +165,7 @@ export async function updatePostHandler(
     lastEditDate: new Date(Date.now()),
   };
 
-  const updatedPost = await findAndUpdatePost({ postId }, update, {
+  const updatedPost = await findAndUpdatePost({ _id: postId }, update, {
     new: true,
   });
 
@@ -181,8 +181,8 @@ export async function likePostHandler(
   const postId = req.params.postId;
 
   const [user, post] = await Promise.all([
-    findUser({ userId }),
-    findPost({ postId }),
+    findUser({ _id: userId }),
+    findPost({ _id: postId }),
   ])
 
   if (!user) {
@@ -203,7 +203,7 @@ export async function likePostHandler(
     likes: post.likes,
   }
 
-  const updatedPost = await findAndUpdatePost({ postId }, update, {
+  const updatedPost = await findAndUpdatePost({ _id: postId }, update, {
     new: true,
   });
 
@@ -218,8 +218,8 @@ export async function deletePostHandler(
   const postId = req.params.postId;
 
   const [user, post] = await Promise.all([
-    findUser({ userId }),
-    findPost({ postId }),
+    findUser({ _id: userId }),
+    findPost({ _id: postId }),
   ])
 
   if (!post) {
@@ -230,7 +230,7 @@ export async function deletePostHandler(
     return res.sendStatus(403);
   }
 
-  await deletePost({ postId });
+  await deletePost({ _id: postId });
 
   return res.sendStatus(200);
 }
