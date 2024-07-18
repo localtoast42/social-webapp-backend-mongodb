@@ -85,9 +85,9 @@ function routes(app: Express) {
   );
 
   app.get(
-    '/api/v1/users/:userId', 
+    '/api/v1/users', 
     requireUser,
-    getUserHandler
+    getUserListHandler
   );
 
   app.get(
@@ -97,9 +97,9 @@ function routes(app: Express) {
   );
 
   app.get(
-    '/api/v1/users', 
+    '/api/v1/users/:userId', 
     requireUser,
-    getUserListHandler
+    getUserHandler
   );
 
   app.put(
