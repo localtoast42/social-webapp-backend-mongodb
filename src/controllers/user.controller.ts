@@ -9,8 +9,19 @@ import {
   findAndUpdateUser, 
   deleteUser 
 } from '../services/user.service.js';
-import { CreateUserInput, DeleteUserInput, FollowUserInput, PopulateUsersInput, ReadUserInput, UnfollowUserInput, UpdateUserInput } from '../schemas/user.schema.js';
-import { createRandomPost, createRandomUser } from '../utils/populateDatabase.js';
+import { 
+  CreateUserInput, 
+  DeleteUserInput, 
+  FollowUserInput, 
+  PopulateUsersInput, 
+  ReadUserInput, 
+  UnfollowUserInput, 
+  UpdateUserInput 
+} from '../schemas/user.schema.js';
+import { 
+  createRandomPost, 
+  createRandomUser 
+} from '../utils/populateDatabase.js';
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput["body"]>, 

@@ -14,7 +14,10 @@ import {
   deleteComment
 } from '../services/comment.service.js';
 import { findUser } from '../services/user.service.js';
-import { findAndUpdatePost, findPost } from '../services/post.service.js';
+import { 
+  findAndUpdatePost, 
+  findPost 
+} from '../services/post.service.js';
 
 export async function createCommentHandler(
   req: Request<CreateCommentInput["params"], {}, CreateCommentInput["body"]>, 
