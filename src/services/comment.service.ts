@@ -1,7 +1,7 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
-import CommentModel, { Comment, CommentInput } from "../models/comment.model.js";
+import CommentModel, { Comment, CommentCreate } from "../models/comment.model.js";
 
-export async function createComment(input: CommentInput) {
+export async function createComment(input: CommentCreate) {
   try {
     return await CommentModel.create(input);
   } catch (e: any) {
