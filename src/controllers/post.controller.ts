@@ -3,7 +3,8 @@ import {
   CreatePostInput, 
   ReadPostInput,
   UpdatePostInput, 
-  DeletePostInput 
+  DeletePostInput, 
+  ReadPostByUserInput
 } from '../schemas/post.schema.js';
 import { 
   createPost, 
@@ -113,7 +114,7 @@ export async function getFollowedPostsHandler(
 }
 
 export async function getPostsByUserHandler(
-  req: Request, 
+  req: Request<ReadPostByUserInput["params"]>, 
   res: Response
 ) {
   const userId = req.params.userId;
