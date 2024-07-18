@@ -10,6 +10,9 @@ const payload = {
 
 const params = {
   params: object({
+    postId: string({
+      required_error: 'postId is required',
+    }),
     commentId: string({
       required_error: 'commentId is required',
     }),
@@ -18,6 +21,7 @@ const params = {
 
 export const createCommentSchema = object({
   ...payload,
+  ...params,
 });
 
 export const getCommentSchema = object({
