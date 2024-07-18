@@ -44,6 +44,10 @@ commentSchema.virtual("lastEditDateFormatted").get(function () {
   return this.lastEditDate ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATETIME_SHORT) : '';
 });
 
+commentSchema.virtual("numLikes").get(function () {
+  return this.likes.length;
+});
+
 const CommentModel = model<Comment>("Comment", commentSchema);
 
 export default CommentModel;
