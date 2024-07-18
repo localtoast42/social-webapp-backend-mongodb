@@ -2,6 +2,11 @@ import { Express, Request, Response } from 'express';
 import validateResource from './middleware/validateResource.js';
 import requireUser from './middleware/requireUser.js';
 import requireAdmin from './middleware/requireAdmin.js';
+import { createSessionSchema } from './schemas/session.schema.js';
+import { createUserSchema } from './schemas/user.schema.js';
+import { createPostSchema, updatePostSchema } from './schemas/post.schema.js';
+import { createCommentSchema } from './schemas/comment.schema.js';
+import { createGuest } from './middleware/createGuest.js';
 import { 
   createUserSessionHandler, 
   deleteUserSessionHandler, 
@@ -28,12 +33,13 @@ import {
   likePostHandler, 
   updatePostHandler 
 } from './controllers/post.controller.js';
-import { createCommentHandler, deleteCommentHandler, likeCommentHandler, updateCommentHandler } from './controllers/comment.controller.js';
-import { createSessionSchema } from './schemas/session.schema.js';
-import { createUserSchema } from './schemas/user.schema.js';
-import { createPostSchema, updatePostSchema } from './schemas/post.schema.js';
-import { createCommentSchema } from './schemas/comment.schema.js';
-import { createGuest } from './middleware/createGuest.js';
+import { 
+  createCommentHandler, 
+  deleteCommentHandler, 
+  likeCommentHandler, 
+  updateCommentHandler 
+} from './controllers/comment.controller.js';
+
 
 function routes(app: Express) {
   app.get('/healthcheck', (req: Request, res: Response) => res.sendStatus(200));
