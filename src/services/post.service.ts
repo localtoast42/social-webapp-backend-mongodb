@@ -1,9 +1,10 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
-import PostModel, { Post, PostInput } from "../models/post.model.js";
+import PostModel, { Post, PostCreate } from "../models/post.model.js";
 
-export async function createPost(input: PostInput) {
+export async function createPost(input: PostCreate) {
   try {
-    return await PostModel.create(input);
+    const post = await PostModel.create(input);
+    return post.toJSON();
   } catch (e: any) {
     throw new Error(e);
   }
