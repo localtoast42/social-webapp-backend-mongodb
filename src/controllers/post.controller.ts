@@ -82,7 +82,7 @@ export async function getRecentPostsHandler(
     limit: postLimit
   }
 
-  const posts = await findManyPosts(query, options);
+  const posts = await findManyPosts(query, {}, options);
 
   if (!posts) {
     return res.sendStatus(404);
@@ -111,7 +111,7 @@ export async function getFollowedPostsHandler(
     sort: { "postDate": -1 }
   }
 
-  const posts = await findManyPosts(query, options);
+  const posts = await findManyPosts(query, {}, options);
 
   if (!posts) {
     return res.sendStatus(404);
@@ -141,7 +141,7 @@ export async function getPostsByUserHandler(
     sort: { "postDate": -1 }
   };
 
-  const posts = await findManyPosts(query, options);
+  const posts = await findManyPosts(query, {}, options);
 
   if (!posts) {
     return res.sendStatus(404);
