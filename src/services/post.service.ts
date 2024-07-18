@@ -13,7 +13,7 @@ export async function createPost(input: PostCreate) {
 
 export async function findPost(query: FilterQuery<Post>) {
   const result = PostModel.findOne(query).
-    populate<{ author: User }>("author").
+    populate<{ author: User }>("author", "-password").
     lean({ virtuals: true });
   return result;
 }
@@ -23,7 +23,7 @@ export async function findManyPosts(
   options: QueryOptions
 ) {
   const result = PostModel.find(query, options).
-    populate<{ author: User }>("author").
+    populate<{ author: User }>("author", "-password").
     lean({ virtuals: true });
   return result;
 }
