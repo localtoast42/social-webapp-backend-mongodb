@@ -99,12 +99,8 @@ export async function getFollowedPostsHandler(
   const following = res.locals.user.following;
 
   const query = {
-    $and: [
-      { author: { 
-        $in: [...following, userId]
-      }},
-      { isPublicPost: true },
-    ],
+    'author': { $in: [...following, userId] },
+    isPublicPost: true,
   }
 
   const options = {
