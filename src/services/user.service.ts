@@ -34,7 +34,12 @@ export async function findUser(
   query: FilterQuery<User>,
   projection?: ProjectionType<User>
 ) {
-  return UserModel.findOne(query, projection ?? '').lean({ virtuals: true });
+  try {
+    const result = await UserModel.findOne(query).lean();
+    return result;
+  } catch (err) {
+    throw err;
+  }
 }
 
 export async function findUsersByName(
