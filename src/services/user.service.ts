@@ -42,9 +42,10 @@ export async function findUser(
   }
 }
 
-export async function findUsersByName(
+export async function findManyUsers(
   query: FilterQuery<User>,
-  options: QueryOptions
+  projection?: ProjectionType<User>,
+  options?: QueryOptions
 ) {
   const publicFields = {
     username: 1,
@@ -58,7 +59,7 @@ export async function findUsersByName(
     url: 1,
   }
 
-  return UserModel.find(query, options).select(publicFields);
+  return UserModel.find(query, projection, options).select(publicFields);
 }
 
 export async function findAndUpdateUser(
