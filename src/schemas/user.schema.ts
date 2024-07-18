@@ -20,6 +20,7 @@ export const createUserSchema = object({
     city: string(),
     state: string(),
     country: string(),
+    imageUrl: string(),
   }).refine((data) => data.password === data.passwordConfirmation, {
     message: "Passwords do not match",
     path: ["passwordConfirmation"],
