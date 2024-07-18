@@ -17,6 +17,9 @@ export interface Post extends PostCreate {
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
+  isLiked?: boolean;
+  numLikes?: number;
+  numComments?: number;
 };
 
 const postSchema = new Schema<Post>({
@@ -39,6 +42,14 @@ postSchema.virtual("postDateFormatted").get(function () {
 
 postSchema.virtual("lastEditDateFormatted").get(function () {
   return this.lastEditDate ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATE_MED) : '';
+});
+
+postSchema.virtual("numLikes").get(function () {
+  return this.likes.length;
+});
+
+postSchema.virtual("numComments").get(function () {
+  return this.comments.length;
 });
 
 const PostModel = model<Post>("Post", postSchema);
