@@ -79,12 +79,6 @@ function routes(app: Express) {
     createUserHandler
   );
 
-  app.post(
-    '/api/v1/users', 
-    validateResource(createUserSchema), 
-    createUserHandler
-  );
-
   app.get(
     '/api/v1/users', 
     requireUser,
