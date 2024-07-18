@@ -46,11 +46,11 @@ postSchema.virtual("lastEditDateFormatted").get(function () {
 });
 
 postSchema.virtual("numLikes").get(function () {
-  return this.likes.length;
+  return this.likes?.length ?? 0;
 });
 
 postSchema.virtual("numComments").get(function () {
-  return this.comments.length;
+  return this.comments?.length ?? 0;
 });
 
 postSchema.plugin(mongooseLeanVirtuals);

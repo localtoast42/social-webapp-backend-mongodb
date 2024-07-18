@@ -85,7 +85,7 @@ userSchema.virtual("url").get(function () {
 });
 
 userSchema.virtual("hasFollows").get(function () {
-  return this.following.length !== 0;
+  return (this.following?.length ?? 0) !== 0;
 });
 
 userSchema.plugin(mongooseLeanVirtuals);

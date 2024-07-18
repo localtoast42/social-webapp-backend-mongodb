@@ -46,7 +46,7 @@ commentSchema.virtual("lastEditDateFormatted").get(function () {
 });
 
 commentSchema.virtual("numLikes").get(function () {
-  return this.likes.length;
+  return this.likes?.length ?? 0;
 });
 
 commentSchema.plugin(mongooseLeanVirtuals);
