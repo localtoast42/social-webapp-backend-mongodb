@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { isValidObjectId } from 'mongoose';
 import { 
   CreatePostInput, 
   ReadPostInput,
@@ -45,6 +46,11 @@ export async function getPostHandler(
 ) {
   const userId = res.locals.user._id;
   const postId = req.params.postId;
+
+  if (!isValidObjectId(postId)) {
+    return res.sendStatus(400);
+  }
+
   const post = await findPost({ _id: postId });
 
   if (!post) {
@@ -120,6 +126,10 @@ export async function getPostsByUserHandler(
 ) {
   const userId = req.params.userId;
 
+  if (!isValidObjectId(userId)) {
+    return res.sendStatus(400);
+  }
+
   const query = {
     $and: [
       { author: userId },
@@ -146,6 +156,10 @@ export async function updatePostHandler(
 ) {
   const userId = res.locals.user._id;
   const postId = req.params.postId;
+
+  if (!isValidObjectId(postId)) {
+    return res.sendStatus(400);
+  }
 
   const [user, post] = await Promise.all([
     findUser({ _id: userId }),
@@ -179,6 +193,10 @@ export async function likePostHandler(
   const like = req.body.like;
   const userId = res.locals.user._id;
   const postId = req.params.postId;
+
+  if (!isValidObjectId(postId)) {
+    return res.sendStatus(400);
+  }
 
   const [user, post] = await Promise.all([
     findUser({ _id: userId }),
@@ -216,6 +234,10 @@ export async function deletePostHandler(
 ) {
   const userId = res.locals.user._id;
   const postId = req.params.postId;
+
+  if (!isValidObjectId(postId)) {
+    return res.sendStatus(400);
+  }
 
   const [user, post] = await Promise.all([
     findUser({ _id: userId }),

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { isValidObjectId } from 'mongoose';
 import { 
   CreateCommentInput, 
   ReadCommentInput,
@@ -21,6 +22,10 @@ export async function createCommentHandler(
 ) {
   const userId = res.locals.user._id;
   const postId = req.params.postId;
+
+  if (!isValidObjectId(postId)) {
+    return res.sendStatus(400);
+  }
 
   const [user, post] = await Promise.all([
     findUser({ _id: userId }),
@@ -62,6 +67,11 @@ export async function getCommentHandler(
 ) {
   const userId = res.locals.user._id;
   const commentId = req.params.commentId;
+
+  if (!isValidObjectId(commentId)) {
+    return res.sendStatus(400);
+  }
+
   const comment = await findComment({ _id: commentId });
 
   if (!comment) {
@@ -79,6 +89,10 @@ export async function updateCommentHandler(
 ) {
   const userId = res.locals.user._id;
   const commentId = req.params.commentId;
+
+  if (!isValidObjectId(commentId)) {
+    return res.sendStatus(400);
+  }
 
   const [user, comment] = await Promise.all([
     findUser({ _id: userId }),
@@ -112,6 +126,10 @@ export async function deleteCommentHandler(
   const userId = res.locals.user._id;
   const postId = req.params.postId;
   const commentId = req.params.commentId;
+
+  if (!isValidObjectId(postId) || !isValidObjectId(commentId)) {
+    return res.sendStatus(400);
+  }
 
   const [user, post, comment] = await Promise.all([
     findUser({ _id: userId }),
@@ -147,6 +165,10 @@ export async function likeCommentHandler(
   const like = req.body.like;
   const userId = res.locals.user._id;
   const commentId = req.params.commentId;
+
+  if (!isValidObjectId(commentId)) {
+    return res.sendStatus(400);
+  }
 
   const [user, comment] = await Promise.all([
     findUser({ _id: userId }),
