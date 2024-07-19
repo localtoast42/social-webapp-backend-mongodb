@@ -34,7 +34,8 @@ export async function createPostHandler(
   const post = await createPost({ 
     ...body, 
     author: user._id, 
-    postDate: postDate 
+    postDate: postDate,
+    isPublicPost: !user.isGuest
   });
 
   return res.status(201).send(post);
