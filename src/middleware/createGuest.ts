@@ -16,6 +16,7 @@ export async function createGuest(
     password: "guest",
     firstName: "Guest",
     lastName: `#${guestNum}`,
+    isGuest: true,
   }
 
   try {

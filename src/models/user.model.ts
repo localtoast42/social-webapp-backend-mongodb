@@ -11,6 +11,7 @@ export interface UserBase {
   state?: string;
   country?: string;
   imageUrl?: string;
+  isGuest?: boolean;
 };
 
 export interface UserCreate extends UserBase {
@@ -44,7 +45,7 @@ const userSchema = new Schema<User>({
   state: { type: String, maxLength: 200 },
   country: { type: String, maxLength: 200 },
   isAdmin: { type: Boolean, required: true, default: false },
-  isGuest: { type: Boolean, required: true, default: false },
+  isGuest: { type: Boolean, required: true, default: true },
   followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: Schema.Types.ObjectId, ref: "User" }],
 }, opts);

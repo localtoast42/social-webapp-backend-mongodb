@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import config from 'config';
 import { isValidObjectId } from 'mongoose';
 import { omit } from 'lodash-es';
 import logger from '../utils/logger.js';
@@ -27,6 +28,8 @@ export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput["body"]>, 
   res: Response
 ) {
+  req.body.isGuest = !config.get<boolean>('allowNewPublicUsers');
+  
   try {
     const user = await createUser(req.body);
     return res.send(user);

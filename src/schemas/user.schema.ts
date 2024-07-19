@@ -1,5 +1,5 @@
 import { isValidObjectId } from 'mongoose';
-import { number, object, string, TypeOf } from 'zod';
+import { boolean, number, object, string, TypeOf } from 'zod';
 
 const payload = {
   body: object({
@@ -48,6 +48,7 @@ export const createUserSchema = object({
     state: string(),
     country: string(),
     imageUrl: string(),
+    isGuest: boolean().optional(),
   }).refine((data) => data.password === data.passwordConfirmation, {
     message: "Passwords do not match",
     path: ["passwordConfirmation"],
