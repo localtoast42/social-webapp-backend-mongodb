@@ -165,7 +165,7 @@ export async function likeCommentHandler(
   req: Request<LikeCommentInput["params"], {}, LikeCommentInput["body"]>, 
   res: Response
 ) {
-  const like = req.body.like;
+  const like = JSON.parse(req.body.like);
   const userId = res.locals.user._id;
   const commentId = req.params.commentId;
 
@@ -186,10 +186,10 @@ export async function likeCommentHandler(
     return res.sendStatus(404);
   }
 
-  if (like && !comment.likes.includes(user._id)) {
-    comment.likes.push(user._id);
-  } else {
-    comment.likes = comment.likes.filter((userid) => userid != user._id);
+  comment.likes = comment.likes.filter((userid) => userid != user.id);
+
+  if (like) {
+    comment.likes.push(user.id);
   }
 
   const update = {
