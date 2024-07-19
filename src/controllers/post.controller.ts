@@ -166,7 +166,7 @@ export async function updatePostHandler(
     return res.sendStatus(404);
   }
 
-  if (!user || user._id !== post.author.id) {
+  if (!user || user.id !== post.author.toString()) {
     return res.sendStatus(403);
   }
 
@@ -244,7 +244,7 @@ export async function deletePostHandler(
     return res.sendStatus(404);
   }
 
-  if (!user || user._id !== post.author.id) {
+  if (!user || user.id !== post.author.toString()) {
     return res.sendStatus(403);
   }
 
