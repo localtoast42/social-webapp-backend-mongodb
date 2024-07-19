@@ -135,7 +135,7 @@ export async function updateCommentHandler(
     return res.sendStatus(404);
   }
 
-  if (!user || user._id !== comment.author) {
+  if (!user || user.id !== comment.author.toString()) {
     return res.sendStatus(403);
   }
 
@@ -173,7 +173,7 @@ export async function deleteCommentHandler(
     return res.sendStatus(404);
   }
 
-  if (!user || user._id !== comment.author) {
+  if (!user || user.id !== comment.author.toString()) {
     return res.sendStatus(403);
   }
 
