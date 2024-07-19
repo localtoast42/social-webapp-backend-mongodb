@@ -23,6 +23,10 @@ export interface Comment extends CommentCreate {
   numLikes?: number;
 };
 
+const opts = { 
+  toJSON: { virtuals: true } 
+};
+
 const commentSchema = new Schema<Comment>({
   post: { type: Schema.Types.ObjectId, ref: "Post", required: true },
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -31,7 +35,7 @@ const commentSchema = new Schema<Comment>({
   lastEditDate: { type: Date },
   isPublicComment: { type: Boolean, required: true },
   likes: [{ type: Schema.Types.ObjectId, ref: "User" }]
-});
+}, opts);
 
 commentSchema.virtual("url").get(function () {
   return `/posts/${this.post.id}/comments/${this._id}`;

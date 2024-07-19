@@ -23,6 +23,10 @@ export interface Post extends PostCreate {
   numComments?: number;
 };
 
+const opts = { 
+  toJSON: { virtuals: true } 
+};
+
 const postSchema = new Schema<Post>({
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   text: { type: String, minLength: 1, required: true },
@@ -31,7 +35,7 @@ const postSchema = new Schema<Post>({
   isPublicPost: { type: Boolean, required: true, default: false },
   likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }]
-});
+}, opts);
 
 postSchema.virtual("url").get(function () {
   return `/posts/${this._id}`;
