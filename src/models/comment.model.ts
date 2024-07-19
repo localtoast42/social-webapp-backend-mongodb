@@ -6,7 +6,7 @@ import { Post } from './post.model.js';
 
 export interface CommentCreate { 
   post: Post["id"];
-  author: PopulatedDoc<Document<Types.ObjectId> & User>;
+  author: User["id"];
   text: string;
   postDate: Date;
   isPublicComment?: boolean;
