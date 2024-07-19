@@ -186,7 +186,7 @@ export async function likePostHandler(
   req: Request<LikePostInput["params"], {}, LikePostInput["body"]>, 
   res: Response
 ) {
-  const like = req.body.like;
+  const like = JSON.parse(req.body.like);
   const userId = res.locals.user._id;
   const postId = req.params.postId;
 
@@ -207,10 +207,10 @@ export async function likePostHandler(
     return res.sendStatus(404);
   }
 
-  if (like && !post.likes.includes(user._id)) {
-    post.likes.push(user._id);
-  } else {
-    post.likes = post.likes.filter((userid) => userid != user._id);
+  post.likes = post.likes.filter((userid) => userid != user.id);
+
+  if (like) {
+    post.likes.push(user.id);
   }
 
   const update = {
