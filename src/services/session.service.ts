@@ -1,5 +1,5 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
-import { get } from 'lodash-es';
+import { get, omit } from 'lodash-es';
 import config from "config";
 import SessionModel, { Session, SessionInput } from "../models/session.model.js";
 import { signJwt, verifyJwt } from "../utils/jwt.utils.js";
@@ -29,15 +29,17 @@ export async function reIssueAccessToken({
 }) {
   const { decoded } = verifyJwt(refreshToken, "refreshTokenSecret");
 
-  if (!decoded || !get(decoded, '_id')) return false;
+  if (!decoded || !get(decoded, '_id')) return '';
 
-  const session = await SessionModel.findById(get(decoded, "_id"));
+  const session = await SessionModel.findById(get(decoded, "session"));
 
-  if (!session || !session.valid) return false;
+  if (!session || !session.valid) return '';
 
-  const user = await findUser({ _id: session.user });
+  const result = await findUser({ _id: session.user.toString() });
 
-  if (!user) return false;
+  if (!result) return '';
+
+  const user = omit(result.toJSON(), "password");
 
   const accessToken = signJwt(
     { ...user, session: session._id },
