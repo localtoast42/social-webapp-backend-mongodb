@@ -30,6 +30,10 @@ export interface User extends UserCreate {
   comparePassword(candidatePassword: string): Promise<Boolean>;
 };
 
+const opts = { 
+  toJSON: { virtuals: true } 
+};
+
 const userSchema = new Schema<User>({
   username: { type: String, required: true, unique: true, minLength: 3, maxLength: 100 },
   password: { type: String, required: true },
@@ -43,7 +47,7 @@ const userSchema = new Schema<User>({
   isGuest: { type: Boolean, required: true, default: false },
   followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
   following: [{ type: Schema.Types.ObjectId, ref: "User" }],
-});
+}, opts);
 
 userSchema.pre("save", async function (next) {
   let user = this;
