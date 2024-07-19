@@ -5,7 +5,7 @@ import requireAdmin from './middleware/requireAdmin.js';
 import { createSessionSchema } from './schemas/session.schema.js';
 import { createUserSchema } from './schemas/user.schema.js';
 import { createPostSchema, updatePostSchema } from './schemas/post.schema.js';
-import { createCommentSchema, updateCommentSchema } from './schemas/comment.schema.js';
+import { createCommentSchema, getCommentsByPostSchema, updateCommentSchema } from './schemas/comment.schema.js';
 import { createGuest } from './middleware/createGuest.js';
 import { 
   createUserSessionHandler, 
@@ -38,6 +38,7 @@ import {
   createCommentHandler, 
   deleteCommentHandler, 
   getCommentHandler, 
+  getCommentsByPostHandler, 
   likeCommentHandler, 
   updateCommentHandler 
 } from './controllers/comment.controller.js';
@@ -187,6 +188,12 @@ function routes(app: Express) {
     '/api/v1/posts/:postId/comments',
     [requireUser, validateResource(createCommentSchema)], 
     createCommentHandler
+  );
+
+  app.get(
+    '/api/v1/posts/:postId/comments',
+    [requireUser, validateResource(getCommentsByPostSchema)], 
+    getCommentsByPostHandler
   );
 
   app.get(

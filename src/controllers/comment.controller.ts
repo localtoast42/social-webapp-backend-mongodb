@@ -5,13 +5,15 @@ import {
   ReadCommentInput,
   UpdateCommentInput,
   DeleteCommentInput,
-  LikeCommentInput
+  LikeCommentInput,
+  ReadCommentsByPostInput
 } from '../schemas/comment.schema.js';
 import { 
   createComment, 
   findComment,
   findAndUpdateComment, 
-  deleteComment
+  deleteComment,
+  findManyComments
 } from '../services/comment.service.js';
 import { findUser } from '../services/user.service.js';
 import { 
@@ -84,6 +86,33 @@ export async function getCommentHandler(
   comment.isLiked = comment.likes.includes(userId);
 
   return res.json(comment);
+}
+
+export async function getCommentsByPostHandler(
+  req: Request<ReadCommentsByPostInput["params"]>, 
+  res: Response
+) {
+  const userId = res.locals.user._id;
+  const postId = req.params.postId;
+
+  if (!isValidObjectId(postId)) {
+    return res.sendStatus(400);
+  }
+
+  const query = {
+    $or: [
+      { author: userId },
+      { isPublicComment: true },
+    ],
+  }
+
+  const options = {
+    sort: { "postDate": 1 }
+  };
+
+  const comments = await findManyComments(query, {}, options);
+
+  return res.json(comments);
 }
 
 export async function updateCommentHandler(
