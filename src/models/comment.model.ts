@@ -33,7 +33,7 @@ const commentSchema = new Schema<Comment>({
   text: { type: String, required: true },
   postDate: { type: Date, required: true },
   lastEditDate: { type: Date },
-  isPublicComment: { type: Boolean, required: true },
+  isPublicComment: { type: Boolean, required: true, default: false },
   likes: [{ type: Schema.Types.ObjectId, ref: "User" }]
 }, opts);
 
