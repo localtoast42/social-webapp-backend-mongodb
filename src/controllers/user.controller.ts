@@ -130,7 +130,7 @@ export async function updateUserHandler(
     return res.sendStatus(404);
   }
 
-  if (user._id !== requestingUserId) {
+  if (user.id !== requestingUserId) {
     return res.sendStatus(403);
   }
 
@@ -160,7 +160,7 @@ export async function deleteUserHandler(
     return res.sendStatus(404);
   }
 
-  if (user._id !== requestingUserId) {
+  if (user.id !== requestingUserId) {
     return res.sendStatus(403);
   }
 
