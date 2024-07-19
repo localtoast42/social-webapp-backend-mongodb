@@ -9,9 +9,7 @@ const payload = {
 };
 
 const like = object({
-  like: boolean({
-    required_error: 'Like bool must be set',
-  })
+  like: string()
 });
 
 const params = object({
