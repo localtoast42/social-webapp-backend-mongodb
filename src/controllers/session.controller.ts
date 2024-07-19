@@ -3,8 +3,12 @@ import config from 'config';
 import { signJwt } from '../utils/jwt.utils.js';
 import { validatePassword } from '../services/user.service.js';
 import { createSession, findSessions, updateSession } from '../services/session.service.js';
+import { CreateSessionInput } from '../schemas/session.schema.js';
 
-export async function createUserSessionHandler(req: Request, res: Response) {
+export async function createUserSessionHandler(
+  req: Request<{}, {}, CreateSessionInput["body"]>, 
+  res: Response
+) {
   const user = await validatePassword(req.body)
 
   if (!user) {
