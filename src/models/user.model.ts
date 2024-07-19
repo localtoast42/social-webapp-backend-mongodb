@@ -56,13 +56,9 @@ userSchema.pre("save", async function (next) {
     return next();
   }
 
-  bcrypt.hash(user.password, config.get<number>("saltWorkFactor"), async (err, hashedPassword) => {
-    if (err) {
-      next(err);
-    }
+  const hashedPassword = bcrypt.hashSync(user.password, config.get<number>("saltWorkFactor"));
 
-    user.password = hashedPassword;
-  });
+  user.password = hashedPassword;
 
   return next();
 });
