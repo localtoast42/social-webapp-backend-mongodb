@@ -29,7 +29,7 @@ export async function createUserHandler(
   res: Response
 ) {
   req.body.isGuest = !config.get<boolean>('allowNewPublicUsers');
-  
+
   try {
     const user = await createUser(req.body);
     return res.send(user);
@@ -133,7 +133,7 @@ export async function updateUserHandler(
     return res.sendStatus(404);
   }
 
-  if (user.id !== requestingUserId) {
+  if (user.id !== requestingUserId.toString()) {
     return res.sendStatus(403);
   }
 
@@ -163,7 +163,7 @@ export async function deleteUserHandler(
     return res.sendStatus(404);
   }
 
-  if (user.id !== requestingUserId) {
+  if (user.id !== requestingUserId.toString()) {
     return res.sendStatus(403);
   }
 
