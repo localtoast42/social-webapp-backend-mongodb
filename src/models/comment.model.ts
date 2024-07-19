@@ -1,4 +1,4 @@
-import { Schema, Types, model, Document, PopulatedDoc } from 'mongoose';
+import { Schema, Types, model } from 'mongoose';
 import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { DateTime } from 'luxon';
 import { User } from './user.model.js';
