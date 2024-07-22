@@ -99,6 +99,12 @@ export async function getCommentsByPostHandler(
     return res.sendStatus(400);
   }
 
+  const post = await findPost({ _id: postId });
+
+  if (!post) {
+    return res.sendStatus(404);
+  }
+
   const query = {
     $or: [
       { author: userId },
