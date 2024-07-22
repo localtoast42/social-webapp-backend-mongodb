@@ -36,3 +36,7 @@ export async function findAndUpdateComment(
 export async function deleteComment(query: FilterQuery<Comment>) {
   return CommentModel.deleteOne(query);
 }
+
+export async function deleteManyComments(query: FilterQuery<Comment>) {
+  return CommentModel.deleteMany(query);
+}
