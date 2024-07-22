@@ -16,6 +16,7 @@ import {
   findManyPosts
 } from '../services/post.service.js';
 import { findUser } from '../services/user.service.js';
+import { deleteManyComments } from '../services/comment.service.js';
 
 export async function createPostHandler(
   req: Request<{}, {}, CreatePostInput["body"]>, 
@@ -249,7 +250,12 @@ export async function deletePostHandler(
     return res.sendStatus(403);
   }
 
-  await deletePost({ _id: postId });
+  const commentResult = await deleteManyComments({ post: postId })
 
-  return res.sendStatus(200);
+  const postResult = await deletePost({ _id: postId });
+
+  return res.sendStatus(200).json({
+    posts_deleted: postResult.deletedCount,
+    comments_deleted: commentResult.deletedCount,
+  });
 }
