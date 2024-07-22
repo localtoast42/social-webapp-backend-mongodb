@@ -122,17 +122,24 @@ export async function getPostsByUserHandler(
   req: Request<ReadPostByUserInput["params"]>, 
   res: Response
 ) {
-  const userId = req.params.userId;
+  const requestingUserId = res.locals.user._id;
+  const targetUserId = req.params.userId;
 
-  if (!isValidObjectId(userId)) {
+  if (!isValidObjectId(targetUserId)) {
     return res.sendStatus(400);
   }
 
-  const query = {
-    $and: [
-      { author: userId },
-      { isPublicPost: true },
-    ],
+  let query = {};
+
+  if (targetUserId === requestingUserId.toString()) {
+    query = {
+      author: targetUserId,
+    };
+  } else {
+    query = {
+      author: targetUserId,
+      isPublicPost: true,
+    };
   }
 
   const options = {
