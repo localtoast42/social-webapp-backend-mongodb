@@ -261,7 +261,7 @@ export async function deletePostHandler(
 
   const postResult = await deletePost({ _id: postId });
 
-  return res.sendStatus(200).json({
+  return res.json({
     posts_deleted: postResult.deletedCount,
     comments_deleted: commentResult.deletedCount,
   });
