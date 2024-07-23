@@ -1,0 +1,16 @@
+import { Request, Response, NextFunction } from 'express';
+import { findUser } from '../services/user.service.js';
+
+const requireUser = async (req: Request, res: Response, next: NextFunction) => {
+  const user = res.locals.user;
+
+  if (!user) {
+    return res.sendStatus(401);
+  }
+
+  res.locals.user = await findUser({ _id: user._id })
+
+  return next();
+};
+
+export default requireUser;

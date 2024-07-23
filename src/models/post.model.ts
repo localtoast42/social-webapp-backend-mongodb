@@ -1,21 +1,33 @@
 import { Schema, Types, model } from 'mongoose';
+import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { DateTime } from 'luxon';
+import { User } from './user.model.js';
 
-export interface IPost {
-  id: Types.ObjectId;
-  author: Types.ObjectId;
+export interface PostCreate {
+  author: User["id"];
   text: string;
   postDate: Date;
+  isPublicPost?: boolean;
+};
+
+export interface Post extends PostCreate {
+  id: Types.ObjectId;
   lastEditDate: Date;
-  isPublicPost: boolean;
   likes: Array<Types.ObjectId>;
   comments: Array<Types.ObjectId>;
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
-}
+  isLiked?: boolean;
+  numLikes?: number;
+  numComments?: number;
+};
 
-const PostSchema = new Schema<IPost>({
+const opts = { 
+  toJSON: { virtuals: true } 
+};
+
+const postSchema = new Schema<Post>({
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
   text: { type: String, minLength: 1, required: true },
   postDate: { type: Date, required: true },
@@ -23,18 +35,30 @@ const PostSchema = new Schema<IPost>({
   isPublicPost: { type: Boolean, required: true, default: false },
   likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }]
-});
+}, opts);
 
-PostSchema.virtual("url").get(function () {
+postSchema.virtual("url").get(function () {
   return `/posts/${this._id}`;
 });
 
-PostSchema.virtual("postDateFormatted").get(function () {
+postSchema.virtual("postDateFormatted").get(function () {
   return this.postDate ? DateTime.fromJSDate(this.postDate).toLocaleString(DateTime.DATE_MED) : '';
 });
 
-PostSchema.virtual("lastEditDateFormatted").get(function () {
+postSchema.virtual("lastEditDateFormatted").get(function () {
   return this.lastEditDate ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATE_MED) : '';
 });
 
-export default model<IPost>("Post", PostSchema);
+postSchema.virtual("numLikes").get(function () {
+  return this.likes?.length ?? 0;
+});
+
+postSchema.virtual("numComments").get(function () {
+  return this.comments?.length ?? 0;
+});
+
+postSchema.plugin(mongooseLeanVirtuals);
+
+const PostModel = model<Post>("Post", postSchema);
+
+export default PostModel;
