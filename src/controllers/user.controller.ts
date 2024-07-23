@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import config from 'config';
 import { isValidObjectId } from 'mongoose';
-import { omit } from 'lodash-es';
+import { omit } from 'lodash';
 import logger from '../utils/logger.js';
 import { 
   createUser, 
