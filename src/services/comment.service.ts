@@ -11,7 +11,7 @@ export async function createComment(input: CommentCreate) {
 }
 
 export async function findComment(query: FilterQuery<Comment>) {
-  return CommentModel.findOne(query);
+  return CommentModel.findOne(query).lean({ virtuals: true });
 }
 
 export async function findManyComments(
