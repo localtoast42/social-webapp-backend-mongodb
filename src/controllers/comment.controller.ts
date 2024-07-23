@@ -183,7 +183,7 @@ export async function deleteCommentHandler(
     return res.sendStatus(403);
   }
 
-  post.comments.filter((commentid) => commentid != comment._id);
+  post.comments = post.comments.filter((commentid) => commentid != comment.id);
 
   const update = {
     comments: post.comments,
