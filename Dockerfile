@@ -39,7 +39,7 @@ COPY package-lock.json package.json ./
 RUN npm ci --only=production
 
 # Copy built application
-COPY --from=build /app/built /app/built
+COPY --from=build /app/build /app/build
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
