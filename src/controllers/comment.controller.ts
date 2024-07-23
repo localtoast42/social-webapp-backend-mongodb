@@ -50,12 +50,12 @@ export async function createCommentHandler(
 
   const comment = await createComment({ 
     ...body, 
-    post: post._id, 
-    author: user._id,
+    post: post.id, 
+    author: user.id,
     postDate: postDate 
   });
 
-  post.comments.push(comment._id);
+  post.comments.push(comment.id);
 
   const update = {
     comments: post.comments,
