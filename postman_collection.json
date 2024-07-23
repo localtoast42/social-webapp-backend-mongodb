@@ -245,6 +245,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"postman.setEnvironmentVariable(\"userId\", jsonData._id);\r",
 									"\r",
 									"const newAccessToken = responseHeaders['x-access-token']\r",
 									"\r",
@@ -911,7 +913,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"text\": \"\"\r\n}",
+							"raw": "{\r\n    \"text\": \"test post\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1136,7 +1138,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"text\": \"\"\r\n}",
+							"raw": "{\r\n    \"text\": \"test post (updated)\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1448,7 +1450,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{endpoint}}/api/v1/posts/{{postId}}/comments/{{commentId}}",
+							"raw": "{{endpoint}}/api/v1/posts/{{postId}}/comments",
 							"host": [
 								"{{endpoint}}"
 							],
@@ -1457,8 +1459,7 @@
 								"v1",
 								"posts",
 								"{{postId}}",
-								"comments",
-								"{{commentId}}"
+								"comments"
 							]
 						}
 					},
@@ -1806,7 +1807,7 @@
 	"variable": [
 		{
 			"key": "endpoint",
-			"value": "http://localhost:",
+			"value": "http://localhost:3000",
 			"type": "string"
 		},
 		{
