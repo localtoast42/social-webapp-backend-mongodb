@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
 import { fakerEN_US as faker } from '@faker-js/faker';
-import { UserCreate } from '../models/user.model.js';
-import { PostCreate } from '../models/post.model.js';
-import { createUser } from '../services/user.service.js';
-import { createPost } from '../services/post.service.js';
+import { UserCreate } from '../models/user.model';
+import { PostCreate } from '../models/post.model';
+import { createUser } from '../services/user.service';
+import { createPost } from '../services/post.service';
 
 export async function createRandomUser() {
   const firstName = faker.person.firstName();

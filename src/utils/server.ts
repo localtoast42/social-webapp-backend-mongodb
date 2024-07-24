@@ -2,8 +2,8 @@ import express from 'express';
 import config from 'config';
 import cors from 'cors';
 import compression from 'compression';
-import routes from '../routes.js';
-import deserializeUser from '../middleware/deserializeUser.js'
+import routes from '../routes';
+import deserializeUser from '../middleware/deserializeUser'
 
 function createServer() {
     const app = express();
