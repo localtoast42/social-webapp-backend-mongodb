@@ -1,7 +1,7 @@
 import { Schema, Types, model } from 'mongoose';
 import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { DateTime } from 'luxon';
-import { User } from './user.model.js';
+import { User } from './user.model';
 
 export interface PostCreate {
   author: User["id"];

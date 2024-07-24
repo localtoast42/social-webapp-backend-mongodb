@@ -1,8 +1,8 @@
 import { Schema, Types, model } from 'mongoose';
 import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { DateTime } from 'luxon';
-import { User } from './user.model.js';
-import { Post } from './post.model.js';
+import { User } from './user.model';
+import { Post } from './post.model';
 
 export interface CommentCreate { 
   post: Post["id"];

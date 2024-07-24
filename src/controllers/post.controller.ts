@@ -7,16 +7,16 @@ import {
   DeletePostInput, 
   ReadPostByUserInput,
   LikePostInput,
-} from '../schemas/post.schema.js';
+} from '../schemas/post.schema';
 import { 
   createPost, 
   findPost,
   findAndUpdatePost,
   deletePost,
   findManyPosts
-} from '../services/post.service.js';
-import { findUser } from '../services/user.service.js';
-import { deleteManyComments } from '../services/comment.service.js';
+} from '../services/post.service';
+import { findUser } from '../services/user.service';
+import { deleteManyComments } from '../services/comment.service';
 
 export async function createPostHandler(
   req: Request<{}, {}, CreatePostInput["body"]>, 

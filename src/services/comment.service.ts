@@ -1,6 +1,6 @@
 import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
-import CommentModel, { Comment, CommentCreate } from "../models/comment.model.js";
-import { User } from "../models/user.model.js";
+import CommentModel, { Comment, CommentCreate } from "../models/comment.model";
+import { User } from "../models/user.model";
 
 export async function createComment(input: CommentCreate) {
   try {

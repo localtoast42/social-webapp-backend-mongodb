@@ -2,14 +2,14 @@ import { Request, Response } from 'express';
 import config from 'config';
 import { isValidObjectId } from 'mongoose';
 import { omit } from 'lodash';
-import logger from '../utils/logger.js';
+import logger from '../utils/logger';
 import { 
   createUser, 
   findUser, 
   findManyUsers, 
   findAndUpdateUser, 
   deleteUser 
-} from '../services/user.service.js';
+} from '../services/user.service';
 import { 
   CreateUserInput, 
   DeleteUserInput, 
@@ -18,11 +18,11 @@ import {
   ReadUserInput, 
   UnfollowUserInput, 
   UpdateUserInput 
-} from '../schemas/user.schema.js';
+} from '../schemas/user.schema';
 import { 
   createRandomPost, 
   createRandomUser 
-} from '../utils/populateDatabase.js';
+} from '../utils/populateDatabase';
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput["body"]>, 

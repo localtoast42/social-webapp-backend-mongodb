@@ -1,6 +1,6 @@
 import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
 import { omit } from 'lodash';
-import UserModel, { User, UserCreate } from "../models/user.model.js";
+import UserModel, { User, UserCreate } from "../models/user.model";
 
 export async function createUser(input: UserCreate) {
   try {

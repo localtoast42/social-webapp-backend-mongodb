@@ -7,19 +7,19 @@ import {
   DeleteCommentInput,
   LikeCommentInput,
   ReadCommentsByPostInput
-} from '../schemas/comment.schema.js';
+} from '../schemas/comment.schema';
 import { 
   createComment, 
   findComment,
   findAndUpdateComment, 
   deleteComment,
   findManyComments
-} from '../services/comment.service.js';
-import { findUser } from '../services/user.service.js';
+} from '../services/comment.service';
+import { findUser } from '../services/user.service';
 import { 
   findAndUpdatePost, 
   findPost 
-} from '../services/post.service.js';
+} from '../services/post.service';
 
 export async function createCommentHandler(
   req: Request<CreateCommentInput["params"], {}, CreateCommentInput["body"]>, 
