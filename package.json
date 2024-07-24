@@ -5,6 +5,7 @@
   "scripts": {
     "start": "NODE_CONFIG_DIR=./build/config node build/src/app.js",
     "dev": "tsx watch ./src/app.ts",
+    "test": "jest",
     "build": "npm run build:ts && npm run build:post",
     "build:ts": "tsc",
     "build:post": "npm run build:post:replace",
