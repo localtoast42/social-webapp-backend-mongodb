@@ -22,8 +22,7 @@ export async function createPostHandler(
   req: Request<{}, {}, CreatePostInput["body"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
-  const user = await findUser({ _id: userId });
+  const user = res.locals.user;
 
   if (!user) {
     return res.sendStatus(403);
