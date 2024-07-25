@@ -89,6 +89,10 @@ userSchema.virtual("hasFollows").get(function () {
   return (this.following?.length ?? 0) !== 0;
 });
 
+userSchema.virtual("followedByMe").get(function () {
+  return false;
+});
+
 userSchema.plugin(mongooseLeanVirtuals);
 
 const UserModel = model<User>("User", userSchema);
