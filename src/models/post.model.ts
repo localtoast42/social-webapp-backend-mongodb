@@ -57,6 +57,10 @@ postSchema.virtual("numComments").get(function () {
   return this.comments?.length ?? 0;
 });
 
+postSchema.virtual("isLiked").get(function () {
+  return false;
+});
+
 postSchema.plugin(mongooseLeanVirtuals);
 
 const PostModel = model<Post>("Post", postSchema);
