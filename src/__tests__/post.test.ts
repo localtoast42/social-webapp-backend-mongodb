@@ -285,6 +285,30 @@ describe('post', () => {
       });
     });
 
+    describe('given the user sends empty text', () => {
+      it('should return a 400 with error message', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+        
+        const createPostServiceMock = jest
+          .spyOn(PostService, 'createPost')
+          // @ts-ignore
+          .mockReturnValueOnce(postDocument.toJSON());
+
+        const { statusCode, body } = await supertest(app)
+          .put(`/api/v1/posts/${postId}`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ text: "" });
+        
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Post must not be empty");
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(createPostServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
     describe('given the post does not exist', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
