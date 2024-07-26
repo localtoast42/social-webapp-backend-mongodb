@@ -83,6 +83,28 @@ afterAll(() => {
 
 describe('post', () => {
   describe('get post route', () => {
+    describe('given the postId is not a valid ObjectId', () => {
+      it('should return a 400', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+        
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          // @ts-ignore
+          .mockReturnValueOnce(postPayload);
+
+        const { statusCode } = await supertest(app)
+          .get(`/api/v1/posts/not_valid_id`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(400);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
     describe('given the post does not exist', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
@@ -123,6 +145,30 @@ describe('post', () => {
         
         expect(statusCode).toBe(200);
         expect(body).toEqual(postResponse);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+      });
+
+      it('should return isLiked as true if user liked the post', async () => { 
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockReturnValueOnce({
+            ...postDocument.toJSON(),
+            // @ts-ignore
+            likes: [ userObjectId ],
+          });
+
+        const { body, statusCode } = await supertest(app)
+          .get(`/api/v1/posts/${postId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(body.isLiked).toBe(true);
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
       });
