@@ -4,8 +4,8 @@ import { object, string, TypeOf } from 'zod';
 const payload = {
   body: object({
     text: string({
-      required_error: 'Post must not be empty',
-    }),
+      required_error: 'Text is required',
+    }).min(1, { message: 'Post must not be empty' }),
   }),
 };
 
