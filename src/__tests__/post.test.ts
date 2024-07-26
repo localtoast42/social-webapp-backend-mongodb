@@ -83,6 +83,15 @@ afterAll(() => {
 
 describe('post', () => {
   describe('get post route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .get(`/api/v1/posts/${postId}`);
+          
+        expect(statusCode).toBe(401);
+      });
+    });
+
     describe('given the postId is not a valid ObjectId', () => {
       it('should return a 400', async () => {
         const findUserServiceMock = jest
@@ -95,11 +104,12 @@ describe('post', () => {
           // @ts-ignore
           .mockReturnValueOnce(postPayload);
 
-        const { statusCode } = await supertest(app)
+        const { statusCode, body } = await supertest(app)
           .get(`/api/v1/posts/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Invalid postId");
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findPostServiceMock).not.toHaveBeenCalled();
       });
