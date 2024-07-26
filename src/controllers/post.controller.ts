@@ -15,7 +15,6 @@ import {
   deletePost,
   findManyPosts
 } from '../services/post.service';
-import { findUser } from '../services/user.service';
 import { deleteManyComments } from '../services/comment.service';
 
 export async function createPostHandler(
@@ -158,23 +157,20 @@ export async function updatePostHandler(
   req: Request<UpdatePostInput["params"], {}, UpdatePostInput["body"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user = res.locals.user;
   const postId = req.params.postId;
 
   if (!isValidObjectId(postId)) {
     return res.sendStatus(400);
   }
 
-  const [user, post] = await Promise.all([
-    findUser({ _id: userId }),
-    findPost({ _id: postId }),
-  ])
+  const post = await findPost({ _id: postId });
 
   if (!post) {
     return res.sendStatus(404);
   }
 
-  if (!user || user.id !== post.author.id) {
+  if (user.id !== post.author.id) {
     return res.sendStatus(403);
   }
 
@@ -195,21 +191,14 @@ export async function likePostHandler(
   res: Response
 ) {
   const like = JSON.parse(req.body.like);
-  const userId = res.locals.user._id;
+  const user = res.locals.user;
   const postId = req.params.postId;
 
   if (!isValidObjectId(postId)) {
     return res.sendStatus(400);
   }
 
-  const [user, post] = await Promise.all([
-    findUser({ _id: userId }),
-    findPost({ _id: postId }),
-  ])
-
-  if (!user) {
-    return res.sendStatus(403);
-  }
+  const post = await findPost({ _id: postId });
 
   if (!post) {
     return res.sendStatus(404);
@@ -236,23 +225,20 @@ export async function deletePostHandler(
   req: Request<DeletePostInput["params"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user = res.locals.user;
   const postId = req.params.postId;
 
   if (!isValidObjectId(postId)) {
     return res.sendStatus(400);
   }
 
-  const [user, post] = await Promise.all([
-    findUser({ _id: userId }),
-    findPost({ _id: postId }),
-  ])
+  const post = await findPost({ _id: postId });
 
   if (!post) {
     return res.sendStatus(404);
   }
 
-  if (!user || user.id !== post.author.id) {
+  if (user.id !== post.author.id) {
     return res.sendStatus(403);
   }
 
