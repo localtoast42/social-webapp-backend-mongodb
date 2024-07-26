@@ -13,35 +13,8 @@ const app = createServer();
 const userObjectId = new mongoose.Types.ObjectId();
 const userId = userObjectId.toString();
 
-const postObjectId = new mongoose.Types.ObjectId();
-const postId = postObjectId.toString();
-const postDate = new Date(2024, 8, 1);
-
-const postInput = {
-  text: "Test post",
-};
-
-const postPayload = {
-  _id: postObjectId,
-  id: postId,
-  author: userId,
-  text: "Test post",
-  postDate: postDate,
-  lastEditDate: postDate,
-  isPublicPost: true,
-  likes: [],
-  comments: [],
-};
-
-const postDocument = new PostModel(postPayload);
-
-const postResponse = {
-  ...postDocument.toJSON(),
-  "_id": postId,
-  "author": userId,
-  "postDate": postDate.toJSON(),
-  "lastEditDate": postDate.toJSON(),
-};
+const otherUserObjectId = new mongoose.Types.ObjectId();
+const otherUserId = otherUserObjectId.toString();
 
 const userPayload = {
   _id: userObjectId,
@@ -61,6 +34,40 @@ const userPayload = {
   followedByMe: false,
   hasFollows: false,
   url: "",
+};
+
+const postObjectId = new mongoose.Types.ObjectId();
+const postId = postObjectId.toString();
+const postDate = new Date(2024, 8, 1);
+
+const postInput = {
+  text: "Test post",
+};
+
+const updatePostInput = {
+  text: "Test post (updated)",
+};
+
+const postPayload = {
+  _id: postObjectId,
+  id: postId,
+  author: { ...userPayload },
+  text: "Test post",
+  postDate: postDate,
+  lastEditDate: postDate,
+  isPublicPost: true,
+  likes: [],
+  comments: [],
+};
+
+const postDocument = new PostModel(postPayload);
+
+const postResponse = {
+  ...postDocument.toJSON(),
+  "_id": postId,
+  "author": userId,
+  "postDate": postDate.toJSON(),
+  "lastEditDate": postDate.toJSON(),
 };
 
 const jwt = signJwt(userPayload, 'accessTokenSecret');
@@ -161,5 +168,134 @@ describe('post', () => {
         });
       });
     });
+  });
+
+  describe('update post route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .put(`/api/v1/posts/${postId}`)
+          .send(updatePostInput);
+          
+        expect(statusCode).toBe(401);
+      });
+    });
+
+    describe('given the postId is not a valid ObjectId', () => {
+      it('should return a 400', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+        
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          // @ts-ignore
+          .mockReturnValueOnce(postPayload);
+
+        const { statusCode } = await supertest(app)
+          .put(`/api/v1/posts/not_valid_id`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send(updatePostInput);
+        
+        expect(statusCode).toBe(400);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the post does not exist', () => {
+      it('should return a 404', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+        
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          // @ts-ignore
+          .mockReturnValueOnce(null);
+
+        const { statusCode } = await supertest(app)
+          .put(`/api/v1/posts/${postId}`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send(updatePostInput);
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+      });
+    });
+
+    describe('given the user is not the post author', () => {
+      it('should return a 403', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce({ ...userPayload, id: otherUserId });
+        
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          // @ts-ignore
+          .mockReturnValueOnce(postPayload);
+
+        const { statusCode } = await supertest(app)
+          .put(`/api/v1/posts/${postId}`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send(updatePostInput);
+        
+        expect(statusCode).toBe(403);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+      });
+    });
+
+    describe('given the user is logged in', () => {
+      it('should return a 200 and the updated post', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          // @ts-ignore
+          .mockReturnValueOnce(postPayload);
+        
+        const updatePostServiceMock = jest
+          .spyOn(PostService, 'findAndUpdatePost')
+          .mockReturnValueOnce({
+            ...postDocument.toJSON(),
+            // @ts-ignore
+            text: updatePostInput.text,
+          });
+
+        const { statusCode, body } = await supertest(app)
+          .put(`/api/v1/posts/${postId}`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send(updatePostInput);
+
+        expect(statusCode).toBe(200);
+        expect(body).toEqual({ 
+          ...postResponse,
+          text: updatePostInput.text,
+         });
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+        expect(updatePostServiceMock).toHaveBeenCalledWith(
+          { _id: postId },
+          { ...updatePostInput, lastEditDate: postDate },
+          { new: true },
+        );
+      });
+    });
+  });
+
+  describe('like post route', () => {
+
+  });
+
+  describe('delete post route', () => {
+
   });
 });
