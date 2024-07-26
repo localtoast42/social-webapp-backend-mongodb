@@ -93,7 +93,7 @@ describe('post', () => {
     });
 
     describe('given the postId is not a valid ObjectId', () => {
-      it('should return a 400', async () => {
+      it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
@@ -262,7 +262,7 @@ describe('post', () => {
     });
 
     describe('given the postId is not a valid ObjectId', () => {
-      it('should return a 400', async () => {
+      it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
@@ -273,12 +273,13 @@ describe('post', () => {
           // @ts-ignore
           .mockReturnValueOnce(postPayload);
 
-        const { statusCode } = await supertest(app)
+        const { statusCode, body } = await supertest(app)
           .put(`/api/v1/posts/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updatePostInput);
         
         expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Invalid postId");
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findPostServiceMock).not.toHaveBeenCalled();
       });
