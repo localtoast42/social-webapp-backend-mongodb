@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import createServer from '../utils/server';
 import * as UserService from '../services/user.service';
 import * as PostService from '../services/post.service';
+import * as CommentService from '../services/comment.service';
 import { signJwt } from '../utils/jwt.utils';
 import PostModel from '../models/post.model';
 
@@ -652,6 +653,154 @@ describe('post', () => {
   });
 
   describe('delete post route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/posts/${postId}`);
+          
+        expect(statusCode).toBe(401);
+      });
+    });
 
+    describe('given the postId is not a valid ObjectId', () => {
+      it('should return a 400 with error message', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+        
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          // @ts-ignore
+          .mockReturnValueOnce(postPayload);
+
+        const deleteManyCommentsServiceMock = jest
+          .spyOn(CommentService, 'deleteManyComments')
+          // @ts-ignore
+          .mockReturnValueOnce({});
+        
+        const deletePostServiceMock = jest
+          .spyOn(PostService, 'deletePost')
+          // @ts-ignore
+          .mockReturnValueOnce({});
+
+        const { statusCode, body } = await supertest(app)
+          .delete(`/api/v1/posts/not_valid_id`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Invalid postId");
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).not.toHaveBeenCalled();
+        expect(deleteManyCommentsServiceMock).not.toHaveBeenCalled();
+        expect(deletePostServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the post does not exist', () => {
+      it('should return a 404', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+        
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          // @ts-ignore
+          .mockReturnValueOnce(null);
+
+        const deleteManyCommentsServiceMock = jest
+          .spyOn(CommentService, 'deleteManyComments')
+          // @ts-ignore
+          .mockReturnValueOnce({});
+        
+        const deletePostServiceMock = jest
+          .spyOn(PostService, 'deletePost')
+          // @ts-ignore
+          .mockReturnValueOnce({});
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/posts/${postId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+        expect(deleteManyCommentsServiceMock).not.toHaveBeenCalled();
+        expect(deletePostServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the user is not the post author', () => {
+      it('should return a 403', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce({ ...userPayload, id: otherUserId });
+        
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          // @ts-ignore
+          .mockReturnValueOnce(postPayload);
+
+        const deleteManyCommentsServiceMock = jest
+          .spyOn(CommentService, 'deleteManyComments')
+          // @ts-ignore
+          .mockReturnValueOnce({});
+        
+        const deletePostServiceMock = jest
+          .spyOn(PostService, 'deletePost')
+          // @ts-ignore
+          .mockReturnValueOnce({});
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/posts/${postId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(403);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+        expect(deleteManyCommentsServiceMock).not.toHaveBeenCalled();
+        expect(deletePostServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given user is logged in and request is valid', () => {
+      it('should delete the post and comments and return number deleted', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+        
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          // @ts-ignore
+          .mockReturnValueOnce(postPayload);
+
+        const deleteManyCommentsServiceMock = jest
+          .spyOn(CommentService, 'deleteManyComments')
+          // @ts-ignore
+          .mockReturnValueOnce({ deletedCount: 2 });
+        
+        const deletePostServiceMock = jest
+          .spyOn(PostService, 'deletePost')
+          // @ts-ignore
+          .mockReturnValueOnce({ deletedCount: 1 });
+
+        const { statusCode, body } = await supertest(app)
+          .delete(`/api/v1/posts/${postId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(body).toEqual({
+          posts_deleted: 1,
+          comments_deleted: 2,
+        })
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+        expect(deleteManyCommentsServiceMock).toHaveBeenCalledWith({ post: postId });
+        expect(deletePostServiceMock).toHaveBeenCalledWith({ _id: postId });
+      });
+    });
   });
 });
