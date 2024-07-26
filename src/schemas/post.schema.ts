@@ -1,5 +1,5 @@
 import { isValidObjectId } from 'mongoose';
-import { object, string, TypeOf } from 'zod';
+import { object, string, enum as enum_, TypeOf } from 'zod';
 
 const payload = {
   body: object({
@@ -10,7 +10,10 @@ const payload = {
 };
 
 const like = object({
-  like: string()
+  like: enum_(
+    ["true", "false"], 
+    { message: "Like must be true or false" }
+  )
 });
 
 const params = object({
