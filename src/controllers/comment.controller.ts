@@ -25,21 +25,14 @@ export async function createCommentHandler(
   req: Request<CreateCommentInput["params"], {}, CreateCommentInput["body"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user = res.locals.user;
   const postId = req.params.postId;
 
   if (!isValidObjectId(postId)) {
     return res.sendStatus(400);
   }
 
-  const [user, post] = await Promise.all([
-    findUser({ _id: userId }),
-    findPost({ _id: postId }),
-  ])
-
-  if (!user) {
-    return res.sendStatus(403);
-  }
+  const post = await findPost({ _id: postId });
 
   if (!post) {
     return res.sendStatus(404);
@@ -125,17 +118,14 @@ export async function updateCommentHandler(
   req: Request<UpdateCommentInput["params"], {}, UpdateCommentInput["body"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user = res.locals.user;
   const commentId = req.params.commentId;
 
   if (!isValidObjectId(commentId)) {
     return res.sendStatus(400);
   }
 
-  const [user, comment] = await Promise.all([
-    findUser({ _id: userId }),
-    findComment({ _id: commentId }),
-  ])
+  const comment = await findComment({ _id: commentId });
 
   if (!comment) {
     return res.sendStatus(404);
@@ -161,7 +151,7 @@ export async function deleteCommentHandler(
   req: Request<DeleteCommentInput["params"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user = res.locals.user;
   const postId = req.params.postId;
   const commentId = req.params.commentId;
 
@@ -169,8 +159,7 @@ export async function deleteCommentHandler(
     return res.sendStatus(400);
   }
 
-  const [user, post, comment] = await Promise.all([
-    findUser({ _id: userId }),
+  const [post, comment] = await Promise.all([
     findPost({ _id: postId }),
     findComment({ _id: commentId }),
   ])
@@ -179,7 +168,7 @@ export async function deleteCommentHandler(
     return res.sendStatus(404);
   }
 
-  if (!user || user.id !== comment.author.toString()) {
+  if (user.id !== comment.author.toString()) {
     return res.sendStatus(403);
   }
 
@@ -201,21 +190,14 @@ export async function likeCommentHandler(
   res: Response
 ) {
   const like = JSON.parse(req.body.like);
-  const userId = res.locals.user._id;
+  const user = res.locals.user;
   const commentId = req.params.commentId;
 
   if (!isValidObjectId(commentId)) {
     return res.sendStatus(400);
   }
 
-  const [user, comment] = await Promise.all([
-    findUser({ _id: userId }),
-    findComment({ _id: commentId }),
-  ])
-
-  if (!user) {
-    return res.sendStatus(403);
-  }
+  const comment = await findComment({ _id: commentId });
 
   if (!comment) {
     return res.sendStatus(404);
