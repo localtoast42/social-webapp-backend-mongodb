@@ -1,3 +1,4 @@
+import { isValidObjectId } from 'mongoose';
 import { object, string, TypeOf } from 'zod';
 
 const payload = {
@@ -15,9 +16,13 @@ const like = object({
 const params = object({
   postId: string({
     required_error: 'postId is required',
+  }).refine((data) => isValidObjectId(data), {
+    message: "Invalid postId",
   }),
   commentId: string({
     required_error: 'commentId is required',
+  }).refine((data) => isValidObjectId(data), {
+    message: "Invalid commentId",
   }),
 })
 

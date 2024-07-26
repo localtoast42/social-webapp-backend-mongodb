@@ -28,10 +28,6 @@ export async function createCommentHandler(
   const user = res.locals.user;
   const postId = req.params.postId;
 
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
-
   const post = await findPost({ _id: postId });
 
   if (!post) {
@@ -66,10 +62,6 @@ export async function getCommentHandler(
   const userId = res.locals.user._id;
   const commentId = req.params.commentId;
 
-  if (!isValidObjectId(commentId)) {
-    return res.sendStatus(400);
-  }
-
   const comment = await findComment({ _id: commentId });
 
   if (!comment) {
@@ -87,10 +79,6 @@ export async function getCommentsByPostHandler(
 ) {
   const userId = res.locals.user._id;
   const postId = req.params.postId;
-
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
 
   const post = await findPost({ _id: postId });
 
@@ -121,10 +109,6 @@ export async function updateCommentHandler(
   const user = res.locals.user;
   const commentId = req.params.commentId;
 
-  if (!isValidObjectId(commentId)) {
-    return res.sendStatus(400);
-  }
-
   const comment = await findComment({ _id: commentId });
 
   if (!comment) {
@@ -154,10 +138,6 @@ export async function deleteCommentHandler(
   const user = res.locals.user;
   const postId = req.params.postId;
   const commentId = req.params.commentId;
-
-  if (!isValidObjectId(postId) || !isValidObjectId(commentId)) {
-    return res.sendStatus(400);
-  }
 
   const [post, comment] = await Promise.all([
     findPost({ _id: postId }),
@@ -192,10 +172,6 @@ export async function likeCommentHandler(
   const like = JSON.parse(req.body.like);
   const user = res.locals.user;
   const commentId = req.params.commentId;
-
-  if (!isValidObjectId(commentId)) {
-    return res.sendStatus(400);
-  }
 
   const comment = await findComment({ _id: commentId });
 

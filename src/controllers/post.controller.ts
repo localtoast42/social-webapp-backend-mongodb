@@ -47,10 +47,6 @@ export async function getPostHandler(
   const userId = res.locals.user._id;
   const postId = req.params.postId;
 
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
-
   const post = await findPost({ _id: postId });
 
   if (!post) {
@@ -123,10 +119,6 @@ export async function getPostsByUserHandler(
   const requestingUserId = res.locals.user._id;
   const targetUserId = req.params.userId;
 
-  if (!isValidObjectId(targetUserId)) {
-    return res.sendStatus(400);
-  }
-
   let query = {};
 
   if (targetUserId === requestingUserId.toString()) {
@@ -160,10 +152,6 @@ export async function updatePostHandler(
   const user = res.locals.user;
   const postId = req.params.postId;
 
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
-
   const post = await findPost({ _id: postId });
 
   if (!post) {
@@ -194,10 +182,6 @@ export async function likePostHandler(
   const user = res.locals.user;
   const postId = req.params.postId;
 
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
-
   const post = await findPost({ _id: postId });
 
   if (!post) {
@@ -227,10 +211,6 @@ export async function deletePostHandler(
 ) {
   const user = res.locals.user;
   const postId = req.params.postId;
-
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
 
   const post = await findPost({ _id: postId });
 

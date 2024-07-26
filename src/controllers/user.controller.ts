@@ -45,10 +45,6 @@ export async function getUserHandler(
 ) {
   const userId = req.params.userId;
 
-  if (!isValidObjectId(userId)) {
-    return res.sendStatus(400);
-  }
-
   const user = await findUser({ _id: userId });
 
   if (!user) {
@@ -123,10 +119,6 @@ export async function updateUserHandler(
   const requestingUserId = res.locals.user._id;
   const userId = req.params.userId;
 
-  if (!isValidObjectId(userId)) {
-    return res.sendStatus(400);
-  }
-
   const user = await findUser({ _id: userId });
 
   if (!user) {
@@ -153,10 +145,6 @@ export async function deleteUserHandler(
   const requestingUserId = res.locals.user._id;
   const userId = req.params.userId;
 
-  if (!isValidObjectId(userId)) {
-    return res.sendStatus(400);
-  }
-
   const user = await findUser({ _id: userId });
 
   if (!user) {
@@ -178,10 +166,6 @@ export async function getUserFollowsHandler(
 ) {
   const userId = req.params.userId;
 
-  if (!isValidObjectId(userId)) {
-    return res.sendStatus(400);
-  }
-
   const userFollows = await findUser({ _id: userId }, "following" );
 
   return res.send(userFollows);
@@ -193,10 +177,6 @@ export async function followUserHandler(
 ) {
   const requestingUserId = res.locals.user._id;
   const targetUserId = req.params.userId;
-
-  if (!isValidObjectId(targetUserId)) {
-    return res.sendStatus(400);
-  }
 
   const [requestingUser, targetUser] = await Promise.all([
     findUser({ _id: requestingUserId }),
@@ -245,10 +225,6 @@ export async function unfollowUserHandler(
 ) {
   const requestingUserId = res.locals.user._id;
   const targetUserId = req.params.userId;
-
-  if (!isValidObjectId(targetUserId)) {
-    return res.sendStatus(400);
-  }
 
   const [requestingUser, targetUser] = await Promise.all([
     findUser({ _id: requestingUserId }),
