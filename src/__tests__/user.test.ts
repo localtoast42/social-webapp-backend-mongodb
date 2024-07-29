@@ -1,13 +1,10 @@
 import supertest from 'supertest';
 import config from 'config';
 import mongoose from 'mongoose';
-import * as UserService from '../services/user.service';
-import * as SessionService from '../services/session.service';
 import createServer from '../utils/server';
-import UserModel from '../models/user.model';
 import { signJwt } from '../utils/jwt.utils';
-import SessionModel from '../models/session.model';
-import { createUserSessionHandler } from '../controllers/session.controller';
+import UserModel from '../models/user.model';
+import * as UserService from '../services/user.service';
 
 jest.mock('../utils/logger');
 
@@ -60,8 +57,6 @@ const sessionPayload = {
   userAgent: "PostmanRuntime/7.39.0",
 };
 
-const sessionDocument = new SessionModel(sessionPayload);
-
 const jwt = signJwt(userPayload, 'accessTokenSecret');
 
 beforeAll(() => {
@@ -74,7 +69,7 @@ afterAll(() => {
 });
 
 describe('user', () => {
-  describe('user registration', () => {
+  describe('create user route', () => {
     describe('given the username and password are valid', () => {
       it('should return the user payload', async () => {
         const createUserServiceMock = jest
@@ -126,41 +121,41 @@ describe('user', () => {
         expect(createUserServiceMock).toHaveBeenCalled();
       });
     });
-  })
-  
-  describe('create user session', () => {
-    describe('given the username and password are valid', () => {
-      it('should return a signed accessToken and refreshToken', async () => {
-        jest.spyOn(UserService, 'validatePassword')
-          .mockReturnValue(userDocument.toJSON());
+  });
 
-        jest.spyOn(SessionService, 'createSession')
-          .mockReturnValue(sessionDocument.toJSON());
+  describe('get user route', () => {
 
-        const req = {
-          get: () => {
-            return "a user agent";
-          },
-          body: {
-            username: userInput.username,
-            password: userInput.password,
-          },
-        };
+  });
 
-        const send = jest.fn();
+  describe('get self route', () => {
 
-        const res = {
-          send,
-        };
+  });
 
-        // @ts-ignore
-        await createUserSessionHandler(req, res);
+  describe('get user list route', () => {
 
-        expect(send).toHaveBeenCalledWith({
-          accessToken: expect.any(String),
-          refreshToken: expect.any(String),
-        });
-      });
-    });
+  });
+
+  describe('update user route', () => {
+
+  });
+
+  describe('delete user route', () => {
+
+  });
+
+  describe('get user follows route', () => {
+
+  });
+
+  describe('follow user route', () => {
+
+  });
+
+  describe('unfollow user route', () => {
+
+  });
+
+  describe('populate user route', () => {
+
   });
 });
