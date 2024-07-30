@@ -48,6 +48,7 @@ const userDocument = new UserModel(userPayload);
 const userResponse = {
   ...userDocument.toJSON(),
   "_id": userId,
+  "followedByMe": false,
 };
 
 const sessionPayload = {
@@ -124,11 +125,144 @@ describe('user', () => {
   });
 
   describe('get user route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .get(`/api/v1/users/${userId}`);
+          
+        expect(statusCode).toBe(401);
+      });
+    });
 
+    describe('given the userId is not a valid ObjectId', () => {
+      it('should return a 400 with error message', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload);
+  
+        const { statusCode, body } = await supertest(app)
+          .get(`/api/v1/users/not_valid_id`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Invalid userId");
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findUserServiceMock).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('given the user does not exist', () => {
+      it('should return a 404', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(null);
+
+        const { statusCode } = await supertest(app)
+          .get(`/api/v1/users/${userId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    describe('given the user does exist', () => {
+      it('should return a 200 status and the user', async () => { 
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(userDocument.toJSON());
+
+        const { body, statusCode } = await supertest(app)
+          .get(`/api/v1/users/${userId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(body).toEqual(userResponse);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+      });
+
+      it('should return followedByMe as true if requestor follows the user', async () => { 
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce({
+            ...userDocument.toJSON(),
+            // @ts-ignore
+            followers: [ userObjectId ],
+          });
+
+        const { body, statusCode } = await supertest(app)
+          .get(`/api/v1/users/${userId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(body.followedByMe).toBe(true);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+      });
+    });
   });
 
   describe('get self route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .get(`/api/v1/users/self`);
+          
+        expect(statusCode).toBe(401);
+      });
+    });
 
+    describe('given the user does not exist', () => {
+      it('should return a 404', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(null);
+
+        const { statusCode } = await supertest(app)
+          .get(`/api/v1/users/self`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    describe('given the user does exist', () => {
+      it('should return a 200 status and the user', async () => { 
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(userDocument.toJSON());
+
+        const { body, statusCode } = await supertest(app)
+          .get(`/api/v1/users/self`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(body).toEqual(userResponse);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+      });
+    });
   });
 
   describe('get user list route', () => {
