@@ -541,7 +541,115 @@ describe('user', () => {
   });
 
   describe('delete user route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/users/${userId}`);
+          
+        expect(statusCode).toBe(401);
+      });
+    });
 
+    describe('given the request is bad', () => {
+      describe('because the userId is not a valid ObjectId', () => {
+        it('should return a 400 with error message', async () => {
+          const findUserServiceMock = jest
+            .spyOn(UserService, 'findUser')
+            // @ts-ignore
+            .mockReturnValueOnce(userPayload)
+            // @ts-ignore
+            .mockReturnValueOnce(userPayload);
+  
+          const deleteUserServiceMock = jest
+            .spyOn(UserService, 'deleteUser')
+            // @ts-ignore
+            .mockReturnValueOnce({ deletedCount: 1 });
+    
+          const { statusCode, body } = await supertest(app)
+            .put(`/api/v1/users/not_valid_id`)
+            .set('Authorization', `Bearer ${jwt}`);
+          
+          expect(statusCode).toBe(400);
+          expect(body[0].message).toEqual("Invalid userId");
+          expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+          expect(findUserServiceMock).toHaveBeenCalledTimes(1);
+          expect(deleteUserServiceMock).not.toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe('given the user does not exist', () => {
+      it('should return a 404', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(null);
+
+        const deleteUserServiceMock = jest
+          .spyOn(UserService, 'deleteUser')
+          // @ts-ignore
+          .mockReturnValueOnce({ deletedCount: 1 });
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/users/${userId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(deleteUserServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the requesting user is not the target user', () => {
+      it('should return a 403', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce({ ...userPayload, id: otherUserId });
+
+        const deleteUserServiceMock = jest
+          .spyOn(UserService, 'deleteUser')
+          // @ts-ignore
+          .mockReturnValueOnce({ deletedCount: 1 });
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/users/${otherUserId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(403);
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(deleteUserServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the request is valid', () => {
+      it('should delete the user and return a 200', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(userDocument.toJSON());
+
+        const deleteUserServiceMock = jest
+          .spyOn(UserService, 'deleteUser')
+          // @ts-ignore
+          .mockReturnValueOnce({ deletedCount: 1 });
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/users/${userId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(deleteUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+      });
+    });
   });
 
   describe('get user follows route', () => {
