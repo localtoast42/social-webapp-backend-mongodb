@@ -30,8 +30,8 @@ const params = object({
 })
 
 export const createCommentSchema = object({
-  ...payload,
   params: params.pick({ postId: true }),
+  ...payload,
 });
 
 export const getCommentSchema = object({
@@ -48,8 +48,8 @@ export const updateCommentSchema = object({
 });
 
 export const likeCommentSchema = object({
-  body: like,
   params: params.pick({ commentId: true }),
+  body: like,
 });
 
 export const deleteCommentSchema = object({

@@ -47,8 +47,8 @@ export const updatePostSchema = object({
 });
 
 export const likePostSchema = object({
-  body: like,
   params: params.pick({ postId: true }),
+  body: like,
 });
 
 export const deletePostSchema = object({

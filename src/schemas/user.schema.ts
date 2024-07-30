@@ -68,8 +68,8 @@ export const unfollowUserSchema = object({
 });
 
 export const updateUserSchema = object({
-  ...payload,
   ...params,
+  ...payload,
 });
 
 export const deleteUserSchema = object({
