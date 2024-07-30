@@ -266,7 +266,64 @@ describe('user', () => {
   });
 
   describe('get user list route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .get('/api/v1/users');
+          
+        expect(statusCode).toBe(401);
+      });
+    });
 
+    describe('given the user is logged in', () => {
+      describe('given no query is provided', () => {
+        it('should return 200 and a list of all users', async () => {   
+          const findUserServiceMock = jest
+            .spyOn(UserService, 'findUser')
+            // @ts-ignore
+            .mockReturnValueOnce(userPayload);
+
+          const findManyUsersServiceMock = jest
+            .spyOn(UserService, 'findManyUsers')
+            // @ts-ignore
+            .mockReturnValueOnce(userDocument.toJSON());
+
+          const { statusCode, body } = await supertest(app)
+            .get('/api/v1/users')
+            .set('Authorization', `Bearer ${jwt}`);
+            
+          expect(statusCode).toBe(200);
+          expect(body).toEqual(userResponse);
+          expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+          expect(findManyUsersServiceMock).toHaveBeenCalled();
+        });
+      });
+
+      describe('given a query is provided', () => {
+        it('should return 200 and a list users filtered by name', async () => {   
+          const findUserServiceMock = jest
+            .spyOn(UserService, 'findUser')
+            // @ts-ignore
+            .mockReturnValueOnce(userPayload);
+
+          const findManyUsersServiceMock = jest
+            .spyOn(UserService, 'findManyUsers')
+            // @ts-ignore
+            .mockReturnValueOnce(null);
+
+          const query = "xz";
+
+          const { statusCode, body } = await supertest(app)
+            .get(`/api/v1/users?q=${query}`)
+            .set('Authorization', `Bearer ${jwt}`);
+            
+          expect(statusCode).toBe(200);
+          expect(body).toEqual(null);
+          expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+          expect(findManyUsersServiceMock).toHaveBeenCalled();
+        });
+      });
+    });
   });
 
   describe('update user route', () => {
