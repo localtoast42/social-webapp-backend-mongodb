@@ -54,6 +54,10 @@ commentSchema.virtual("numLikes").get(function () {
   return this.likes?.length ?? 0;
 });
 
+commentSchema.virtual("isLiked").get(function () {
+  return false;
+});
+
 commentSchema.plugin(mongooseLeanVirtuals);
 
 const CommentModel = model<Comment>("Comment", commentSchema);
