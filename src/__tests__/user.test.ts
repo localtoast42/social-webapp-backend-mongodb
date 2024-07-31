@@ -120,8 +120,7 @@ describe('user', () => {
       it('should return the user payload', async () => {
         const createUserServiceMock = jest
           .spyOn(UserService, 'createUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument.toJSON());
+          .mockResolvedValueOnce(userDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
           .post('/api/v1/users')
@@ -140,8 +139,7 @@ describe('user', () => {
       it('should return a 400', async () => {
         const createUserServiceMock = jest
           .spyOn(UserService, 'createUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument.toJSON());
+          .mockResolvedValueOnce(userDocument.toJSON());
         
         const { statusCode } = await supertest(app)
           .post('/api/v1/users')
@@ -156,7 +154,6 @@ describe('user', () => {
       it('should return a 409', async () => {
         const createUserServiceMock = jest
           .spyOn(UserService, 'createUser')
-          // @ts-ignore
           .mockRejectedValueOnce("did not work");
 
         const { statusCode } = await supertest(app)
@@ -183,10 +180,8 @@ describe('user', () => {
       it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(userDocument);
   
         const { statusCode, body } = await supertest(app)
           .get(`/api/v1/users/not_valid_id`)
@@ -203,10 +198,8 @@ describe('user', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(null);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(null);
 
         const { statusCode } = await supertest(app)
           .get(`/api/v1/users/${userId}`)
@@ -222,10 +215,8 @@ describe('user', () => {
       it('should return a 200 status and the user', async () => { 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(userDocument);
 
         const { body, statusCode } = await supertest(app)
           .get(`/api/v1/users/${userId}`)
@@ -244,10 +235,8 @@ describe('user', () => {
 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(userDocumentWithFollows);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(userDocumentWithFollows);
 
         const { body, statusCode } = await supertest(app)
           .get(`/api/v1/users/${userId}`)
@@ -275,8 +264,7 @@ describe('user', () => {
       it('should return a 200 status and the user', async () => { 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument);
+          .mockResolvedValueOnce(userDocument);
 
         const { body, statusCode } = await supertest(app)
           .get(`/api/v1/users/self`)
@@ -304,20 +292,18 @@ describe('user', () => {
         it('should return 200 and a list of all users', async () => {   
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument);
+            .mockResolvedValueOnce(userDocument);
 
           const findManyUsersServiceMock = jest
             .spyOn(UserService, 'findManyUsers')
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument);
+            .mockResolvedValueOnce([userDocument]);
 
           const { statusCode, body } = await supertest(app)
             .get('/api/v1/users')
             .set('Authorization', `Bearer ${jwt}`);
             
           expect(statusCode).toBe(200);
-          expect(body).toEqual(userResponse);
+          expect(body).toEqual([userResponse]);
           expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
           expect(findManyUsersServiceMock).toHaveBeenCalled();
         });
@@ -327,13 +313,11 @@ describe('user', () => {
         it('should return 200 and a list users filtered by name', async () => {   
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument);
+            .mockResolvedValueOnce(userDocument);
 
           const findManyUsersServiceMock = jest
             .spyOn(UserService, 'findManyUsers')
-            // @ts-ignore
-            .mockReturnValueOnce(null);
+            .mockResolvedValueOnce([]);
 
           const query = "xz";
 
@@ -342,7 +326,7 @@ describe('user', () => {
             .set('Authorization', `Bearer ${jwt}`);
             
           expect(statusCode).toBe(200);
-          expect(body).toEqual(null);
+          expect(body).toEqual([]);
           expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
           expect(findManyUsersServiceMock).toHaveBeenCalled();
         });
@@ -366,15 +350,12 @@ describe('user', () => {
         it('should return a 400 with error message', async () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument)
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument);
+            .mockResolvedValueOnce(userDocument)
+            .mockResolvedValueOnce(userDocument);
   
           const updateUserServiceMock = jest
             .spyOn(UserService, 'findAndUpdateUser')
-            // @ts-ignore
-            .mockReturnValueOnce(updatedUserDocument);
+            .mockResolvedValueOnce(updatedUserDocument);
     
           const { statusCode, body } = await supertest(app)
             .put(`/api/v1/users/not_valid_id`)
@@ -393,15 +374,12 @@ describe('user', () => {
         it('should return a 400 with error message', async () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument)
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument);
+            .mockResolvedValueOnce(userDocument)
+            .mockResolvedValueOnce(userDocument);
   
           const updateUserServiceMock = jest
             .spyOn(UserService, 'findAndUpdateUser')
-            // @ts-ignore
-            .mockReturnValueOnce(updatedUserDocument);
+            .mockResolvedValueOnce(updatedUserDocument);
     
           const { statusCode, body } = await supertest(app)
             .put(`/api/v1/users/${userId}`)
@@ -423,15 +401,12 @@ describe('user', () => {
         it('should return a 400 with error message', async () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument)
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument);
+            .mockResolvedValueOnce(userDocument)
+            .mockResolvedValueOnce(userDocument);
   
           const updateUserServiceMock = jest
             .spyOn(UserService, 'findAndUpdateUser')
-            // @ts-ignore
-            .mockReturnValueOnce(updatedUserDocument);
+            .mockResolvedValueOnce(updatedUserDocument);
     
           const { statusCode, body } = await supertest(app)
             .put(`/api/v1/users/${userId}`)
@@ -454,18 +429,12 @@ describe('user', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(null);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(null);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          // @ts-ignore
-          .mockReturnValueOnce({
-            ...userDocument,
-            ...updateUserInput
-          });
+          .mockResolvedValueOnce(updatedUserDocument);
 
         const { statusCode } = await supertest(app)
           .put(`/api/v1/users/${userId}`)
@@ -483,15 +452,12 @@ describe('user', () => {
       it('should return a 403', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          // @ts-ignore
-          .mockReturnValueOnce(updatedUserDocument);
+          .mockResolvedValueOnce(updatedUserDocument);
 
         const { statusCode } = await supertest(app)
           .put(`/api/v1/users/${otherUserId}`)
@@ -508,15 +474,12 @@ describe('user', () => {
       it('should return a 200 and the updated user', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(userDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          // @ts-ignore
-          .mockReturnValueOnce(updatedUserDocument);
+          .mockResolvedValueOnce(updatedUserDocument);
 
         const { statusCode, body } = await supertest(app)
           .put(`/api/v1/users/${userId}`)
@@ -546,15 +509,15 @@ describe('user', () => {
         it('should return a 400 with error message', async () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument)
-            // @ts-ignore
-            .mockReturnValueOnce(userDocument);
+            .mockResolvedValueOnce(userDocument)
+            .mockResolvedValueOnce(userDocument);
   
           const deleteUserServiceMock = jest
             .spyOn(UserService, 'deleteUser')
-            // @ts-ignore
-            .mockReturnValueOnce({ deletedCount: 1 });
+            .mockResolvedValueOnce({ 
+              acknowledged: true,
+              deletedCount: 1,
+            });
     
           const { statusCode, body } = await supertest(app)
             .put(`/api/v1/users/not_valid_id`)
@@ -573,15 +536,15 @@ describe('user', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(null);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(null);
 
         const deleteUserServiceMock = jest
           .spyOn(UserService, 'deleteUser')
-          // @ts-ignore
-          .mockReturnValueOnce({ deletedCount: 1 });
+          .mockResolvedValueOnce({ 
+            acknowledged: true,
+            deletedCount: 1,
+          });
 
         const { statusCode } = await supertest(app)
           .delete(`/api/v1/users/${userId}`)
@@ -598,15 +561,15 @@ describe('user', () => {
       it('should return a 403', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
 
         const deleteUserServiceMock = jest
           .spyOn(UserService, 'deleteUser')
-          // @ts-ignore
-          .mockReturnValueOnce({ deletedCount: 1 });
+          .mockResolvedValueOnce({ 
+            acknowledged: true,
+            deletedCount: 1,
+          });
 
         const { statusCode } = await supertest(app)
           .delete(`/api/v1/users/${otherUserId}`)
@@ -622,15 +585,15 @@ describe('user', () => {
       it('should delete the user and return a 200', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(userDocument);
 
         const deleteUserServiceMock = jest
           .spyOn(UserService, 'deleteUser')
-          // @ts-ignore
-          .mockReturnValueOnce({ deletedCount: 1 });
+          .mockResolvedValueOnce({ 
+            acknowledged: true,
+            deletedCount: 1,
+          });
 
         const { statusCode } = await supertest(app)
           .delete(`/api/v1/users/${userId}`)
@@ -657,11 +620,9 @@ describe('user', () => {
       it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce({
-            // @ts-ignore
+          .mockResolvedValueOnce({
             following: [ userObjectId ],
           });
   
@@ -680,10 +641,8 @@ describe('user', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(null);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(null);
 
         const { statusCode } = await supertest(app)
           .get(`/api/v1/users/${userId}/following`)
@@ -699,10 +658,9 @@ describe('user', () => {
       it('should return a 200 status and the array of user follows', async () => { 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          .mockReturnValueOnce({
-            // @ts-ignore
+          .mockResolvedValueOnce({
             following: [ userObjectId ],
           });
 
@@ -738,17 +696,13 @@ describe('user', () => {
 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocumentWithFollows)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocumentWithFollowers);
+          .mockResolvedValueOnce(userDocumentWithFollows)
+          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
   
         const { statusCode, body } = await supertest(app)
           .post(`/api/v1/users/not_valid_id/follow`)
@@ -772,17 +726,13 @@ describe('user', () => {
 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(null);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(null);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocumentWithFollows)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocumentWithFollowers);
+          .mockResolvedValueOnce(userDocumentWithFollows)
+          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
 
         const { statusCode } = await supertest(app)
           .post(`/api/v1/users/${otherUserId}/follow`)
@@ -804,17 +754,13 @@ describe('user', () => {
 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocumentWithFollows)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocumentWithFollowers);
+          .mockResolvedValueOnce(userDocumentWithFollows)
+          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
 
         const { statusCode } = await supertest(app)
           .post(`/api/v1/users/${otherUserId}/follow`)
@@ -841,17 +787,13 @@ describe('user', () => {
       it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
   
         const { statusCode, body } = await supertest(app)
           .delete(`/api/v1/users/not_valid_id/follow`)
@@ -869,17 +811,13 @@ describe('user', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(null);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(null);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
 
         const { statusCode } = await supertest(app)
           .delete(`/api/v1/users/${otherUserId}/follow`)
@@ -895,17 +833,13 @@ describe('user', () => {
       it('should update both users and return a 200', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userDocument)
-          // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
 
         const { statusCode } = await supertest(app)
           .delete(`/api/v1/users/${otherUserId}/follow`)
@@ -942,8 +876,7 @@ describe('user', () => {
       it('should return a 400 with error message', async () => {
         const createUserServiceMock = jest
           .spyOn(UserService, 'createUser')
-          // @ts-ignore
-          .mockReturnValue(userDocument.toJSON());
+          .mockResolvedValueOnce(userDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
           .post('/api/v1/users/populate')
@@ -961,13 +894,12 @@ describe('user', () => {
       it('should create the requested documents and return a 201', async () => {
         const createUserServiceMock = jest
           .spyOn(UserService, 'createUser')
-          // @ts-ignore
-          .mockReturnValue(userDocument.toJSON());
+          .mockResolvedValue(userDocument.toJSON());
 
         const createPostServiceMock = jest
           .spyOn(PostService, 'createPost')
           // @ts-ignore
-          .mockReturnValue({});
+          .mockResolvedValue({});
 
         const { statusCode } = await supertest(app)
           .post('/api/v1/users/populate')
