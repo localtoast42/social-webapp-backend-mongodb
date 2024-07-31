@@ -267,4 +267,92 @@ describe('comment', () => {
       });
     });
   });
+
+  describe('get comments by post route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .get(`/api/v1/posts/${postId}/comments`);
+
+        expect(statusCode).toBe(401);
+      });
+    });
+
+    describe('given the postId is not a valid ObjectId', () => {
+      it('should return a 400 with error message', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockResolvedValueOnce(postDocument.toJSON());
+        
+        const findManyCommentsServiceMock = jest
+          .spyOn(CommentService, 'findManyComments')
+          .mockResolvedValueOnce([commentDocument.toJSON()]);
+
+        const { statusCode, body } = await supertest(app)
+          .get(`/api/v1/posts/not_valid_id/comments`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Invalid postId");
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).not.toHaveBeenCalled();
+        expect(findManyCommentsServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the post does not exist', () => {
+      it('should return a 404', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockResolvedValueOnce(null);
+        
+        const findManyCommentsServiceMock = jest
+          .spyOn(CommentService, 'findManyComments')
+          .mockResolvedValueOnce([commentDocument.toJSON()]);
+
+        const { statusCode } = await supertest(app)
+          .get(`/api/v1/posts/${postId}/comments`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+        expect(findManyCommentsServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the request is good', () => {
+      it('should return a 200 and an array of post comments', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockResolvedValueOnce(postDocument.toJSON());
+        
+        const findManyCommentsServiceMock = jest
+          .spyOn(CommentService, 'findManyComments')
+          .mockResolvedValueOnce([commentDocument.toJSON()]);
+
+        const { statusCode, body } = await supertest(app)
+          .get(`/api/v1/posts/${postId}/comments`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(body).toEqual([commentResponse]);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+        expect(findManyCommentsServiceMock).toHaveBeenCalled();
+      });
+    });
+  });
 });
