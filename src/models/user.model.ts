@@ -23,8 +23,8 @@ export interface User extends UserCreate {
   id: string;
   isAdmin: boolean;
   isGuest: boolean;
-  followers: Array<Types.ObjectId>;
-  following: Array<Types.ObjectId>;
+  followers: Array<Types.ObjectId | string>;
+  following: Array<Types.ObjectId | string>;
   followedByMe?: boolean;
   hasFollows?: boolean;
   fullName?: string;
