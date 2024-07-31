@@ -5,6 +5,7 @@ import createServer from '../utils/server';
 import { signJwt } from '../utils/jwt.utils';
 import UserModel from '../models/user.model';
 import * as UserService from '../services/user.service';
+import * as PostService from '../services/post.service';
 
 jest.mock('../utils/logger');
 
@@ -96,6 +97,13 @@ const sessionPayload = {
 };
 
 const jwt = signJwt(userPayload, 'accessTokenSecret');
+const adminJwt = signJwt(
+  {
+    ...userPayload,
+    isAdmin: true
+  }, 
+  'accessTokenSecret'
+);
 
 beforeAll(() => {
   jest.useFakeTimers();
@@ -793,7 +801,7 @@ describe('user', () => {
 
         const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
         otherUserDocumentWithFollowers.followers.push(userObjectId);
-        
+
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
@@ -911,6 +919,68 @@ describe('user', () => {
   });
 
   describe('populate user route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .post('/api/v1/users/populate');
+          
+        expect(statusCode).toBe(401);
+      });
+    });
 
+    describe('given the user is not an admin', () => {
+      it('should return a 403', async () => {   
+        const { statusCode } = await supertest(app)
+          .post('/api/v1/users/populate')
+          .set('Authorization', `Bearer ${jwt}`);
+          
+        expect(statusCode).toBe(403);
+      });
+    });
+
+    describe('given required fields are not included in request body', () => {
+      it('should return a 400 with error message', async () => {
+        const createUserServiceMock = jest
+          .spyOn(UserService, 'createUser')
+          // @ts-ignore
+          .mockReturnValue(userDocument.toJSON());
+
+        const { statusCode, body } = await supertest(app)
+          .post('/api/v1/users/populate')
+          .set('Authorization', `Bearer ${adminJwt}`)
+          .send({});
+          
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("User count must be provided");
+        expect(body[1].message).toEqual("Post count must be provided");
+        expect(createUserServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the request is good', () => {
+      it('should create the requested documents and return a 201', async () => {
+        const createUserServiceMock = jest
+          .spyOn(UserService, 'createUser')
+          // @ts-ignore
+          .mockReturnValue(userDocument.toJSON());
+
+        const createPostServiceMock = jest
+          .spyOn(PostService, 'createPost')
+          // @ts-ignore
+          .mockReturnValue({});
+
+        const { statusCode } = await supertest(app)
+          .post('/api/v1/users/populate')
+          .set('Authorization', `Bearer ${adminJwt}`)
+          .send({
+            userCount: 2,
+            postCount: 3,
+          });
+          
+        expect(statusCode).toBe(201);
+        expect(createUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(createPostServiceMock).toHaveBeenCalledTimes(6);
+      });
+    });
   });
 });
