@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { isValidObjectId } from 'mongoose';
 import { 
   CreateCommentInput, 
   ReadCommentInput,
@@ -15,7 +14,6 @@ import {
   deleteComment,
   findManyComments
 } from '../services/comment.service';
-import { findUser } from '../services/user.service';
 import { 
   findAndUpdatePost, 
   findPost 
