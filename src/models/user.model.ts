@@ -33,7 +33,10 @@ export interface User extends UserCreate {
 };
 
 const opts = { 
-  toJSON: { virtuals: true } 
+  toJSON: { 
+    virtuals: true, 
+    flattenObjectIds: true 
+  }
 };
 
 const userSchema = new Schema<User>({
