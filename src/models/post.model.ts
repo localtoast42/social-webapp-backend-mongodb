@@ -14,8 +14,8 @@ export interface Post extends PostCreate {
   _id: Types.ObjectId;
   id: string;
   lastEditDate: Date;
-  likes: Array<Types.ObjectId>;
-  comments: Array<Types.ObjectId>;
+  likes: Array<Types.ObjectId | string>;
+  comments: Array<Types.ObjectId | string>;
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
