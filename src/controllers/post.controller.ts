@@ -15,12 +15,13 @@ import {
   findManyPosts
 } from '../services/post.service';
 import { deleteManyComments } from '../services/comment.service';
+import { User } from '../models/user.model';
 
 export async function createPostHandler(
   req: Request<{}, {}, CreatePostInput["body"]>, 
   res: Response
 ) {
-  const user = res.locals.user;
+  const user: User = res.locals.user;
 
   if (!user) {
     return res.sendStatus(403);
@@ -43,7 +44,8 @@ export async function getPostHandler(
   req: Request<ReadPostInput["params"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user: User = res.locals.user;
+  const userId = user._id;
   const postId = req.params.postId;
 
   const post = await findPost({ _id: postId });
@@ -61,7 +63,8 @@ export async function getRecentPostsHandler(
   req: Request, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user: User = res.locals.user;
+  const userId = user._id;
 
   const query = {
     $or: [
@@ -90,8 +93,9 @@ export async function getFollowedPostsHandler(
   req: Request, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
-  const following = res.locals.user.following;
+  const user: User = res.locals.user;
+  const userId = user._id;
+  const following = user.following;
 
   const query = {
     'author': { $in: [...following, userId] },
@@ -115,7 +119,8 @@ export async function getPostsByUserHandler(
   req: Request<ReadPostByUserInput["params"]>, 
   res: Response
 ) {
-  const requestingUserId = res.locals.user._id;
+  const requestingUser: User = res.locals.user;
+  const requestingUserId = requestingUser._id;
   const targetUserId = req.params.userId;
 
   let query = {};
@@ -148,7 +153,7 @@ export async function updatePostHandler(
   req: Request<UpdatePostInput["params"], {}, UpdatePostInput["body"]>, 
   res: Response
 ) {
-  const user = res.locals.user;
+  const user: User = res.locals.user;
   const postId = req.params.postId;
 
   const post = await findPost({ _id: postId });
@@ -178,7 +183,7 @@ export async function likePostHandler(
   res: Response
 ) {
   const like = JSON.parse(req.body.like);
-  const user = res.locals.user;
+  const user: User = res.locals.user;
   const postId = req.params.postId;
 
   const post = await findPost({ _id: postId });
@@ -208,7 +213,7 @@ export async function deletePostHandler(
   req: Request<DeletePostInput["params"]>, 
   res: Response
 ) {
-  const user = res.locals.user;
+  const user: User = res.locals.user;
   const postId = req.params.postId;
 
   const post = await findPost({ _id: postId });
