@@ -6,6 +6,7 @@ import SessionModel from '../models/session.model';
 import * as UserService from '../services/user.service';
 import * as SessionService from '../services/session.service';
 import { createUserSessionHandler } from '../controllers/session.controller';
+import { signJwt } from '../utils/jwt.utils';
 
 const app = createServer();
 
@@ -50,6 +51,8 @@ const sessionPayload = {
 };
 
 const sessionDocument = new SessionModel(sessionPayload);
+
+const jwt = signJwt(userPayload, 'accessTokenSecret');
 
 describe('session', () => {
   describe('create session route', () => {
@@ -135,4 +138,39 @@ describe('session', () => {
       });
     });
   });
+
+  describe('get sessions route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .get('/api/v1/sessions');
+          
+        expect(statusCode).toBe(401);
+      });
+    });
+
+    describe('given the request is good', () => {
+      it('should return a 200 and the array of user sessions', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+
+        const findSessionsServiceMock = jest
+          .spyOn(SessionService, 'findSessions')
+          .mockResolvedValueOnce([sessionDocument.toJSON()]);
+
+        const { body, statusCode } = await supertest(app)
+          .get('/api/v1/sessions')
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(body).toEqual([{
+          ...sessionPayload,
+          _id: sessionPayload._id.toString(),
+        }]);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findSessionsServiceMock).toHaveBeenCalled();
+      })
+    })
+  })
 });
