@@ -39,7 +39,7 @@ export async function createCommentHandler(
 
   const comment = await createComment({ 
     ...body, 
-    post: post.id, 
+    post: post._id, 
     author: user.id,
     postDate: postDate 
   });
@@ -152,7 +152,7 @@ export async function deleteCommentHandler(
     return res.sendStatus(403);
   }
 
-  post.comments = post.comments.filter((commentid) => commentid != comment.id);
+  post.comments = post.comments.filter((commentid) => commentid != comment._id);
 
   const update = {
     comments: post.comments,
