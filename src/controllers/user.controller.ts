@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import config from 'config';
-import { isValidObjectId } from 'mongoose';
 import { omit } from 'lodash';
 import logger from '../utils/logger';
 import { 
@@ -8,7 +7,7 @@ import {
   findUser, 
   findManyUsers, 
   findAndUpdateUser, 
-  deleteUser 
+  deleteUser
 } from '../services/user.service';
 import { 
   CreateUserInput, 
@@ -23,6 +22,7 @@ import {
   createRandomPost, 
   createRandomUser 
 } from '../utils/populateDatabase';
+import { User } from '../models/user.model';
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput["body"]>, 
@@ -43,7 +43,13 @@ export async function getUserHandler(
   req: Request<ReadUserInput["params"]>, 
   res: Response
 ) {
+  const requestingUser: User = res.locals.user;
+  const requestingUserId = requestingUser.id;
   const userId = req.params.userId;
+
+  const projection = {
+    password: -1,
+  };
 
   const user = await findUser({ _id: userId });
 
@@ -51,30 +57,28 @@ export async function getUserHandler(
     return res.sendStatus(404);
   }
 
-  user.followedByMe = res.locals.user.following.includes(user._id);
+  const userObject = user.toJSON();
 
-  return res.send(omit(user.toJSON(), "password"));
+  userObject.followedByMe = userObject.followers.includes(requestingUserId);
+
+  return res.send(userObject);
 }
 
 export async function getSelfHandler(
   req: Request, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
-  const user = await findUser({ _id: userId });
+  const user: User = res.locals.user;
 
-  if (!user) {
-    return res.sendStatus(404);
-  }
-
-  return res.send(omit(user.toJSON(), "password"));
+  return res.send(omit(user, "password"));
 }
 
 export async function getUserListHandler(
   req: Request, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user: User = res.locals.user;
+  const userId = user._id;
 
   const queryTerms: object[] = [];
   queryTerms.push({ _id: { $exists: true} });
@@ -116,7 +120,8 @@ export async function updateUserHandler(
   req: Request<UpdateUserInput["params"], {}, UpdateUserInput["body"]>, 
   res: Response
 ) {
-  const requestingUserId = res.locals.user._id;
+  const requestingUser: User = res.locals.user;
+  const requestingUserId = requestingUser.id;
   const userId = req.params.userId;
 
   const user = await findUser({ _id: userId });
@@ -125,7 +130,7 @@ export async function updateUserHandler(
     return res.sendStatus(404);
   }
 
-  if (user.id !== requestingUserId.toString()) {
+  if (user.id !== requestingUserId) {
     return res.sendStatus(403);
   }
 
@@ -168,6 +173,10 @@ export async function getUserFollowsHandler(
 
   const userFollows = await findUser({ _id: userId }, "following" );
 
+  if (userFollows === null) {
+    return res.sendStatus(404);
+  }
+
   return res.send(userFollows);
 }
 
@@ -175,15 +184,12 @@ export async function followUserHandler(
   req: Request<FollowUserInput["params"]>, 
   res: Response
 ) {
-  const requestingUserId = res.locals.user._id;
+  const requestingUser: User = res.locals.user;
   const targetUserId = req.params.userId;
 
-  const [requestingUser, targetUser] = await Promise.all([
-    findUser({ _id: requestingUserId }),
-    findUser({ _id: targetUserId })
-  ])
+  const targetUser = await findUser({ _id: targetUserId });
 
-  if (!targetUser || !requestingUser) {
+  if (!targetUser) {
     return res.sendStatus(404);
   }
 
@@ -205,7 +211,7 @@ export async function followUserHandler(
 
   await Promise.all([
     findAndUpdateUser(
-      { _id: requestingUserId }, 
+      { _id: requestingUser._id }, 
       requestingUserUpdates, 
       { new: true }
     ),
@@ -223,15 +229,12 @@ export async function unfollowUserHandler(
   req: Request<UnfollowUserInput["params"]>, 
   res: Response
 ) {
-  const requestingUserId = res.locals.user._id;
+  const requestingUser: User = res.locals.user;
   const targetUserId = req.params.userId;
 
-  const [requestingUser, targetUser] = await Promise.all([
-    findUser({ _id: requestingUserId }),
-    findUser({ _id: targetUserId })
-  ])
+  const targetUser = await findUser({ _id: targetUserId })
 
-  if (!targetUser || !requestingUser) {
+  if (!targetUser) {
     return res.sendStatus(404);
   }
 
@@ -252,7 +255,7 @@ export async function unfollowUserHandler(
 
   await Promise.all([
     findAndUpdateUser(
-      { _id: requestingUserId }, 
+      { _id: requestingUser._id }, 
       requestingUserUpdates, 
       { new: true }
     ),
