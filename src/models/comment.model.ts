@@ -16,7 +16,7 @@ export interface Comment extends CommentCreate {
   _id: Types.ObjectId;
   id: string;
   lastEditDate: Date;
-  likes: Array<Types.ObjectId>;
+  likes: Array<Types.ObjectId | string>;
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
