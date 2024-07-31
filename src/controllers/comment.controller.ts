@@ -18,12 +18,13 @@ import {
   findAndUpdatePost, 
   findPost 
 } from '../services/post.service';
+import { User } from '../models/user.model';
 
 export async function createCommentHandler(
   req: Request<CreateCommentInput["params"], {}, CreateCommentInput["body"]>, 
   res: Response
 ) {
-  const user = res.locals.user;
+  const user: User = res.locals.user;
   const postId = req.params.postId;
 
   const post = await findPost({ _id: postId });
@@ -38,11 +39,12 @@ export async function createCommentHandler(
   const comment = await createComment({ 
     ...body, 
     post: post._id, 
-    author: user.id,
-    postDate: postDate 
+    author: user._id,
+    postDate: postDate,
+    isPublicComment: !user.isGuest
   });
 
-  post.comments.push(comment.id);
+  post.comments.push(comment._id);
 
   const update = {
     comments: post.comments,
@@ -57,7 +59,8 @@ export async function getCommentHandler(
   req: Request<ReadCommentInput["params"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user: User = res.locals.user;
+  const userId = user._id;
   const commentId = req.params.commentId;
 
   const comment = await findComment({ _id: commentId });
@@ -75,7 +78,8 @@ export async function getCommentsByPostHandler(
   req: Request<ReadCommentsByPostInput["params"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user: User = res.locals.user;
+  const userId = user._id;
   const postId = req.params.postId;
 
   const post = await findPost({ _id: postId });
@@ -104,7 +108,7 @@ export async function updateCommentHandler(
   req: Request<UpdateCommentInput["params"], {}, UpdateCommentInput["body"]>, 
   res: Response
 ) {
-  const user = res.locals.user;
+  const user: User = res.locals.user;
   const commentId = req.params.commentId;
 
   const comment = await findComment({ _id: commentId });
@@ -133,7 +137,7 @@ export async function deleteCommentHandler(
   req: Request<DeleteCommentInput["params"]>, 
   res: Response
 ) {
-  const user = res.locals.user;
+  const user: User = res.locals.user;
   const postId = req.params.postId;
   const commentId = req.params.commentId;
 
@@ -168,7 +172,7 @@ export async function likeCommentHandler(
   res: Response
 ) {
   const like = JSON.parse(req.body.like);
-  const user = res.locals.user;
+  const user: User = res.locals.user;
   const commentId = req.params.commentId;
 
   const comment = await findComment({ _id: commentId });
@@ -177,10 +181,10 @@ export async function likeCommentHandler(
     return res.sendStatus(404);
   }
 
-  comment.likes = comment.likes.filter((userid) => userid != user.id);
+  comment.likes = comment.likes.filter((userid) => userid != user._id);
 
   if (like) {
-    comment.likes.push(user.id);
+    comment.likes.push(user._id);
   }
 
   const update = {
