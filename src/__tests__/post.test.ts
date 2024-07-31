@@ -118,13 +118,11 @@ describe('post', () => {
       it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userDocument);
         
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postPayload);
+          .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
           .get(`/api/v1/posts/not_valid_id`)
@@ -141,13 +139,11 @@ describe('post', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userDocument);
         
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(null);
+          .mockResolvedValueOnce(null);
 
         const { statusCode } = await supertest(app)
           .get(`/api/v1/posts/${postId}`)
@@ -163,13 +159,11 @@ describe('post', () => {
       it('should return a 200 status and the post', async () => { 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userDocument);
 
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postDocument.toJSON());
+          .mockResolvedValueOnce(postDocument.toJSON());
 
         const { body, statusCode } = await supertest(app)
           .get(`/api/v1/posts/${postId}`)
@@ -184,14 +178,12 @@ describe('post', () => {
       it('should return isLiked as true if user liked the post', async () => { 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userDocument);
 
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          .mockReturnValueOnce({
+          .mockResolvedValueOnce({
             ...postDocument.toJSON(),
-            // @ts-ignore
             likes: [ userObjectId ],
           });
 
