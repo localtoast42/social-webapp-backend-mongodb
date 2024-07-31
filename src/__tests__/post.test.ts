@@ -201,13 +201,11 @@ describe('post', () => {
       it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userPayload);
         
         const createPostServiceMock = jest
           .spyOn(PostService, 'createPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postDocument.toJSON());
+          .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
           .post('/api/v1/posts')
@@ -225,13 +223,11 @@ describe('post', () => {
       it('should return a 201 and create the post', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userPayload);
         
         const createPostServiceMock = jest
           .spyOn(PostService, 'createPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postDocument.toJSON());
+          .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
           .post('/api/v1/posts')
@@ -266,13 +262,11 @@ describe('post', () => {
       it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userPayload);
         
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postPayload);
+          .mockResolvedValueOnce(postPayload);
 
         const { statusCode, body } = await supertest(app)
           .put(`/api/v1/posts/not_valid_id`)
@@ -290,13 +284,11 @@ describe('post', () => {
       it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userPayload);
         
         const createPostServiceMock = jest
           .spyOn(PostService, 'createPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postDocument.toJSON());
+          .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
           .put(`/api/v1/posts/${postId}`)
@@ -314,13 +306,11 @@ describe('post', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userPayload);
         
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(null);
+          .mockResolvedValueOnce(null);
 
         const { statusCode } = await supertest(app)
           .put(`/api/v1/posts/${postId}`)
@@ -337,13 +327,11 @@ describe('post', () => {
       it('should return a 403', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce({ ...userPayload, id: otherUserId });
+          .mockResolvedValueOnce({ ...userPayload, id: otherUserId });
         
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postPayload);
+          .mockResolvedValueOnce(postPayload);
 
         const { statusCode } = await supertest(app)
           .put(`/api/v1/posts/${postId}`)
@@ -360,19 +348,16 @@ describe('post', () => {
       it('should return a 200 and the updated post', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userPayload);
 
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postPayload);
+          .mockResolvedValueOnce(postPayload);
         
         const updatePostServiceMock = jest
           .spyOn(PostService, 'findAndUpdatePost')
-          .mockReturnValueOnce({
+          .mockResolvedValueOnce({
             ...postDocument.toJSON(),
-            // @ts-ignore
             text: updatePostInput.text,
           });
 
@@ -666,23 +651,19 @@ describe('post', () => {
       it('should return a 400 with error message', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userPayload);
         
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postPayload);
+          .mockResolvedValueOnce(postPayload);
 
         const deleteManyCommentsServiceMock = jest
           .spyOn(CommentService, 'deleteManyComments')
-          // @ts-ignore
-          .mockReturnValueOnce({});
+          .mockResolvedValueOnce({});
         
         const deletePostServiceMock = jest
           .spyOn(PostService, 'deletePost')
-          // @ts-ignore
-          .mockReturnValueOnce({});
+          .mockResolvedValueOnce({});
 
         const { statusCode, body } = await supertest(app)
           .delete(`/api/v1/posts/not_valid_id`)
@@ -701,23 +682,19 @@ describe('post', () => {
       it('should return a 404', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userPayload);
         
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(null);
+          .mockResolvedValueOnce(null);
 
         const deleteManyCommentsServiceMock = jest
           .spyOn(CommentService, 'deleteManyComments')
-          // @ts-ignore
-          .mockReturnValueOnce({});
+          .mockResolvedValueOnce({});
         
         const deletePostServiceMock = jest
           .spyOn(PostService, 'deletePost')
-          // @ts-ignore
-          .mockReturnValueOnce({});
+          .mockResolvedValueOnce({});
 
         const { statusCode } = await supertest(app)
           .delete(`/api/v1/posts/${postId}`)
@@ -735,23 +712,19 @@ describe('post', () => {
       it('should return a 403', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce({ ...userPayload, id: otherUserId });
+          .mockResolvedValueOnce({ ...userPayload, id: otherUserId });
         
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postPayload);
+          .mockResolvedValueOnce(postPayload);
 
         const deleteManyCommentsServiceMock = jest
           .spyOn(CommentService, 'deleteManyComments')
-          // @ts-ignore
-          .mockReturnValueOnce({});
+          .mockResolvedValueOnce({});
         
         const deletePostServiceMock = jest
           .spyOn(PostService, 'deletePost')
-          // @ts-ignore
-          .mockReturnValueOnce({});
+          .mockResolvedValueOnce({});
 
         const { statusCode } = await supertest(app)
           .delete(`/api/v1/posts/${postId}`)
@@ -769,23 +742,19 @@ describe('post', () => {
       it('should delete the post and comments and return number deleted', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockResolvedValueOnce(userPayload);
         
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          // @ts-ignore
-          .mockReturnValueOnce(postPayload);
+          .mockResolvedValueOnce(postPayload);
 
         const deleteManyCommentsServiceMock = jest
           .spyOn(CommentService, 'deleteManyComments')
-          // @ts-ignore
-          .mockReturnValueOnce({ deletedCount: 2 });
+          .mockResolvedValueOnce({ deletedCount: 2 });
         
         const deletePostServiceMock = jest
           .spyOn(PostService, 'deletePost')
-          // @ts-ignore
-          .mockReturnValueOnce({ deletedCount: 1 });
+          .mockResolvedValueOnce({ deletedCount: 1 });
 
         const { statusCode, body } = await supertest(app)
           .delete(`/api/v1/posts/${postId}`)
