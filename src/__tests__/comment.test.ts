@@ -789,4 +789,236 @@ describe('comment', () => {
       });
     });
   });
+
+  describe('like comment route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`);
+
+        expect(statusCode).toBe(401);
+      });
+    });
+
+    describe('given the commentId is not a valid ObjectId', () => {
+      it('should return a 400 with error message', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const updateCommentServiceMock = jest
+          .spyOn(CommentService, 'findAndUpdateComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const { statusCode, body } = await supertest(app)
+          .post(`/api/v1/posts/${postId}/comments/not_valid_id/like`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Invalid commentId");
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findCommentServiceMock).not.toHaveBeenCalled();
+        expect(updateCommentServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given like input is invalid', () => {
+      it('should return a 400 with error message', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const updateCommentServiceMock = jest
+          .spyOn(CommentService, 'findAndUpdateComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const { statusCode, body } = await supertest(app)
+          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ like: "yes" });
+        
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Like must be true or false");
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findCommentServiceMock).not.toHaveBeenCalled();
+        expect(updateCommentServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the comment does not exist', () => {
+      it('should return a 404', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce(null);
+
+        const updateCommentServiceMock = jest
+          .spyOn(CommentService, 'findAndUpdateComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const { statusCode } = await supertest(app)
+          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ like: "true" });
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(updateCommentServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given like=true and the user has not previously liked the comment', () => {
+      it('should add the user to likes and return the updated comment', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const updateCommentServiceMock = jest
+          .spyOn(CommentService, 'findAndUpdateComment')
+          .mockResolvedValueOnce({
+            ...commentDocument.toJSON(),
+            likes: [ userObjectId ],
+          });
+
+        const { statusCode, body } = await supertest(app)
+          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ like: "true" });
+        
+        expect(statusCode).toBe(200);
+        expect(body).toEqual({ 
+          ...commentResponse,
+          likes: [ userId ],
+        });
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(updateCommentServiceMock).toHaveBeenCalledWith(
+          { _id: commentId },
+          { likes: [ userObjectId ] },
+          { new: true }
+        );
+      });
+    });
+
+    describe('given like=true and the user has previously liked the comment', () => {
+      it('should return the comment with likes unmodified', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce({
+            ...commentDocument.toJSON(),
+            likes: [ userObjectId ],
+          });
+
+        const updateCommentServiceMock = jest
+          .spyOn(CommentService, 'findAndUpdateComment')
+          .mockResolvedValueOnce({
+            ...commentDocument.toJSON(),
+            likes: [ userObjectId ],
+          });
+
+        const { statusCode, body } = await supertest(app)
+          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ like: "true" });
+        
+        expect(statusCode).toBe(200);
+        expect(body).toEqual({ 
+          ...commentResponse,
+          likes: [ userId ],
+        });
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(updateCommentServiceMock).toHaveBeenCalledWith(
+          { _id: commentId },
+          { likes: [ userObjectId ] },
+          { new: true }
+        );
+      });
+    });
+
+    describe('given like=false and the user has not previously liked the comment', () => {
+      it('should return the comment with likes unmodified', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const updateCommentServiceMock = jest
+          .spyOn(CommentService, 'findAndUpdateComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const { statusCode, body } = await supertest(app)
+          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ like: "false" });
+        
+        expect(statusCode).toBe(200);
+        expect(body).toEqual(commentResponse);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(updateCommentServiceMock).toHaveBeenCalledWith(
+          { _id: commentId },
+          { likes: [] },
+          { new: true }
+        );
+      });
+    });
+
+    describe('given like=false and the user has previously liked the comment', () => {
+      it('should remove the user from likes and return the updated comment', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce({
+            ...commentDocument.toJSON(),
+            likes: [ userObjectId ],
+          });
+
+        const updateCommentServiceMock = jest
+          .spyOn(CommentService, 'findAndUpdateComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const { statusCode, body } = await supertest(app)
+          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ like: "false" });
+        
+        expect(statusCode).toBe(200);
+        expect(body).toEqual(commentResponse);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(updateCommentServiceMock).toHaveBeenCalledWith(
+          { _id: commentId },
+          { likes: [] },
+          { new: true }
+        );
+      });
+    });
+  });
 });
