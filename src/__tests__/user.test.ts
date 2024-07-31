@@ -258,31 +258,10 @@ describe('user', () => {
       });
     });
 
-    describe('given the user does not exist', () => {
-      it('should return a 404', async () => {
-        const findUserServiceMock = jest
-          .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload)
-          // @ts-ignore
-          .mockReturnValueOnce(null);
-
-        const { statusCode } = await supertest(app)
-          .get(`/api/v1/users/self`)
-          .set('Authorization', `Bearer ${jwt}`);
-        
-        expect(statusCode).toBe(404);
-        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
-        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
-      });
-    });
-
     describe('given the user does exist', () => {
       it('should return a 200 status and the user', async () => { 
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
-          // @ts-ignore
-          .mockReturnValueOnce(userPayload)
           // @ts-ignore
           .mockReturnValueOnce(userDocument.toJSON());
 
@@ -293,7 +272,6 @@ describe('user', () => {
         expect(statusCode).toBe(200);
         expect(body).toEqual(userResponse);
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
-        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
       });
     });
   });
@@ -854,7 +832,88 @@ describe('user', () => {
   });
 
   describe('unfollow user route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/users/${otherUserId}/follow`);
+          
+        expect(statusCode).toBe(401);
+      });
+    });
 
+    describe('given the userId is not a valid ObjectId', () => {
+      it('should return a 400 with error message', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(otherUserDocument.toJSON());
+
+        const updateUserServiceMock = jest
+          .spyOn(UserService, 'findAndUpdateUser')
+          .mockReturnValueOnce(userDocument.toJSON())
+          .mockReturnValueOnce(otherUserDocument.toJSON());
+  
+        const { statusCode, body } = await supertest(app)
+          .delete(`/api/v1/users/not_valid_id/follow`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Invalid userId");
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findUserServiceMock).toHaveBeenCalledTimes(1);
+        expect(updateUserServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the user does not exist', () => {
+      it('should return a 404', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(null);
+
+        const updateUserServiceMock = jest
+          .spyOn(UserService, 'findAndUpdateUser')
+          .mockReturnValueOnce(userDocument.toJSON())
+          .mockReturnValueOnce(otherUserDocument.toJSON());
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/users/${otherUserId}/follow`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(updateUserServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the request is good', () => {
+      it('should update both users and return a 200', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          // @ts-ignore
+          .mockReturnValueOnce(userPayload)
+          // @ts-ignore
+          .mockReturnValueOnce(otherUserDocument.toJSON());
+
+        const updateUserServiceMock = jest
+          .spyOn(UserService, 'findAndUpdateUser')
+          .mockReturnValueOnce(userDocument.toJSON())
+          .mockReturnValueOnce(otherUserDocument.toJSON());
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/users/${otherUserId}/follow`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(updateUserServiceMock).toHaveBeenCalledTimes(2);
+      });
+    });
   });
 
   describe('populate user route', () => {
