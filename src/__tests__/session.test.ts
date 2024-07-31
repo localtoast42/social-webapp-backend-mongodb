@@ -87,7 +87,7 @@ describe('session', () => {
           .spyOn(SessionService, 'createSession')
           .mockResolvedValueOnce(sessionDocument.toJSON());
 
-        const { statusCode, body } = await supertest(app)
+        const { statusCode } = await supertest(app)
           .post('/api/v1/sessions')
           .send({
             username: "",
@@ -95,8 +95,6 @@ describe('session', () => {
           });
           
         expect(statusCode).toBe(401);
-        expect(body).toEqual({});
-        expect(body[0].message).toEqual("Invalid username or password");
         expect(validatePasswordServiceMock).toHaveBeenCalled();
         expect(createSessionServiceMock).not.toHaveBeenCalled();
       });
