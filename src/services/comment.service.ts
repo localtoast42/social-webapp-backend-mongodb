@@ -11,7 +11,10 @@ export async function createComment(input: CommentCreate) {
 }
 
 export async function findComment(query: FilterQuery<Comment>) {
-  return CommentModel.findOne(query).lean({ virtuals: true });
+  const result = CommentModel.findOne(query).
+    populate<{ author: User }>("author", "-password").
+    lean({ virtuals: true });
+  return result;
 }
 
 export async function findManyComments(
