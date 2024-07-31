@@ -622,4 +622,171 @@ describe('comment', () => {
       });
     });
   });
+
+  describe('delete comment route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/posts/${postId}/comments/${commentId}`);
+
+        expect(statusCode).toBe(401);
+      });
+    });
+
+    describe('given the commentId is not a valid ObjectId', () => {
+      it('should return a 400 with error message', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockResolvedValueOnce(postDocument.toJSON());
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const updatePostServiceMock = jest
+          .spyOn(PostService, 'findAndUpdatePost')
+          .mockResolvedValueOnce(postDocument);
+
+        const deleteCommentServiceMock = jest
+          .spyOn(CommentService, 'deleteComment')
+          .mockResolvedValueOnce({ 
+            acknowledged: true,
+            deletedCount: 1,
+          });
+
+        const { statusCode, body } = await supertest(app)
+          .delete(`/api/v1/posts/${postId}/comments/not_valid_id`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Invalid commentId");
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).not.toHaveBeenCalled();
+        expect(findCommentServiceMock).not.toHaveBeenCalled();
+        expect(updatePostServiceMock).not.toHaveBeenCalled();
+        expect(deleteCommentServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the comment does not exist', () => {
+      it('should return a 404', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockResolvedValueOnce(postDocument.toJSON());
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce(null);
+
+        const updatePostServiceMock = jest
+          .spyOn(PostService, 'findAndUpdatePost')
+          .mockResolvedValueOnce(postDocument);
+
+        const deleteCommentServiceMock = jest
+          .spyOn(CommentService, 'deleteComment')
+          .mockResolvedValueOnce({ 
+            acknowledged: true,
+            deletedCount: 1,
+          });
+
+        const { statusCode, body } = await supertest(app)
+          .delete(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(updatePostServiceMock).not.toHaveBeenCalled();
+        expect(deleteCommentServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the user is not the comment author', () => {
+      it('should return a 403', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(otherUserDocument);
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockResolvedValueOnce(postDocument.toJSON());
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const updatePostServiceMock = jest
+          .spyOn(PostService, 'findAndUpdatePost')
+          .mockResolvedValueOnce(postDocument);
+
+        const deleteCommentServiceMock = jest
+          .spyOn(CommentService, 'deleteComment')
+          .mockResolvedValueOnce({ 
+            acknowledged: true,
+            deletedCount: 1,
+          });
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(403);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(updatePostServiceMock).not.toHaveBeenCalled();
+        expect(deleteCommentServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the request is good', () => {
+      it('should return a 200 and delete the comment', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockResolvedValueOnce(postDocument.toJSON());
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce({
+            ...commentDocument.toJSON(),
+            author: userDocument.toJSON(),
+          });
+
+        const updatePostServiceMock = jest
+          .spyOn(PostService, 'findAndUpdatePost')
+          .mockResolvedValueOnce(postDocument);
+
+        const deleteCommentServiceMock = jest
+          .spyOn(CommentService, 'deleteComment')
+          .mockResolvedValueOnce({ 
+            acknowledged: true,
+            deletedCount: 1,
+          });
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(200);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
+        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(updatePostServiceMock).toHaveBeenCalled();
+        expect(deleteCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+      });
+    });
+  });
 });
