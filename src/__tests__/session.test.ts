@@ -172,5 +172,41 @@ describe('session', () => {
         expect(findSessionsServiceMock).toHaveBeenCalled();
       })
     })
-  })
+  });
+
+  describe('delete sessions route', () => {
+    describe('given the user is not logged in', () => {
+      it('should return a 401', async () => {   
+        const { statusCode } = await supertest(app)
+          .delete('/api/v1/sessions');
+          
+        expect(statusCode).toBe(401);
+      });
+    });
+
+    describe('given the request is good', () => {
+      it('should return a 200 and null tokens', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+
+        const updateSessionServiceMock = jest
+          .spyOn(SessionService, 'updateSession')
+          // @ts-ignore
+          .mockResolvedValueOnce({});
+
+        const { body, statusCode } = await supertest(app)
+          .delete('/api/v1/sessions')
+          .set('Authorization', `Bearer ${jwt}`);
+
+        expect(statusCode).toBe(200);
+        expect(body).toEqual({
+          accessToken: null,
+          refreshToken: null
+        });
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(updateSessionServiceMock).toHaveBeenCalled();
+      });
+    });
+  });
 });
