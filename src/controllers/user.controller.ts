@@ -7,7 +7,8 @@ import {
   findUser, 
   findManyUsers, 
   findAndUpdateUser, 
-  deleteUser
+  deleteUser,
+  FindUserResult
 } from '../services/user.service';
 import { 
   CreateUserInput, 
@@ -22,7 +23,6 @@ import {
   createRandomPost, 
   createRandomUser 
 } from '../utils/populateDatabase';
-import { User } from '../models/user.model';
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput["body"]>, 
@@ -43,7 +43,7 @@ export async function getUserHandler(
   req: Request<ReadUserInput["params"]>, 
   res: Response
 ) {
-  const requestingUser: User = res.locals.user;
+  const requestingUser: FindUserResult = res.locals.user;
   const requestingUserId = requestingUser.id;
   const userId = req.params.userId;
 
@@ -68,16 +68,16 @@ export async function getSelfHandler(
   req: Request, 
   res: Response
 ) {
-  const user: User = res.locals.user;
+  const user: FindUserResult = res.locals.user;
 
-  return res.send(omit(user, "password"));
+  return res.send(omit(user.toJSON(), "password"));
 }
 
 export async function getUserListHandler(
   req: Request, 
   res: Response
 ) {
-  const user: User = res.locals.user;
+  const user: FindUserResult = res.locals.user;
   const userId = user._id;
 
   const queryTerms: object[] = [];
@@ -120,7 +120,7 @@ export async function updateUserHandler(
   req: Request<UpdateUserInput["params"], {}, UpdateUserInput["body"]>, 
   res: Response
 ) {
-  const requestingUser: User = res.locals.user;
+  const requestingUser: FindUserResult = res.locals.user;
   const requestingUserId = requestingUser.id;
   const userId = req.params.userId;
 
@@ -184,7 +184,7 @@ export async function followUserHandler(
   req: Request<FollowUserInput["params"]>, 
   res: Response
 ) {
-  const requestingUser: User = res.locals.user;
+  const requestingUser: FindUserResult = res.locals.user;
   const targetUserId = req.params.userId;
 
   const targetUser = await findUser({ _id: targetUserId });
@@ -229,7 +229,7 @@ export async function unfollowUserHandler(
   req: Request<UnfollowUserInput["params"]>, 
   res: Response
 ) {
-  const requestingUser: User = res.locals.user;
+  const requestingUser: FindUserResult = res.locals.user;
   const targetUserId = req.params.userId;
 
   const targetUser = await findUser({ _id: targetUserId })

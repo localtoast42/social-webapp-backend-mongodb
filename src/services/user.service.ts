@@ -1,4 +1,11 @@
-import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
+import { 
+  Document, 
+  FilterQuery, 
+  ProjectionType, 
+  QueryOptions, 
+  Types, 
+  UpdateQuery 
+} from "mongoose";
 import { omit } from 'lodash';
 import UserModel, { User, UserCreate } from "../models/user.model";
 
@@ -77,3 +84,9 @@ export async function findAndUpdateUser(
 export async function deleteUser(query: FilterQuery<User>) {
   return UserModel.deleteOne(query);
 }
+
+export type FindUserResult = Document<unknown, {}, User> & 
+  User & 
+  Required<{
+    _id: Types.ObjectId;
+  }>
