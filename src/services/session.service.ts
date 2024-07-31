@@ -35,11 +35,15 @@ export async function reIssueAccessToken({
 
   if (!session || !session.valid) return '';
 
-  const result = await findUser({ _id: session.user.toString() });
+  const projection = {
+    password: -1,
+  };
+
+  const result = await findUser({ _id: session.user.toString() }, projection);
 
   if (!result) return '';
 
-  const user = omit(result.toJSON(), "password");
+  const user = result;
 
   const accessToken = signJwt(
     { ...user, session: session._id },
