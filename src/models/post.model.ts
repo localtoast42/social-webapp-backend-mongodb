@@ -4,14 +4,15 @@ import { DateTime } from 'luxon';
 import { User } from './user.model';
 
 export interface PostCreate {
-  author: User["id"];
+  author: User["_id"];
   text: string;
   postDate: Date;
   isPublicPost?: boolean;
 };
 
 export interface Post extends PostCreate {
-  id: Types.ObjectId;
+  _id: Types.ObjectId;
+  id: string;
   lastEditDate: Date;
   likes: Array<Types.ObjectId>;
   comments: Array<Types.ObjectId>;

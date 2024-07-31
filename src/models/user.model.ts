@@ -19,7 +19,8 @@ export interface UserCreate extends UserBase {
 };
 
 export interface User extends UserCreate {
-  id: Types.ObjectId;
+  _id: Types.ObjectId;
+  id: string;
   isAdmin: boolean;
   isGuest: boolean;
   followers: Array<Types.ObjectId>;

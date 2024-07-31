@@ -5,15 +5,16 @@ import { User } from './user.model';
 import { Post } from './post.model';
 
 export interface CommentCreate { 
-  post: Post["id"];
-  author: User["id"];
+  post: Post["_id"];
+  author: User["_id"];
   text: string;
   postDate: Date;
   isPublicComment?: boolean;
 }
 
 export interface Comment extends CommentCreate {
-  id: Types.ObjectId;
+  _id: Types.ObjectId;
+  id: string;
   lastEditDate: Date;
   likes: Array<Types.ObjectId>;
   url: string;
