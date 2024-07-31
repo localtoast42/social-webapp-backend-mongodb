@@ -1,0 +1,140 @@
+import supertest from 'supertest';
+import mongoose from 'mongoose';
+import createServer from '../utils/server';
+import UserModel from '../models/user.model';
+import SessionModel from '../models/session.model';
+import * as UserService from '../services/user.service';
+import * as SessionService from '../services/session.service';
+import { createUserSessionHandler } from '../controllers/session.controller';
+
+const app = createServer();
+
+const userObjectId = new mongoose.Types.ObjectId();
+const userId = userObjectId.toString();
+
+const userInput = {
+  username: "testuser",
+  firstName: "first",
+  lastName: "last",
+  password: "testpwd",
+  passwordConfirmation: "testpwd",
+  city: "",
+  state: "",
+  country: "",
+  imageUrl: "",
+};
+
+const userPayload = {
+  _id: userObjectId,
+  id: userId,
+  username: "testuser",
+  firstName: "first",
+  lastName: "last",
+  city: "",
+  state: "",
+  country: "",
+  imageUrl: "",
+  isAdmin: false,
+  isGuest: false,
+  followers: [],
+  following: [],
+};
+
+const userDocument = new UserModel(userPayload);
+
+const sessionPayload = {
+  _id: new mongoose.Types.ObjectId(),
+  user: userId,
+  valid: true,
+  userAgent: "PostmanRuntime/7.39.0",
+};
+
+const sessionDocument = new SessionModel(sessionPayload);
+
+describe('session', () => {
+  describe('create session route', () => {
+    describe('given required fields are not included in request body', () => {
+      it('should return a 400 with error message', async () => {
+        const validatePasswordServiceMock = jest
+          .spyOn(UserService, 'validatePassword')
+          // @ts-ignore
+          .mockResolvedValueOnce(userDocument.toJSON());
+
+        const createSessionServiceMock = jest
+          .spyOn(SessionService, 'createSession')
+          .mockResolvedValueOnce(sessionDocument.toJSON());
+
+        const { statusCode, body } = await supertest(app)
+          .post('/api/v1/sessions')
+          .send({});
+          
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("Username is required");
+        expect(body[1].message).toEqual("Password is required");
+        expect(validatePasswordServiceMock).not.toHaveBeenCalled();
+        expect(createSessionServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given validatePassword returns false', () => {
+      it('should return a 401 with error message', async () => {
+        const validatePasswordServiceMock = jest
+          .spyOn(UserService, 'validatePassword')
+          // @ts-ignore
+          .mockResolvedValueOnce(false);
+
+        const createSessionServiceMock = jest
+          .spyOn(SessionService, 'createSession')
+          .mockResolvedValueOnce(sessionDocument.toJSON());
+
+        const { statusCode, body } = await supertest(app)
+          .post('/api/v1/sessions')
+          .send({
+            username: "",
+            password: "",
+          });
+          
+        expect(statusCode).toBe(401);
+        expect(body).toEqual({});
+        expect(body[0].message).toEqual("Invalid username or password");
+        expect(validatePasswordServiceMock).toHaveBeenCalled();
+        expect(createSessionServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the username and password are valid', () => {
+      it('should return a signed accessToken and refreshToken', async () => {
+        jest.spyOn(UserService, 'validatePassword')
+          // @ts-ignore
+          .mockResolvedValueOnce(userDocument.toJSON());
+
+        jest.spyOn(SessionService, 'createSession')
+          .mockResolvedValueOnce(sessionDocument.toJSON());
+
+        const req = {
+          get: () => {
+            return "a user agent";
+          },
+          body: {
+            username: userInput.username,
+            password: userInput.password,
+          },
+        };
+
+        const send = jest.fn();
+
+        const res = {
+          send,
+        };
+
+        // @ts-ignore
+        await createUserSessionHandler(req, res);
+
+        expect(send).toHaveBeenCalledWith({
+          accessToken: expect.any(String),
+          refreshToken: expect.any(String),
+        });
+      });
+    });
+  });
+});
