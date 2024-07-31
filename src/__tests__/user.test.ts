@@ -30,6 +30,17 @@ const userInput = {
   imageUrl: "",
 };
 
+const updateUserInput = {
+  username: "testuser",
+  firstName: "first_new",
+  lastName: "last_new",
+  password: "testpwd",
+  city: "newcity",
+  state: "newstate",
+  country: "newcountry",
+  imageUrl: "newurl",
+};
+
 const userPayload = {
   _id: userObjectId,
   id: userId,
@@ -64,24 +75,17 @@ const otherUserPayload = {
 
 const userDocument = new UserModel(userPayload);
 
+const updatedUserDocument = new UserModel({
+  ...userPayload,
+  ...updateUserInput
+});
+
 const otherUserDocument = new UserModel(otherUserPayload);
 
 const userResponse = {
   ...userDocument.toJSON(),
   "_id": userId,
   "followedByMe": false,
-};
-
-const updateUserInput = {
-  username: "testuser",
-  firstName: "first_new",
-  lastName: "last_new",
-  password: "testpwd",
-  passwordConfirmation: "testpwd",
-  city: "newcity",
-  state: "newstate",
-  country: "newcountry",
-  imageUrl: "newurl",
 };
 
 const sessionPayload = {
@@ -172,9 +176,9 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(userPayload);
+          .mockReturnValueOnce(userDocument);
   
         const { statusCode, body } = await supertest(app)
           .get(`/api/v1/users/not_valid_id`)
@@ -192,7 +196,7 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
           .mockReturnValueOnce(null);
 
@@ -211,9 +215,9 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(userDocument.toJSON());
+          .mockReturnValueOnce(userDocument);
 
         const { body, statusCode } = await supertest(app)
           .get(`/api/v1/users/${userId}`)
@@ -226,15 +230,16 @@ describe('user', () => {
       });
 
       it('should return followedByMe as true if requestor follows the user', async () => { 
+        const userDocumentWithFollows = new UserModel(userPayload);
+
+        userDocumentWithFollows.followers.push(userObjectId);
+
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
-          .mockReturnValueOnce({
-            ...userDocument.toJSON(),
-            // @ts-ignore
-            followers: [ userObjectId ],
-          });
+          .mockReturnValueOnce(userDocument)
+          // @ts-ignore
+          .mockReturnValueOnce(userDocumentWithFollows);
 
         const { body, statusCode } = await supertest(app)
           .get(`/api/v1/users/${userId}`)
@@ -263,7 +268,7 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userDocument.toJSON());
+          .mockReturnValueOnce(userDocument);
 
         const { body, statusCode } = await supertest(app)
           .get(`/api/v1/users/self`)
@@ -292,12 +297,12 @@ describe('user', () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
             // @ts-ignore
-            .mockReturnValueOnce(userPayload);
+            .mockReturnValueOnce(userDocument);
 
           const findManyUsersServiceMock = jest
             .spyOn(UserService, 'findManyUsers')
             // @ts-ignore
-            .mockReturnValueOnce(userDocument.toJSON());
+            .mockReturnValueOnce(userDocument);
 
           const { statusCode, body } = await supertest(app)
             .get('/api/v1/users')
@@ -315,7 +320,7 @@ describe('user', () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
             // @ts-ignore
-            .mockReturnValueOnce(userPayload);
+            .mockReturnValueOnce(userDocument);
 
           const findManyUsersServiceMock = jest
             .spyOn(UserService, 'findManyUsers')
@@ -354,17 +359,14 @@ describe('user', () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
             // @ts-ignore
-            .mockReturnValueOnce(userPayload)
+            .mockReturnValueOnce(userDocument)
             // @ts-ignore
-            .mockReturnValueOnce(userPayload);
+            .mockReturnValueOnce(userDocument);
   
           const updateUserServiceMock = jest
             .spyOn(UserService, 'findAndUpdateUser')
             // @ts-ignore
-            .mockReturnValueOnce({
-              ...userDocument.toJSON(),
-              ...updateUserInput
-            });
+            .mockReturnValueOnce(updatedUserDocument);
     
           const { statusCode, body } = await supertest(app)
             .put(`/api/v1/users/not_valid_id`)
@@ -384,17 +386,14 @@ describe('user', () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
             // @ts-ignore
-            .mockReturnValueOnce(userPayload)
+            .mockReturnValueOnce(userDocument)
             // @ts-ignore
-            .mockReturnValueOnce(userPayload);
+            .mockReturnValueOnce(userDocument);
   
           const updateUserServiceMock = jest
             .spyOn(UserService, 'findAndUpdateUser')
             // @ts-ignore
-            .mockReturnValueOnce({
-              ...userDocument.toJSON(),
-              ...updateUserInput
-            });
+            .mockReturnValueOnce(updatedUserDocument);
     
           const { statusCode, body } = await supertest(app)
             .put(`/api/v1/users/${userId}`)
@@ -417,17 +416,14 @@ describe('user', () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
             // @ts-ignore
-            .mockReturnValueOnce(userPayload)
+            .mockReturnValueOnce(userDocument)
             // @ts-ignore
-            .mockReturnValueOnce(userPayload);
+            .mockReturnValueOnce(userDocument);
   
           const updateUserServiceMock = jest
             .spyOn(UserService, 'findAndUpdateUser')
             // @ts-ignore
-            .mockReturnValueOnce({
-              ...userDocument.toJSON(),
-              ...updateUserInput
-            });
+            .mockReturnValueOnce(updatedUserDocument);
     
           const { statusCode, body } = await supertest(app)
             .put(`/api/v1/users/${userId}`)
@@ -451,7 +447,7 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
           .mockReturnValueOnce(null);
 
@@ -459,7 +455,7 @@ describe('user', () => {
           .spyOn(UserService, 'findAndUpdateUser')
           // @ts-ignore
           .mockReturnValueOnce({
-            ...userDocument.toJSON(),
+            ...userDocument,
             ...updateUserInput
           });
 
@@ -480,17 +476,14 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce({ ...userPayload, id: otherUserId });
+          .mockReturnValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
           // @ts-ignore
-          .mockReturnValueOnce({
-            ...userDocument.toJSON(),
-            ...updateUserInput
-          });
+          .mockReturnValueOnce(updatedUserDocument);
 
         const { statusCode } = await supertest(app)
           .put(`/api/v1/users/${otherUserId}`)
@@ -508,17 +501,14 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(userDocument.toJSON());
+          .mockReturnValueOnce(userDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
           // @ts-ignore
-          .mockReturnValueOnce({
-            ...userDocument.toJSON(),
-            ...updateUserInput
-          });
+          .mockReturnValueOnce(updatedUserDocument);
 
         const { statusCode, body } = await supertest(app)
           .put(`/api/v1/users/${userId}`)
@@ -526,10 +516,7 @@ describe('user', () => {
           .send(updateUserInput);
         
         expect(statusCode).toBe(200);
-        expect(body).toEqual({
-          ...userResponse,
-          ...updateUserInput,
-        });
+        expect(body).toEqual(updatedUserDocument.toJSON());
         expect(findUserServiceMock).toHaveBeenCalledTimes(2);
         expect(updateUserServiceMock).toHaveBeenCalled();
       });
@@ -552,9 +539,9 @@ describe('user', () => {
           const findUserServiceMock = jest
             .spyOn(UserService, 'findUser')
             // @ts-ignore
-            .mockReturnValueOnce(userPayload)
+            .mockReturnValueOnce(userDocument)
             // @ts-ignore
-            .mockReturnValueOnce(userPayload);
+            .mockReturnValueOnce(userDocument);
   
           const deleteUserServiceMock = jest
             .spyOn(UserService, 'deleteUser')
@@ -579,7 +566,7 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
           .mockReturnValueOnce(null);
 
@@ -604,9 +591,9 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce({ ...userPayload, id: otherUserId });
+          .mockReturnValueOnce(otherUserDocument);
 
         const deleteUserServiceMock = jest
           .spyOn(UserService, 'deleteUser')
@@ -628,9 +615,9 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(userDocument.toJSON());
+          .mockReturnValueOnce(userDocument);
 
         const deleteUserServiceMock = jest
           .spyOn(UserService, 'deleteUser')
@@ -663,7 +650,8 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
+          // @ts-ignore
           .mockReturnValueOnce({
             // @ts-ignore
             following: [ userObjectId ],
@@ -685,7 +673,7 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
           .mockReturnValueOnce(null);
 
@@ -704,7 +692,7 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           .mockReturnValueOnce({
             // @ts-ignore
             following: [ userObjectId ],
@@ -734,25 +722,25 @@ describe('user', () => {
 
     describe('given the userId is not a valid ObjectId', () => {
       it('should return a 400 with error message', async () => {
+        const userDocumentWithFollows = new UserModel(userPayload);
+        userDocumentWithFollows.following.push(otherUserObjectId);
+
+        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
+        otherUserDocumentWithFollowers.followers.push(userObjectId);
+
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument.toJSON());
+          .mockReturnValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          .mockReturnValueOnce({
-            ...userDocument.toJSON(),
-            // @ts-ignore
-            following: [ otherUserObjectId ],
-          })
-          .mockReturnValueOnce({
-            ...otherUserDocument.toJSON(),
-            // @ts-ignore
-            followers: [ userObjectId ],
-          });
+          // @ts-ignore
+          .mockReturnValueOnce(userDocumentWithFollows)
+          // @ts-ignore
+          .mockReturnValueOnce(otherUserDocumentWithFollowers);
   
         const { statusCode, body } = await supertest(app)
           .post(`/api/v1/users/not_valid_id/follow`)
@@ -768,25 +756,25 @@ describe('user', () => {
 
     describe('given the user does not exist', () => {
       it('should return a 404', async () => {
+        const userDocumentWithFollows = new UserModel(userPayload);
+        userDocumentWithFollows.following.push(otherUserObjectId);
+
+        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
+        otherUserDocumentWithFollowers.followers.push(userObjectId);
+
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
           .mockReturnValueOnce(null);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          .mockReturnValueOnce({
-            ...userDocument.toJSON(),
-            // @ts-ignore
-            following: [ otherUserObjectId ],
-          })
-          .mockReturnValueOnce({
-            ...otherUserDocument.toJSON(),
-            // @ts-ignore
-            followers: [ userObjectId ],
-          });
+          // @ts-ignore
+          .mockReturnValueOnce(userDocumentWithFollows)
+          // @ts-ignore
+          .mockReturnValueOnce(otherUserDocumentWithFollowers);
 
         const { statusCode } = await supertest(app)
           .post(`/api/v1/users/${otherUserId}/follow`)
@@ -800,25 +788,25 @@ describe('user', () => {
 
     describe('given the request is good', () => {
       it('should update both users and return a 200', async () => {
+        const userDocumentWithFollows = new UserModel(userPayload);
+        userDocumentWithFollows.following.push(otherUserObjectId);
+
+        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
+        otherUserDocumentWithFollowers.followers.push(userObjectId);
+        
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument.toJSON());
+          .mockReturnValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          .mockReturnValueOnce({
-            ...userDocument.toJSON(),
-            // @ts-ignore
-            following: [ otherUserObjectId ],
-          })
-          .mockReturnValueOnce({
-            ...otherUserDocument.toJSON(),
-            // @ts-ignore
-            followers: [ userObjectId ],
-          });
+          // @ts-ignore
+          .mockReturnValueOnce(userDocumentWithFollows)
+          // @ts-ignore
+          .mockReturnValueOnce(otherUserDocumentWithFollowers);
 
         const { statusCode } = await supertest(app)
           .post(`/api/v1/users/${otherUserId}/follow`)
@@ -846,14 +834,16 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument.toJSON());
+          .mockReturnValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          .mockReturnValueOnce(userDocument.toJSON())
-          .mockReturnValueOnce(otherUserDocument.toJSON());
+          // @ts-ignore
+          .mockReturnValueOnce(userDocument)
+          // @ts-ignore
+          .mockReturnValueOnce(otherUserDocument);
   
         const { statusCode, body } = await supertest(app)
           .delete(`/api/v1/users/not_valid_id/follow`)
@@ -872,14 +862,16 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
           .mockReturnValueOnce(null);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          .mockReturnValueOnce(userDocument.toJSON())
-          .mockReturnValueOnce(otherUserDocument.toJSON());
+          // @ts-ignore
+          .mockReturnValueOnce(userDocument)
+          // @ts-ignore
+          .mockReturnValueOnce(otherUserDocument);
 
         const { statusCode } = await supertest(app)
           .delete(`/api/v1/users/${otherUserId}/follow`)
@@ -896,14 +888,16 @@ describe('user', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           // @ts-ignore
-          .mockReturnValueOnce(userPayload)
+          .mockReturnValueOnce(userDocument)
           // @ts-ignore
-          .mockReturnValueOnce(otherUserDocument.toJSON());
+          .mockReturnValueOnce(otherUserDocument);
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          .mockReturnValueOnce(userDocument.toJSON())
-          .mockReturnValueOnce(otherUserDocument.toJSON());
+          // @ts-ignore
+          .mockReturnValueOnce(userDocument)
+          // @ts-ignore
+          .mockReturnValueOnce(otherUserDocument);
 
         const { statusCode } = await supertest(app)
           .delete(`/api/v1/users/${otherUserId}/follow`)
