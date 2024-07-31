@@ -89,13 +89,6 @@ const userResponse = {
   "followedByMe": false,
 };
 
-const sessionPayload = {
-  _id: new mongoose.Types.ObjectId(),
-  user: userId,
-  valid: true,
-  userAgent: "PostmanRuntime/7.39.0",
-};
-
 const jwt = signJwt(userPayload, 'accessTokenSecret');
 const adminJwt = signJwt(
   {
