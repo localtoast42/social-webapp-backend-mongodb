@@ -43,7 +43,7 @@ export async function reIssueAccessToken({
 
   if (!result) return '';
 
-  const user = result;
+  const user = result.toJSON();
 
   const accessToken = signJwt(
     { ...user, session: session._id },
