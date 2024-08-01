@@ -575,7 +575,7 @@ describe('user', () => {
     });
 
     describe('given the request is valid', () => {
-      it('should delete the user and return a 200', async () => {
+      it('should delete the user, return a 200 and null tokens', async () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           .mockResolvedValueOnce(userDocument)
@@ -588,11 +588,17 @@ describe('user', () => {
             deletedCount: 1,
           });
 
-        const { statusCode } = await supertest(app)
+        const { statusCode, body } = await supertest(app)
           .delete(`/api/v1/users/${userId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
+        expect(body).toEqual({
+          acknowledged: true,
+          deletedCount: 1,
+          accessToken: null,
+          refreshToken: null
+        });
         expect(findUserServiceMock).toHaveBeenCalledTimes(2);
         expect(deleteUserServiceMock).toHaveBeenCalledWith({ _id: userId });
       });
