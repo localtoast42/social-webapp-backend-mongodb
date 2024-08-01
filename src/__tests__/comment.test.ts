@@ -893,7 +893,7 @@ describe('comment', () => {
           .spyOn(CommentService, 'findAndUpdateComment')
           .mockResolvedValueOnce({
             ...commentDocument.toJSON(),
-            likes: [ userObjectId ],
+            likes: [ userId ],
           });
 
         const { statusCode, body } = await supertest(app)
@@ -910,7 +910,7 @@ describe('comment', () => {
         expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
         expect(updateCommentServiceMock).toHaveBeenCalledWith(
           { _id: commentId },
-          { likes: [ userObjectId ] },
+          { likes: [ userId ] },
           { new: true }
         );
       });
@@ -926,14 +926,14 @@ describe('comment', () => {
           .spyOn(CommentService, 'findComment')
           .mockResolvedValueOnce({
             ...commentDocument.toJSON(),
-            likes: [ userObjectId ],
+            likes: [ userId ],
           });
 
         const updateCommentServiceMock = jest
           .spyOn(CommentService, 'findAndUpdateComment')
           .mockResolvedValueOnce({
             ...commentDocument.toJSON(),
-            likes: [ userObjectId ],
+            likes: [ userId ],
           });
 
         const { statusCode, body } = await supertest(app)
@@ -950,7 +950,7 @@ describe('comment', () => {
         expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
         expect(updateCommentServiceMock).toHaveBeenCalledWith(
           { _id: commentId },
-          { likes: [ userObjectId ] },
+          { likes: [ userId ] },
           { new: true }
         );
       });
@@ -997,7 +997,7 @@ describe('comment', () => {
           .spyOn(CommentService, 'findComment')
           .mockResolvedValueOnce({
             ...commentDocument.toJSON(),
-            likes: [ userObjectId ],
+            likes: [ userId ],
           });
 
         const updateCommentServiceMock = jest

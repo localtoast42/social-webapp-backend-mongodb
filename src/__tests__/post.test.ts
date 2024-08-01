@@ -506,7 +506,7 @@ describe('post', () => {
           .spyOn(PostService, 'findAndUpdatePost')
           .mockResolvedValueOnce({
             ...postDocument.toJSON(),
-            likes: [ userObjectId ],
+            likes: [ userId ],
           });
 
         const { statusCode, body } = await supertest(app)
@@ -540,14 +540,14 @@ describe('post', () => {
           // @ts-ignore
           .mockResolvedValueOnce({
             ...postPayload,
-            likes: [ userObjectId ],
+            likes: [ userId ],
           });
 
         const updatePostServiceMock = jest
           .spyOn(PostService, 'findAndUpdatePost')
           .mockResolvedValueOnce({
             ...postDocument.toJSON(),
-            likes: [ userObjectId ],
+            likes: [ userId ],
           });
 
         const { statusCode, body } = await supertest(app)
@@ -613,7 +613,7 @@ describe('post', () => {
           // @ts-ignore
           .mockResolvedValueOnce({
             ...postPayload,
-            likes: [ userObjectId ],
+            likes: [ userId ],
           });
 
         const updatePostServiceMock = jest
