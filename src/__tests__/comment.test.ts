@@ -756,7 +756,11 @@ describe('comment', () => {
 
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
-          .mockResolvedValueOnce(postDocument.toJSON());
+          .mockResolvedValueOnce({
+            ...postDocument.toJSON(),
+            comments: [ commentObjectId ],
+            numComments: 1,
+          });
         
         const findCommentServiceMock = jest
           .spyOn(CommentService, 'findComment')
@@ -776,15 +780,24 @@ describe('comment', () => {
             deletedCount: 1,
           });
 
-        const { statusCode } = await supertest(app)
+        const { statusCode, body } = await supertest(app)
           .delete(`/api/v1/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
+        expect(body).toEqual({ 
+          acknowledged: true,
+          deletedCount: 1,
+          numComments: 0,
+        });
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
         expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
-        expect(updatePostServiceMock).toHaveBeenCalled();
+        expect(updatePostServiceMock).toHaveBeenCalledWith(
+          { _id: postId }, 
+          { comments: [] }, 
+          { new: true }
+        );
         expect(deleteCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
       });
     });
