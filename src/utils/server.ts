@@ -20,7 +20,9 @@ function createServer() {
     app.use(cors(corsOptions));
     app.use(compression());
 
-    app.use(morgan(config.get<string>('logFormat')));
+    if (config.get<boolean>('logRequests')) {
+      app.use(morgan(config.get<string>('logFormat')));
+    }
 
     app.use(deserializeUser);
 
