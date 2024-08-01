@@ -1,14 +1,13 @@
 import { pino } from 'pino';
-import dayjs from 'dayjs';
 
 const logger = pino({
   transport: {
-    target: 'pino-pretty'
+    target: 'pino-pretty',
+    options: {
+      translateTime: "SYS:mm-dd-yyyy HH:MM:ss",
+      ignore: "pid,hostname",
+    }
   },
-  base: {
-    pid: false
-  },
-  timestamp: () => `,"time":"${dayjs().format()}"`,
 });
 
 export default logger;
