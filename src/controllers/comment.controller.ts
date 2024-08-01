@@ -154,17 +154,20 @@ export async function deleteCommentHandler(
     return res.sendStatus(403);
   }
 
-  post.comments = post.comments.filter((commentid) => commentid != comment._id);
+  post.comments = post.comments.filter((commentid) => commentid != comment.id);
 
   const update = {
     comments: post.comments,
   }
 
-  await findAndUpdatePost({ _id: postId }, update, {});
+  const postResult = await findAndUpdatePost({ _id: postId }, update, { new: true });
 
-  await deleteComment({ _id: commentId });
+  const commentResult = await deleteComment({ _id: commentId });
 
-  return res.sendStatus(200);
+  return res.json({
+    ...commentResult,
+    numComments: postResult?.numComments,
+  });
 }
 
 export async function likeCommentHandler(
