@@ -1,12 +1,13 @@
 import supertest from 'supertest';
 import mongoose from 'mongoose';
+import config from 'config';
 import createServer from '../utils/server';
 import UserModel from '../models/user.model';
 import SessionModel from '../models/session.model';
 import * as UserService from '../services/user.service';
 import * as SessionService from '../services/session.service';
 import { createUserSessionHandler } from '../controllers/session.controller';
-import { signJwt } from '../utils/jwt.utils';
+import * as JwtUtils from '../utils/jwt.utils';
 
 const app = createServer();
 
@@ -52,9 +53,106 @@ const sessionPayload = {
 
 const sessionDocument = new SessionModel(sessionPayload);
 
-const jwt = signJwt(userPayload, 'accessTokenSecret');
+const jwtPayload = {
+  ...userPayload, 
+  session: sessionPayload._id
+};
+
+const jwt = JwtUtils.signJwt(
+  jwtPayload, 
+  'accessTokenSecret',
+);
+
+const expiredJwt = JwtUtils.signJwt(
+  jwtPayload,  
+  'accessTokenSecret', 
+  { expiresIn: "0" }
+);
+
+const refreshJwt = JwtUtils.signJwt(
+  jwtPayload, 
+  'refreshTokenSecret'
+);
 
 describe('session', () => {
+  describe('re-issue expired access token', () => {
+    describe('given access token is expired and no refresh token is provided', () => {
+      it('should return a 401 without sending a new access token', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument);
+
+        const findSessionByIdMock = jest
+          .spyOn(SessionModel, 'findById')
+          .mockResolvedValueOnce(sessionDocument.toJSON());
+
+        const { statusCode, headers } = await supertest(app)
+          .get('/authcheck')
+          .set('Authorization', `Bearer ${expiredJwt}`);
+
+        expect(statusCode).toBe(401);
+        expect(headers['x-access-token']).not.toBeDefined();
+        expect(findUserServiceMock).not.toHaveBeenCalled();
+        expect(findSessionByIdMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given access token is expired and an invalid refresh token is provided', () => {
+      it('should return a 401 without sending a new access token', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(userDocument);
+
+        const findSessionByIdMock = jest
+          .spyOn(SessionModel, 'findById')
+          .mockResolvedValueOnce(sessionDocument.toJSON());
+
+        const { statusCode, headers } = await supertest(app)
+          .get('/authcheck')
+          .set('Authorization', `Bearer ${expiredJwt}`)
+          .set('X-Refresh', ``);
+
+        expect(statusCode).toBe(401);
+        expect(headers['x-access-token']).not.toBeDefined();
+        expect(findUserServiceMock).not.toHaveBeenCalled();
+        expect(findSessionByIdMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given access token is expired and valid refresh token is provided', () => {
+      it('should return a 200 and a new access token', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(userDocument);
+
+        const findSessionByIdMock = jest
+          .spyOn(SessionModel, 'findById')
+          .mockResolvedValueOnce(sessionDocument.toJSON());
+
+        const signJwtMock = jest
+          .spyOn(JwtUtils, 'signJwt')
+          .mockReturnValueOnce(jwt);
+
+        const { statusCode, headers } = await supertest(app)
+          .get('/authcheck')
+          .set('Authorization', `Bearer ${expiredJwt}`)
+          .set('X-Refresh', `${refreshJwt}`);
+
+        expect(statusCode).toBe(200);
+        expect(headers['x-access-token']).toEqual(expect.any(String));
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(findSessionByIdMock).toHaveBeenCalledWith(sessionDocument.id);
+        expect(signJwtMock).toHaveBeenCalledWith(
+          { ...userDocument.toJSON(), session: sessionDocument._id },
+          "accessTokenSecret",
+          { expiresIn: config.get<string>("accessTokenTtl") },
+        );
+      });
+    });
+  });
+
   describe('create session route', () => {
     describe('given required fields are not included in request body', () => {
       it('should return a 400 with error message', async () => {

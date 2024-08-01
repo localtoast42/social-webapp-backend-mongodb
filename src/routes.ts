@@ -69,6 +69,12 @@ import {
 function routes(app: Express) {
   app.get('/healthcheck', (req: Request, res: Response) => res.sendStatus(200));
 
+  app.get(
+    '/authcheck',
+    requireUser, 
+    (req: Request, res: Response) => res.sendStatus(200)
+  );
+
   // Session Routes
   app.post(
     '/api/v1/sessions', 
