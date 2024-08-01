@@ -1,6 +1,6 @@
 import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
-import CommentModel, { Comment, CommentCreate } from "../models/comment.model.js";
-import { User } from "../models/user.model.js";
+import CommentModel, { Comment, CommentCreate } from "../models/comment.model";
+import { User } from "../models/user.model";
 
 export async function createComment(input: CommentCreate) {
   try {
@@ -11,7 +11,10 @@ export async function createComment(input: CommentCreate) {
 }
 
 export async function findComment(query: FilterQuery<Comment>) {
-  return CommentModel.findOne(query).lean({ virtuals: true });
+  const result = CommentModel.findOne(query).
+    populate<{ author: User }>("author", "-password").
+    lean({ virtuals: true });
+  return result;
 }
 
 export async function findManyComments(

@@ -5,10 +5,10 @@ const payload = {
   body: object({
     firstName: string({
       required_error: 'First name must be provided'
-    }),
+    }).min(1, { message: 'First name must not be empty' }),
     lastName: string({
       required_error: 'Last name must be provided'
-    }),
+    }).min(1, { message: 'Last name must not be empty' }),
     city: string(),
     state: string(),
     country: string(),
@@ -68,8 +68,8 @@ export const unfollowUserSchema = object({
 });
 
 export const updateUserSchema = object({
-  ...payload,
   ...params,
+  ...payload,
 });
 
 export const deleteUserSchema = object({

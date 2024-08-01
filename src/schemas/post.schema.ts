@@ -1,23 +1,31 @@
-import { object, string, TypeOf } from 'zod';
+import { isValidObjectId } from 'mongoose';
+import { object, string, enum as enum_, TypeOf } from 'zod';
 
 const payload = {
   body: object({
     text: string({
-      required_error: 'Post must not be empty',
-    }),
+      required_error: 'Text is required',
+    }).min(1, { message: 'Post must not be empty' }),
   }),
 };
 
 const like = object({
-  like: string()
+  like: enum_(
+    ["true", "false"], 
+    { message: "Like must be true or false" }
+  )
 });
 
 const params = object({
   postId: string({
     required_error: 'postId is required',
+  }).refine((data) => isValidObjectId(data), {
+    message: "Invalid postId",
   }),
   userId: string({
     required_error: 'userId is required',
+  }).refine((data) => isValidObjectId(data), {
+    message: "Invalid userId",
   }),
 })
 
@@ -39,8 +47,8 @@ export const updatePostSchema = object({
 });
 
 export const likePostSchema = object({
-  body: like,
   params: params.pick({ postId: true }),
+  body: like,
 });
 
 export const deletePostSchema = object({

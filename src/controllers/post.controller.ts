@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { isValidObjectId } from 'mongoose';
 import { 
   CreatePostInput, 
   ReadPostInput,
@@ -7,23 +6,22 @@ import {
   DeletePostInput, 
   ReadPostByUserInput,
   LikePostInput,
-} from '../schemas/post.schema.js';
+} from '../schemas/post.schema';
 import { 
   createPost, 
   findPost,
   findAndUpdatePost,
   deletePost,
   findManyPosts
-} from '../services/post.service.js';
-import { findUser } from '../services/user.service.js';
-import { deleteManyComments } from '../services/comment.service.js';
+} from '../services/post.service';
+import { deleteManyComments } from '../services/comment.service';
+import { FindUserResult } from '../services/user.service';
 
 export async function createPostHandler(
   req: Request<{}, {}, CreatePostInput["body"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
-  const user = await findUser({ _id: userId });
+  const user: FindUserResult = res.locals.user;
 
   if (!user) {
     return res.sendStatus(403);
@@ -46,12 +44,9 @@ export async function getPostHandler(
   req: Request<ReadPostInput["params"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user: FindUserResult = res.locals.user;
+  const userId = user._id;
   const postId = req.params.postId;
-
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
 
   const post = await findPost({ _id: postId });
 
@@ -68,7 +63,8 @@ export async function getRecentPostsHandler(
   req: Request, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user: FindUserResult = res.locals.user;
+  const userId = user._id;
 
   const query = {
     $or: [
@@ -97,8 +93,9 @@ export async function getFollowedPostsHandler(
   req: Request, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
-  const following = res.locals.user.following;
+  const user: FindUserResult = res.locals.user;
+  const userId = user._id;
+  const following = user.following;
 
   const query = {
     'author': { $in: [...following, userId] },
@@ -122,12 +119,9 @@ export async function getPostsByUserHandler(
   req: Request<ReadPostByUserInput["params"]>, 
   res: Response
 ) {
-  const requestingUserId = res.locals.user._id;
+  const requestingUser: FindUserResult = res.locals.user;
+  const requestingUserId = requestingUser._id;
   const targetUserId = req.params.userId;
-
-  if (!isValidObjectId(targetUserId)) {
-    return res.sendStatus(400);
-  }
 
   let query = {};
 
@@ -159,23 +153,16 @@ export async function updatePostHandler(
   req: Request<UpdatePostInput["params"], {}, UpdatePostInput["body"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user: FindUserResult = res.locals.user;
   const postId = req.params.postId;
 
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
-
-  const [user, post] = await Promise.all([
-    findUser({ _id: userId }),
-    findPost({ _id: postId }),
-  ])
+  const post = await findPost({ _id: postId });
 
   if (!post) {
     return res.sendStatus(404);
   }
 
-  if (!user || user.id !== post.author.id) {
+  if (user.id !== post.author.id) {
     return res.sendStatus(403);
   }
 
@@ -196,21 +183,10 @@ export async function likePostHandler(
   res: Response
 ) {
   const like = JSON.parse(req.body.like);
-  const userId = res.locals.user._id;
+  const user: FindUserResult = res.locals.user;
   const postId = req.params.postId;
 
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
-
-  const [user, post] = await Promise.all([
-    findUser({ _id: userId }),
-    findPost({ _id: postId }),
-  ])
-
-  if (!user) {
-    return res.sendStatus(403);
-  }
+  const post = await findPost({ _id: postId });
 
   if (!post) {
     return res.sendStatus(404);
@@ -237,23 +213,16 @@ export async function deletePostHandler(
   req: Request<DeletePostInput["params"]>, 
   res: Response
 ) {
-  const userId = res.locals.user._id;
+  const user: FindUserResult = res.locals.user;
   const postId = req.params.postId;
 
-  if (!isValidObjectId(postId)) {
-    return res.sendStatus(400);
-  }
-
-  const [user, post] = await Promise.all([
-    findUser({ _id: userId }),
-    findPost({ _id: postId }),
-  ])
+  const post = await findPost({ _id: postId });
 
   if (!post) {
     return res.sendStatus(404);
   }
 
-  if (!user || user.id !== post.author.id) {
+  if (user.id !== post.author.id) {
     return res.sendStatus(403);
   }
 

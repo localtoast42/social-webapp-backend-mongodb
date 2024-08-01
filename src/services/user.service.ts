@@ -1,6 +1,13 @@
-import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
+import { 
+  Document, 
+  FilterQuery, 
+  ProjectionType, 
+  QueryOptions, 
+  Types, 
+  UpdateQuery 
+} from "mongoose";
 import { omit } from 'lodash';
-import UserModel, { User, UserCreate } from "../models/user.model.js";
+import UserModel, { User, UserCreate } from "../models/user.model";
 
 export async function createUser(input: UserCreate) {
   try {
@@ -35,8 +42,7 @@ export async function findUser(
   projection?: ProjectionType<User>
 ) {
   try {
-    const result = await UserModel.findOne(query, projection);
-    return result;
+    return UserModel.findOne(query, projection);
   } catch (e: any) {
     throw new Error(e);
   }
@@ -78,3 +84,9 @@ export async function findAndUpdateUser(
 export async function deleteUser(query: FilterQuery<User>) {
   return UserModel.deleteOne(query);
 }
+
+export type FindUserResult = Document<unknown, {}, User> & 
+  User & 
+  Required<{
+    _id: Types.ObjectId;
+  }>

@@ -19,11 +19,12 @@ export interface UserCreate extends UserBase {
 };
 
 export interface User extends UserCreate {
-  id: Types.ObjectId;
+  _id: Types.ObjectId;
+  id: string;
   isAdmin: boolean;
   isGuest: boolean;
-  followers: Array<Types.ObjectId>;
-  following: Array<Types.ObjectId>;
+  followers: Array<Types.ObjectId | string>;
+  following: Array<Types.ObjectId | string>;
   followedByMe?: boolean;
   hasFollows?: boolean;
   fullName?: string;
@@ -32,7 +33,10 @@ export interface User extends UserCreate {
 };
 
 const opts = { 
-  toJSON: { virtuals: true } 
+  toJSON: { 
+    virtuals: true, 
+    flattenObjectIds: true 
+  }
 };
 
 const userSchema = new Schema<User>({
@@ -87,6 +91,10 @@ userSchema.virtual("url").get(function () {
 
 userSchema.virtual("hasFollows").get(function () {
   return (this.following?.length ?? 0) !== 0;
+});
+
+userSchema.virtual("followedByMe").get(function () {
+  return false;
 });
 
 userSchema.plugin(mongooseLeanVirtuals);

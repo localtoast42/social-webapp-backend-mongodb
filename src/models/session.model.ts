@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { User } from "./user.model.js";
+import { User } from "./user.model";
 
 export interface SessionInput {
   user: User["id"];

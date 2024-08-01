@@ -1,21 +1,22 @@
 import { Schema, Types, model } from 'mongoose';
 import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { DateTime } from 'luxon';
-import { User } from './user.model.js';
-import { Post } from './post.model.js';
+import { User } from './user.model';
+import { Post } from './post.model';
 
 export interface CommentCreate { 
-  post: Post["id"];
-  author: User["id"];
+  post: Post["_id"];
+  author: User["_id"];
   text: string;
   postDate: Date;
   isPublicComment?: boolean;
 }
 
 export interface Comment extends CommentCreate {
-  id: Types.ObjectId;
+  _id: Types.ObjectId;
+  id: string;
   lastEditDate: Date;
-  likes: Array<Types.ObjectId>;
+  likes: Array<Types.ObjectId | string>;
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
@@ -51,6 +52,10 @@ commentSchema.virtual("lastEditDateFormatted").get(function () {
 
 commentSchema.virtual("numLikes").get(function () {
   return this.likes?.length ?? 0;
+});
+
+commentSchema.virtual("isLiked").get(function () {
+  return false;
 });
 
 commentSchema.plugin(mongooseLeanVirtuals);

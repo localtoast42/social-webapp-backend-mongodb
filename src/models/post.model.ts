@@ -1,20 +1,21 @@
 import { Schema, Types, model } from 'mongoose';
 import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
 import { DateTime } from 'luxon';
-import { User } from './user.model.js';
+import { User } from './user.model';
 
 export interface PostCreate {
-  author: User["id"];
+  author: User["_id"];
   text: string;
   postDate: Date;
   isPublicPost?: boolean;
 };
 
 export interface Post extends PostCreate {
-  id: Types.ObjectId;
+  _id: Types.ObjectId;
+  id: string;
   lastEditDate: Date;
-  likes: Array<Types.ObjectId>;
-  comments: Array<Types.ObjectId>;
+  likes: Array<Types.ObjectId | string>;
+  comments: Array<Types.ObjectId | string>;
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
@@ -55,6 +56,10 @@ postSchema.virtual("numLikes").get(function () {
 
 postSchema.virtual("numComments").get(function () {
   return this.comments?.length ?? 0;
+});
+
+postSchema.virtual("isLiked").get(function () {
+  return false;
 });
 
 postSchema.plugin(mongooseLeanVirtuals);

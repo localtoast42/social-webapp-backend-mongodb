@@ -1,9 +1,9 @@
 import { Express, Request, Response } from 'express';
-import validateResource from './middleware/validateResource.js';
-import requireUser from './middleware/requireUser.js';
-import requireAdmin from './middleware/requireAdmin.js';
-import { createGuest } from './middleware/createGuest.js';
-import { createSessionSchema } from './schemas/session.schema.js';
+import validateResource from './middleware/validateResource';
+import requireUser from './middleware/requireUser';
+import requireAdmin from './middleware/requireAdmin';
+import { createGuest } from './middleware/createGuest';
+import { createSessionSchema } from './schemas/session.schema';
 import { 
   createUserSchema, 
   deleteUserSchema, 
@@ -12,7 +12,7 @@ import {
   populateUsersSchema, 
   unfollowUserSchema, 
   updateUserSchema 
-} from './schemas/user.schema.js';
+} from './schemas/user.schema';
 import { 
   createPostSchema, 
   deletePostSchema, 
@@ -20,7 +20,7 @@ import {
   getPostSchema, 
   likePostSchema, 
   updatePostSchema 
-} from './schemas/post.schema.js';
+} from './schemas/post.schema';
 import { 
   createCommentSchema, 
   deleteCommentSchema, 
@@ -28,12 +28,12 @@ import {
   getCommentSchema, 
   likeCommentSchema, 
   updateCommentSchema 
-} from './schemas/comment.schema.js';
+} from './schemas/comment.schema';
 import { 
   createUserSessionHandler, 
   deleteUserSessionHandler, 
   getUserSessionsHandler 
-} from './controllers/session.controller.js';
+} from './controllers/session.controller';
 import { 
   createUserHandler, 
   deleteUserHandler, 
@@ -45,7 +45,7 @@ import {
   populateUsers, 
   unfollowUserHandler, 
   updateUserHandler
-} from './controllers/user.controller.js';
+} from './controllers/user.controller';
 import { 
   createPostHandler, 
   deletePostHandler, 
@@ -55,7 +55,7 @@ import {
   getRecentPostsHandler, 
   likePostHandler, 
   updatePostHandler 
-} from './controllers/post.controller.js';
+} from './controllers/post.controller';
 import { 
   createCommentHandler, 
   deleteCommentHandler, 
@@ -63,11 +63,17 @@ import {
   getCommentsByPostHandler, 
   likeCommentHandler, 
   updateCommentHandler 
-} from './controllers/comment.controller.js';
+} from './controllers/comment.controller';
 
 
 function routes(app: Express) {
   app.get('/healthcheck', (req: Request, res: Response) => res.sendStatus(200));
+
+  app.get(
+    '/authcheck',
+    requireUser, 
+    (req: Request, res: Response) => res.sendStatus(200)
+  );
 
   // Session Routes
   app.post(

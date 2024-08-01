@@ -1,9 +1,9 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
-import { get, omit } from 'lodash';
+import { get } from 'lodash';
 import config from "config";
-import SessionModel, { Session, SessionInput } from "../models/session.model.js";
-import { signJwt, verifyJwt } from "../utils/jwt.utils.js";
-import { findUser } from "./user.service.js";
+import SessionModel, { Session, SessionInput } from "../models/session.model";
+import { signJwt, verifyJwt } from "../utils/jwt.utils";
+import { findUser } from "./user.service";
 
 export async function createSession(input: SessionInput) {
   const session = await SessionModel.create(input);
@@ -35,11 +35,15 @@ export async function reIssueAccessToken({
 
   if (!session || !session.valid) return '';
 
-  const result = await findUser({ _id: session.user.toString() });
+  const projection = {
+    password: -1,
+  };
+
+  const result = await findUser({ _id: session.user.toString() }, projection);
 
   if (!result) return '';
 
-  const user = omit(result.toJSON(), "password");
+  const user = result.toJSON();
 
   const accessToken = signJwt(
     { ...user, session: session._id },

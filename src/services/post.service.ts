@@ -1,6 +1,6 @@
 import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
-import PostModel, { Post, PostCreate } from "../models/post.model.js";
-import { User } from "../models/user.model.js";
+import PostModel, { Post, PostCreate } from "../models/post.model";
+import { User } from "../models/user.model";
 
 export async function createPost(input: PostCreate) {
   try {

@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import config from 'config';
-import { signJwt } from '../utils/jwt.utils.js';
-import { validatePassword } from '../services/user.service.js';
-import { createSession, findSessions, updateSession } from '../services/session.service.js';
-import { CreateSessionInput } from '../schemas/session.schema.js';
+import { signJwt } from '../utils/jwt.utils';
+import { validatePassword } from '../services/user.service';
+import { createSession, findSessions, updateSession } from '../services/session.service';
+import { CreateSessionInput } from '../schemas/session.schema';
 
 export async function createUserSessionHandler(
   req: Request<{}, {}, CreateSessionInput["body"]>, 
@@ -16,7 +16,7 @@ export async function createUserSessionHandler(
   }
 
   const session = await createSession({
-    user: user._id, 
+    user: user.id, 
     userAgent: req.get("user-agent") || "",
   });
 
