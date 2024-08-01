@@ -147,7 +147,8 @@ export async function deleteUserHandler(
   req: Request<DeleteUserInput["params"]>, 
   res: Response
 ) {
-  const requestingUserId = res.locals.user._id;
+  const requestingUser: FindUserResult = res.locals.user;
+  const requestingUserId = requestingUser.id;
   const userId = req.params.userId;
 
   const user = await findUser({ _id: userId });
@@ -156,13 +157,17 @@ export async function deleteUserHandler(
     return res.sendStatus(404);
   }
 
-  if (user.id !== requestingUserId.toString()) {
+  if (user.id !== requestingUserId) {
     return res.sendStatus(403);
   }
 
-  await deleteUser({ _id: userId });
+  const result = await deleteUser({ _id: userId });
 
-  return res.sendStatus(200);
+  return res.json({
+    ...result,
+    accessToken: null,
+    refreshToken: null
+  });
 }
 
 export async function getUserFollowsHandler(
