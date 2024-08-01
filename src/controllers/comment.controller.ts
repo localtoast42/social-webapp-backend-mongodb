@@ -181,10 +181,10 @@ export async function likeCommentHandler(
     return res.sendStatus(404);
   }
 
-  comment.likes = comment.likes.filter((userid) => userid != user._id);
+  comment.likes = comment.likes.filter((userid) => userid != user.id);
 
   if (like) {
-    comment.likes.push(user._id);
+    comment.likes.push(user.id);
   }
 
   const update = {
