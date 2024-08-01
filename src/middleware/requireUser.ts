@@ -8,7 +8,11 @@ const requireUser = async (req: Request, res: Response, next: NextFunction) => {
     return res.sendStatus(401);
   }
 
-  res.locals.user = await findUser({ _id: user._id })
+  res.locals.user = await findUser({ _id: user._id });
+
+  if (!res.locals.user) {
+    return res.sendStatus(404);
+  }
 
   return next();
 };
