@@ -1,12 +1,14 @@
 import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
 import PostModel, { Post, PostCreate } from "../models/post.model";
 import { User } from "../models/user.model";
+import logger from "../utils/logger";
 
 export async function createPost(input: PostCreate) {
   try {
     const post = await PostModel.create(input);
     return post.toJSON();
   } catch (e: any) {
+    logger.error(e);
     throw new Error(e);
   }
 }
