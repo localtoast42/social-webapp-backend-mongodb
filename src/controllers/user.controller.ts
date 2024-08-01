@@ -32,6 +32,7 @@ export async function createUserHandler(
 
   try {
     const user = await createUser(req.body);
+    logger.info(`User ${user.username} created`);
     return res.send(user);
   } catch (e: any) {
     logger.error(e);
