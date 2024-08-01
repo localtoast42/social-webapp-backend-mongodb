@@ -1,5 +1,6 @@
 import express from 'express';
 import config from 'config';
+import morgan from 'morgan';
 import cors from 'cors';
 import compression from 'compression';
 import routes from '../routes';
@@ -18,6 +19,10 @@ function createServer() {
 
     app.use(cors(corsOptions));
     app.use(compression());
+
+    if (config.get<boolean>('logRequests')) {
+      app.use(morgan(config.get<string>('logFormat')));
+    }
 
     app.use(deserializeUser);
 

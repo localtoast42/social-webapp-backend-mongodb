@@ -1,11 +1,13 @@
 import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
 import CommentModel, { Comment, CommentCreate } from "../models/comment.model";
 import { User } from "../models/user.model";
+import logger from "../utils/logger";
 
 export async function createComment(input: CommentCreate) {
   try {
     return await CommentModel.create(input);
   } catch (e: any) {
+    logger.error(e);
     throw new Error(e);
   }
 }

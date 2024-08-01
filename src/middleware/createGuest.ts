@@ -23,6 +23,7 @@ export async function createGuest(
     const user = await createUser(userInput);
     req.body.username = user.username;
     req.body.password = userInput.password;
+    logger.info(`Guest user ${user.username} created`);
     return next();
   } catch (e: any) {
     logger.error(e);

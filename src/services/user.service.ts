@@ -8,12 +8,14 @@ import {
 } from "mongoose";
 import { omit } from 'lodash';
 import UserModel, { User, UserCreate } from "../models/user.model";
+import logger from "../utils/logger";
 
 export async function createUser(input: UserCreate) {
   try {
     const user = await UserModel.create(input);
     return omit(user.toJSON(), "password");
   } catch (e: any) {
+    logger.error(e);
     throw new Error(e);
   }
 }
@@ -44,6 +46,7 @@ export async function findUser(
   try {
     return UserModel.findOne(query, projection);
   } catch (e: any) {
+    logger.error(e);
     throw new Error(e);
   }
 }
@@ -76,8 +79,9 @@ export async function findAndUpdateUser(
   try {
     const result = await UserModel.findOneAndUpdate(query, update, options);
     return result;
-  } catch (err) {
-    throw err;
+  } catch (e: any) {
+    logger.error(e);
+    throw new Error(e);
   }
 }
 
