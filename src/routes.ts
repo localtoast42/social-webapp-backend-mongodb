@@ -9,8 +9,7 @@ import {
   deleteUserSchema, 
   followUserSchema, 
   getUserSchema, 
-  populateUsersSchema, 
-  unfollowUserSchema, 
+  populateUsersSchema,
   updateUserSchema 
 } from './schemas/user.schema';
 import { 
@@ -42,8 +41,7 @@ import {
   getUserFollowsHandler, 
   getUserHandler, 
   getUserListHandler, 
-  populateUsers, 
-  unfollowUserHandler, 
+  populateUsers,  
   updateUserHandler
 } from './controllers/user.controller';
 import { 
@@ -160,12 +158,6 @@ function routes(app: Express) {
     '/api/v2/users/:userId/follow', 
     [requireUser, validateResource(followUserSchema)],
     followUserHandler
-  );
-
-  app.delete(
-    '/api/v2/users/:userId/follow', 
-    [requireUser, validateResource(unfollowUserSchema)],
-    unfollowUserHandler
   );
 
   // Post Routes

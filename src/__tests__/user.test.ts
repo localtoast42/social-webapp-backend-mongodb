@@ -679,7 +679,8 @@ describe('user', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .post(`/api/v2/users/${otherUserId}/follow`);
+          .post(`/api/v2/users/${otherUserId}/follow`)
+          .send({ follow: "true" });
           
         expect(statusCode).toBe(401);
       });
@@ -705,7 +706,8 @@ describe('user', () => {
   
         const { statusCode, body } = await supertest(app)
           .post(`/api/v2/users/not_valid_id/follow`)
-          .set('Authorization', `Bearer ${jwt}`);
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ follow: "true" });
         
         expect(statusCode).toBe(400);
         expect(body[0].message).toEqual("Invalid userId");
@@ -715,75 +717,14 @@ describe('user', () => {
       });
     });
 
-    describe('given the user does not exist', () => {
-      it('should return a 404', async () => {
-        const userDocumentWithFollows = new UserModel(userPayload);
-        userDocumentWithFollows.following.push(otherUserObjectId);
-
-        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
-        otherUserDocumentWithFollowers.followers.push(userObjectId);
-
-        const findUserServiceMock = jest
-          .spyOn(UserService, 'findUser')
-          .mockResolvedValueOnce(userDocument)
-          .mockResolvedValueOnce(null);
-
-        const updateUserServiceMock = jest
-          .spyOn(UserService, 'findAndUpdateUser')
-          .mockResolvedValueOnce(userDocumentWithFollows)
-          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
-
-        const { statusCode } = await supertest(app)
-          .post(`/api/v2/users/${otherUserId}/follow`)
-          .set('Authorization', `Bearer ${jwt}`);
-        
-        expect(statusCode).toBe(404);
-        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
-        expect(updateUserServiceMock).not.toHaveBeenCalled();
-      });
-    });
-
-    describe('given the request is good', () => {
-      it('should update both users and return a 200', async () => {
-        const userDocumentWithFollows = new UserModel(userPayload);
-        userDocumentWithFollows.following.push(otherUserObjectId);
-
-        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
-        otherUserDocumentWithFollowers.followers.push(userObjectId);
-
-        const findUserServiceMock = jest
-          .spyOn(UserService, 'findUser')
-          .mockResolvedValueOnce(userDocument)
-          .mockResolvedValueOnce(otherUserDocument);
-
-        const updateUserServiceMock = jest
-          .spyOn(UserService, 'findAndUpdateUser')
-          .mockResolvedValueOnce(userDocumentWithFollows)
-          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
-
-        const { statusCode } = await supertest(app)
-          .post(`/api/v2/users/${otherUserId}/follow`)
-          .set('Authorization', `Bearer ${jwt}`);
-        
-        expect(statusCode).toBe(200);
-        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
-        expect(updateUserServiceMock).toHaveBeenCalledTimes(2);
-      });
-    });
-  });
-
-  describe('unfollow user route', () => {
-    describe('given the user is not logged in', () => {
-      it('should return a 401', async () => {   
-        const { statusCode } = await supertest(app)
-          .delete(`/api/v2/users/${otherUserId}/follow`);
-          
-        expect(statusCode).toBe(401);
-      });
-    });
-
-    describe('given the userId is not a valid ObjectId', () => {
+    describe('given follow input is invalid', () => {
       it('should return a 400 with error message', async () => {
+        const userDocumentWithFollows = new UserModel(userPayload);
+        userDocumentWithFollows.following.push(otherUserObjectId);
+
+        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
+        otherUserDocumentWithFollowers.followers.push(userObjectId);
+
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           .mockResolvedValueOnce(userDocument)
@@ -791,15 +732,16 @@ describe('user', () => {
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          .mockResolvedValueOnce(userDocument)
-          .mockResolvedValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocumentWithFollows)
+          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
   
         const { statusCode, body } = await supertest(app)
-          .delete(`/api/v2/users/not_valid_id/follow`)
-          .set('Authorization', `Bearer ${jwt}`);
+          .post(`/api/v2/users/${otherUserId}/follow`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ follow: "yes" });
         
         expect(statusCode).toBe(400);
-        expect(body[0].message).toEqual("Invalid userId");
+        expect(body[0].message).toEqual("Follow must be true or false");
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findUserServiceMock).toHaveBeenCalledTimes(1);
         expect(updateUserServiceMock).not.toHaveBeenCalled();
@@ -808,6 +750,12 @@ describe('user', () => {
 
     describe('given the user does not exist', () => {
       it('should return a 404', async () => {
+        const userDocumentWithFollows = new UserModel(userPayload);
+        userDocumentWithFollows.following.push(otherUserObjectId);
+
+        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
+        otherUserDocumentWithFollowers.followers.push(userObjectId);
+
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           .mockResolvedValueOnce(userDocument)
@@ -815,12 +763,13 @@ describe('user', () => {
 
         const updateUserServiceMock = jest
           .spyOn(UserService, 'findAndUpdateUser')
-          .mockResolvedValueOnce(userDocument)
-          .mockResolvedValueOnce(otherUserDocument);
+          .mockResolvedValueOnce(userDocumentWithFollows)
+          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
 
         const { statusCode } = await supertest(app)
-          .delete(`/api/v2/users/${otherUserId}/follow`)
-          .set('Authorization', `Bearer ${jwt}`);
+          .post(`/api/v2/users/${otherUserId}/follow`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ follow: "true" });
         
         expect(statusCode).toBe(404);
         expect(findUserServiceMock).toHaveBeenCalledTimes(2);
@@ -828,8 +777,134 @@ describe('user', () => {
       });
     });
 
-    describe('given the request is good', () => {
+    describe('given follow=true and the user has not previously followed the target', () => {
       it('should update both users and return a 200', async () => {
+        const userDocumentWithFollows = new UserModel(userPayload);
+        userDocumentWithFollows.following.push(otherUserObjectId);
+
+        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
+        otherUserDocumentWithFollowers.followers.push(userObjectId);
+
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
+
+        const updateUserServiceMock = jest
+          .spyOn(UserService, 'findAndUpdateUser')
+          .mockResolvedValueOnce(userDocumentWithFollows)
+          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
+
+        const { statusCode } = await supertest(app)
+          .post(`/api/v2/users/${otherUserId}/follow`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ follow: "true" });
+        
+        expect(statusCode).toBe(200);
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(updateUserServiceMock).toHaveBeenNthCalledWith(
+          1, 
+          { _id: userId }, 
+          { following: [ otherUserObjectId ] }, 
+          { new: true },
+        );
+        expect(updateUserServiceMock).toHaveBeenNthCalledWith(
+          2, 
+          { _id: otherUserId }, 
+          { followers: [ userObjectId ] }, 
+          { new: true },
+        );
+      });
+    });
+
+    describe('given follow=true and the user has previously followed the target', () => {
+      it('should return a 200 with users unmodified', async () => {
+        const userDocumentWithFollows = new UserModel(userPayload);
+        userDocumentWithFollows.following.push(otherUserObjectId);
+
+        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
+        otherUserDocumentWithFollowers.followers.push(userObjectId);
+
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocumentWithFollows)
+          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
+
+        const updateUserServiceMock = jest
+          .spyOn(UserService, 'findAndUpdateUser')
+          .mockResolvedValueOnce(userDocumentWithFollows)
+          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
+
+        const { statusCode } = await supertest(app)
+          .post(`/api/v2/users/${otherUserId}/follow`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ follow: "true" });
+        
+        expect(statusCode).toBe(200);
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(updateUserServiceMock).toHaveBeenNthCalledWith(
+          1, 
+          { _id: userId }, 
+          { following: [ otherUserObjectId ] }, 
+          { new: true },
+        );
+        expect(updateUserServiceMock).toHaveBeenNthCalledWith(
+          2, 
+          { _id: otherUserId }, 
+          { followers: [ userObjectId ] }, 
+          { new: true },
+        );
+      });
+    });
+
+    describe('given follow=false and the user has previously followed the target', () => {
+      it('should update both users and return a 200', async () => {
+        const userDocumentWithFollows = new UserModel(userPayload);
+        userDocumentWithFollows.following.push(otherUserObjectId);
+
+        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
+        otherUserDocumentWithFollowers.followers.push(userObjectId);
+
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(userDocumentWithFollows)
+          .mockResolvedValueOnce(otherUserDocumentWithFollowers);
+
+        const updateUserServiceMock = jest
+          .spyOn(UserService, 'findAndUpdateUser')
+          .mockResolvedValueOnce(userDocument)
+          .mockResolvedValueOnce(otherUserDocument);
+
+        const { statusCode } = await supertest(app)
+          .post(`/api/v2/users/${otherUserId}/follow`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ follow: "false" });
+        
+        expect(statusCode).toBe(200);
+        expect(findUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(updateUserServiceMock).toHaveBeenNthCalledWith(
+          1, 
+          { _id: userId }, 
+          { following: [] }, 
+          { new: true },
+        );
+        expect(updateUserServiceMock).toHaveBeenNthCalledWith(
+          2, 
+          { _id: otherUserId }, 
+          { followers: [] }, 
+          { new: true },
+        );
+      });
+    });
+
+    describe('given follow=false and the user has not previously followed the target', () => {
+      it('should return a 200 with users unmodified', async () => {
+        const userDocumentWithFollows = new UserModel(userPayload);
+        userDocumentWithFollows.following.push(otherUserObjectId);
+
+        const otherUserDocumentWithFollowers = new UserModel(otherUserPayload);
+        otherUserDocumentWithFollowers.followers.push(userObjectId);
+
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           .mockResolvedValueOnce(userDocument)
@@ -841,12 +916,24 @@ describe('user', () => {
           .mockResolvedValueOnce(otherUserDocument);
 
         const { statusCode } = await supertest(app)
-          .delete(`/api/v2/users/${otherUserId}/follow`)
-          .set('Authorization', `Bearer ${jwt}`);
+          .post(`/api/v2/users/${otherUserId}/follow`)
+          .set('Authorization', `Bearer ${jwt}`)
+          .send({ follow: "false" });
         
         expect(statusCode).toBe(200);
         expect(findUserServiceMock).toHaveBeenCalledTimes(2);
-        expect(updateUserServiceMock).toHaveBeenCalledTimes(2);
+        expect(updateUserServiceMock).toHaveBeenNthCalledWith(
+          1, 
+          { _id: userId }, 
+          { following: [] }, 
+          { new: true },
+        );
+        expect(updateUserServiceMock).toHaveBeenNthCalledWith(
+          2, 
+          { _id: otherUserId }, 
+          { followers: [] }, 
+          { new: true },
+        );
       });
     });
   });

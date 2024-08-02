@@ -16,7 +16,6 @@ import {
   FollowUserInput, 
   PopulateUsersInput, 
   ReadUserInput, 
-  UnfollowUserInput, 
   UpdateUserInput 
 } from '../schemas/user.schema';
 import { 
@@ -183,9 +182,10 @@ export async function getUserFollowsHandler(
 }
 
 export async function followUserHandler(
-  req: Request<FollowUserInput["params"]>, 
+  req: Request<FollowUserInput["params"], {}, FollowUserInput["body"]>, 
   res: Response
 ) {
+  const follow = JSON.parse(req.body.follow);
   const requestingUser: FindUserResult = res.locals.user;
   const targetUserId = req.params.userId;
 
@@ -195,11 +195,15 @@ export async function followUserHandler(
     return res.sendStatus(404);
   }
 
-  if (!requestingUser.following.includes(targetUser._id)) {
-    requestingUser.following.push(targetUser._id);
-  }
+  requestingUser.following = requestingUser.following.filter((userId) => {
+    return userId.toString() !== targetUser._id.toString();
+  });
+  targetUser.followers = targetUser.followers.filter((userId) => {
+    return userId.toString() !== requestingUser._id.toString();
+  });
 
-  if (!targetUser.followers.includes(requestingUser._id)) {
+  if (follow) {
+    requestingUser.following.push(targetUser._id);
     targetUser.followers.push(requestingUser._id);
   }
 
@@ -213,51 +217,7 @@ export async function followUserHandler(
 
   await Promise.all([
     findAndUpdateUser(
-      { _id: requestingUser._id }, 
-      requestingUserUpdates, 
-      { new: true }
-    ),
-    findAndUpdateUser(
-      { _id: targetUserId }, 
-      targetUserUpdates, 
-      { new: true }
-    )
-  ])
-
-  return res.sendStatus(200);
-}
-
-export async function unfollowUserHandler(
-  req: Request<UnfollowUserInput["params"]>, 
-  res: Response
-) {
-  const requestingUser: FindUserResult = res.locals.user;
-  const targetUserId = req.params.userId;
-
-  const targetUser = await findUser({ _id: targetUserId })
-
-  if (!targetUser) {
-    return res.sendStatus(404);
-  }
-
-  requestingUser.following = requestingUser.following.filter((userId) => {
-    return userId.toString() !== targetUser._id.toString();
-  });
-  targetUser.followers = targetUser.followers.filter((userId) => {
-    return userId.toString() !== requestingUser._id.toString();
-  })
-
-  const requestingUserUpdates = {
-    following: requestingUser.following,
-  }
-
-  const targetUserUpdates = {
-    followers: targetUser.followers,
-  }
-
-  await Promise.all([
-    findAndUpdateUser(
-      { _id: requestingUser._id }, 
+      { _id: requestingUser.id }, 
       requestingUserUpdates, 
       { new: true }
     ),
