@@ -136,7 +136,7 @@ export async function updateUserHandler(
     new: true, 
   });
 
-  return res.json(updatedUser);
+  return res.json(omit(updatedUser?.toJSON(), "password"));
 }
 
 export async function deleteUserHandler(
