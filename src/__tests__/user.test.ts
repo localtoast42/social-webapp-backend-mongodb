@@ -296,7 +296,7 @@ describe('user', () => {
             .set('Authorization', `Bearer ${jwt}`);
             
           expect(statusCode).toBe(200);
-          expect(body).toEqual([userResponse]);
+          expect(body).toEqual({ data: [ userResponse ]});
           expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
           expect(findManyUsersServiceMock).toHaveBeenCalled();
         });
@@ -319,7 +319,7 @@ describe('user', () => {
             .set('Authorization', `Bearer ${jwt}`);
             
           expect(statusCode).toBe(200);
-          expect(body).toEqual([]);
+          expect(body).toEqual({ data: []});
           expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
           expect(findManyUsersServiceMock).toHaveBeenCalled();
         });
