@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
 import { 
   CreateCommentInput, 
   ReadCommentInput,
@@ -19,6 +20,8 @@ import {
   findPost 
 } from '../services/post.service';
 import { FindUserResult } from '../services/user.service';
+import { Post } from '../models/post.model';
+import { Comment } from '../models/comment.model';
 
 export async function createCommentHandler(
   req: Request<CreateCommentInput["params"], {}, CreateCommentInput["body"]>, 
@@ -46,7 +49,7 @@ export async function createCommentHandler(
 
   post.comments.push(comment._id);
 
-  const update = {
+  const update: UpdateQuery<Post> = {
     comments: post.comments,
   }
 
@@ -88,14 +91,14 @@ export async function getCommentsByPostHandler(
     return res.sendStatus(404);
   }
 
-  const query = {
+  const query: FilterQuery<Comment> = {
     $or: [
       { author: userId },
       { isPublicComment: true },
     ],
   }
 
-  const options = {
+  const options: QueryOptions = {
     sort: { "postDate": 1 }
   };
 
@@ -121,7 +124,7 @@ export async function updateCommentHandler(
     return res.sendStatus(403);
   }
 
-  const update = {
+  const update: UpdateQuery<Comment> = {
     ...req.body,
     lastEditDate: new Date(Date.now()),
   };
@@ -155,7 +158,7 @@ export async function deleteCommentHandler(
   if (post) {
     post.comments = post.comments.filter((commentid) => commentid != comment.id);
 
-    const update = {
+    const update: UpdateQuery<Post> = {
       comments: post.comments,
     }
 
@@ -187,7 +190,7 @@ export async function likeCommentHandler(
     comment.likes.push(user.id);
   }
 
-  const update = {
+  const update: UpdateQuery<Comment> = {
     likes: comment.likes,
   }
 

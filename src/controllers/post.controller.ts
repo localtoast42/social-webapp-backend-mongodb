@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { QueryOptions, UpdateQuery } from 'mongoose';
 import { 
   CreatePostInput, 
   ReadPostInput,
@@ -16,7 +17,7 @@ import {
 } from '../services/post.service';
 import { deleteManyComments } from '../services/comment.service';
 import { FindUserResult } from '../services/user.service';
-import { QueryOptions } from 'mongoose';
+import { Post } from '../models/post.model';
 
 export async function createPostHandler(
   req: Request<{}, {}, CreatePostInput["body"]>, 
@@ -146,7 +147,7 @@ export async function getPostsByUserHandler(
     };
   }
 
-  const options = {
+  const options: QueryOptions = {
     sort: { "postDate": -1 }
   };
 
@@ -176,7 +177,7 @@ export async function updatePostHandler(
     return res.sendStatus(403);
   }
 
-  const update = {
+  const update: UpdateQuery<Post> = {
     ...req.body,
     lastEditDate: new Date(Date.now()),
   };

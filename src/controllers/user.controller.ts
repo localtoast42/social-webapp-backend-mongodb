@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
 import config from 'config';
+import { 
+  FilterQuery, 
+  ProjectionType, 
+  QueryOptions, 
+  UpdateQuery
+} from 'mongoose';
 import { omit } from 'lodash';
 import logger from '../utils/logger';
 import { 
@@ -22,6 +28,7 @@ import {
   createRandomPost, 
   createRandomUser 
 } from '../utils/populateDatabase';
+import { User } from '../models/user.model';
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput["body"]>, 
@@ -85,13 +92,13 @@ export async function getUserListHandler(
     queryTerms.push({ $or: [{ firstName: regex }, { lastName: regex }]});
   } 
 
-  const query = { 
+  const query: FilterQuery<User> = { 
     _id: { $ne: userId }, 
     isGuest: false,
     $and: queryTerms,
   }
 
-  const projection = {
+  const projection: ProjectionType<User> = {
     username: 1,
     firstName: 1,
     lastName: 1,
@@ -103,7 +110,7 @@ export async function getUserListHandler(
     url: 1,
   }
 
-  const options = {
+  const options: QueryOptions = {
     sort: { "lastName": 1 },
   }
 
@@ -130,7 +137,7 @@ export async function updateUserHandler(
     return res.sendStatus(403);
   }
 
-  const update = req.body;
+  const update: UpdateQuery<User> = req.body;
 
   const updatedUser = await findAndUpdateUser({ _id: userId }, update, { 
     new: true, 
@@ -207,11 +214,11 @@ export async function followUserHandler(
     targetUser.followers.push(requestingUser._id);
   }
 
-  const requestingUserUpdates = {
+  const requestingUserUpdates: UpdateQuery<User> = {
     following: requestingUser.following,
   }
 
-  const targetUserUpdates = {
+  const targetUserUpdates: UpdateQuery<User> = {
     followers: targetUser.followers,
   }
 
