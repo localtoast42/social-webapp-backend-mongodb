@@ -423,29 +423,6 @@ describe('comment', () => {
         
         expect(statusCode).toBe(200);
         expect(body).toEqual(commentResponse);
-        expect(body.isLiked).toBe(false);
-        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
-        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
-      });
-
-      it('should return isLiked as true if user liked the comment', async () => { 
-        const findUserServiceMock = jest
-          .spyOn(UserService, 'findUser')
-          .mockResolvedValueOnce(userDocument);
-
-        const findCommentServiceMock = jest
-          .spyOn(CommentService, 'findComment')
-          .mockResolvedValueOnce({
-            ...commentDocument.toJSON(),
-            likes: [ userObjectId ],
-          });
-
-        const { body, statusCode } = await supertest(app)
-          .get(`/api/v2/comments/${commentId}`)
-          .set('Authorization', `Bearer ${jwt}`);
-        
-        expect(statusCode).toBe(200);
-        expect(body.isLiked).toBe(true);
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
       });

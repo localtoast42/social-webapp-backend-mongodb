@@ -72,8 +72,6 @@ export async function getCommentHandler(
     return res.sendStatus(404);
   }
 
-  comment.isLiked = comment.likes.includes(userId);
-
   return res.json(comment);
 }
 
