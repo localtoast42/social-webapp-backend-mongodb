@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import config from 'config';
 import { signJwt } from '../utils/jwt.utils';
-import { validatePassword } from '../services/user.service';
+import { FindUserResult, validatePassword } from '../services/user.service';
 import { createSession, findSessions, updateSession } from '../services/session.service';
 import { CreateSessionInput } from '../schemas/session.schema';
 
@@ -36,6 +36,7 @@ export async function createUserSessionHandler(
 }
 
 export async function getUserSessionsHandler(req: Request, res: Response) {
+  const user: FindUserResult = res.locals.user;
   const userId = res.locals.user._id;
 
   const sessions = await findSessions({ user: userId, valid: true });
@@ -44,7 +45,7 @@ export async function getUserSessionsHandler(req: Request, res: Response) {
 }
 
 export async function deleteUserSessionHandler(req: Request, res: Response) {
-  const sessionId = res.locals.user.session;
+  const sessionId: string | null = res.locals.session;
 
   await updateSession({ _id: sessionId }, { valid: false });
 
