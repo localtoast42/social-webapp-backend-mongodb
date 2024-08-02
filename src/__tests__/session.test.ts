@@ -224,16 +224,16 @@ describe('session', () => {
           },
         };
 
-        const send = jest.fn();
+        const json = jest.fn();
 
         const res = {
-          send,
+          json,
         };
 
         // @ts-ignore
         await createUserSessionHandler(req, res);
 
-        expect(send).toHaveBeenCalledWith({
+        expect(json).toHaveBeenCalledWith({
           accessToken: expect.any(String),
           refreshToken: expect.any(String),
         });
@@ -266,10 +266,12 @@ describe('session', () => {
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
-        expect(body).toEqual([{
-          ...sessionPayload,
-          _id: sessionPayload._id.toString(),
-        }]);
+        expect(body).toEqual({
+          data: [{
+            ...sessionPayload,
+            _id: sessionPayload._id.toString(),
+          }]
+        });
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findSessionsServiceMock).toHaveBeenCalled();
       })
