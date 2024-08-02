@@ -976,6 +976,58 @@ describe('user', () => {
       });
     });
 
+    describe('given request seeks to create more than 25 users', () => {
+      it('should return a 400 with error message', async () => {
+        const createUserServiceMock = jest
+          .spyOn(UserService, 'createUser')
+          .mockResolvedValueOnce(userDocument.toJSON());
+
+        const createPostServiceMock = jest
+          .spyOn(PostService, 'createPost')
+          // @ts-ignore
+          .mockResolvedValue({});
+
+        const { statusCode, body } = await supertest(app)
+          .post('/api/v2/users/populate')
+          .set('Authorization', `Bearer ${adminJwt}`)
+          .send({
+            userCount: 30,
+            postCount: 3,
+          });
+          
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("No more than 25 users can be created at a time");
+        expect(createUserServiceMock).not.toHaveBeenCalled();
+        expect(createPostServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given request seeks to create more than 10 posts per user', () => {
+      it('should return a 400 with error message', async () => {
+        const createUserServiceMock = jest
+          .spyOn(UserService, 'createUser')
+          .mockResolvedValueOnce(userDocument.toJSON());
+
+        const createPostServiceMock = jest
+          .spyOn(PostService, 'createPost')
+          // @ts-ignore
+          .mockResolvedValue({});
+
+        const { statusCode, body } = await supertest(app)
+          .post('/api/v2/users/populate')
+          .set('Authorization', `Bearer ${adminJwt}`)
+          .send({
+            userCount: 3,
+            postCount: 15,
+          });
+          
+        expect(statusCode).toBe(400);
+        expect(body[0].message).toEqual("No more than 10 posts per user can be created at a time");
+        expect(createUserServiceMock).not.toHaveBeenCalled();
+        expect(createPostServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
     describe('given the request is good', () => {
       it('should create the requested documents and return a 201', async () => {
         const createUserServiceMock = jest

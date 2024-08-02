@@ -91,10 +91,10 @@ export const populateUsersSchema = object({
   body: object({
     userCount: number({
       required_error: 'User count must be provided'
-    }),
+    }).max(25, { message: 'No more than 25 users can be created at a time' }),
     postCount: number({
       required_error: 'Post count must be provided'
-    }),
+    }).max(10, { message: 'No more than 10 posts per user can be created at a time' }),
   }),
 });
 
