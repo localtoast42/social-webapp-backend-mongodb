@@ -481,7 +481,9 @@ describe('user', () => {
           .send(updateUserInput);
         
         expect(statusCode).toBe(200);
-        expect(body).toEqual(updatedUserDocument.toJSON());
+        expect(body).toEqual(
+          omit(updatedUserDocument.toJSON(), "password")
+        );
         expect(findUserServiceMock).toHaveBeenCalledTimes(2);
         expect(updateUserServiceMock).toHaveBeenCalled();
       });
