@@ -101,7 +101,7 @@ export async function getCommentsByPostHandler(
 
   const comments = await findManyComments(query, {}, options);
 
-  return res.json(comments);
+  return res.json({ data: comments });
 }
 
 export async function updateCommentHandler(

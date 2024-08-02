@@ -348,7 +348,7 @@ describe('comment', () => {
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
-        expect(body).toEqual([commentResponse]);
+        expect(body).toEqual({ data: [ commentResponse ] });
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
         expect(findManyCommentsServiceMock).toHaveBeenCalled();
