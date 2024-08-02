@@ -37,7 +37,7 @@ export async function createUserSessionHandler(
 
 export async function getUserSessionsHandler(req: Request, res: Response) {
   const user: FindUserResult = res.locals.user;
-  const userId = res.locals.user._id;
+  const userId = user._id;
 
   const sessions = await findSessions({ user: userId, valid: true });
 
