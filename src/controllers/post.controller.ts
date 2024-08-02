@@ -16,6 +16,7 @@ import {
 } from '../services/post.service';
 import { deleteManyComments } from '../services/comment.service';
 import { FindUserResult } from '../services/user.service';
+import { QueryOptions } from 'mongoose';
 
 export async function createPostHandler(
   req: Request<{}, {}, CreatePostInput["body"]>, 
@@ -68,12 +69,17 @@ export async function getRecentPostsHandler(
       { isPublicPost: true },
     ],
   }
-  
-  const postLimit = parseInt(req.query.limit as string);
 
-  const options = {
-    sort: { "postDate": -1 },
-    limit: postLimit
+  const options: QueryOptions = {
+    sort: { "postDate": -1 }
+  }
+
+  if (req.query.limit) {
+    options.limit = parseInt(req.query.limit as string);
+  }
+
+  if (req.query.skip) {
+    options.skip = parseInt(req.query.skip as string);
   }
 
   const posts = await findManyPosts(query, {}, options);
@@ -98,8 +104,16 @@ export async function getFollowedPostsHandler(
     isPublicPost: true,
   }
 
-  const options = {
+  const options: QueryOptions = {
     sort: { "postDate": -1 }
+  }
+
+  if (req.query.limit) {
+    options.limit = parseInt(req.query.limit as string);
+  }
+
+  if (req.query.skip) {
+    options.skip = parseInt(req.query.skip as string);
   }
 
   const posts = await findManyPosts(query, {}, options);
