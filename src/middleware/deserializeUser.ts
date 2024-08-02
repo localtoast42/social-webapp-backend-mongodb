@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { get } from 'lodash';
 import { verifyJwt } from '../utils/jwt.utils';
 import { reIssueAccessToken } from '../services/session.service';
 
@@ -18,6 +19,7 @@ const deserializeUser = async (
 
   if (decoded) {
     res.locals.user = decoded;
+    res.locals.session = get(decoded, "session");
     return next();
   }
 
@@ -31,6 +33,7 @@ const deserializeUser = async (
     const result = verifyJwt(newAccessToken, "accessTokenSecret");
 
     res.locals.user = result.decoded;
+    res.locals.session = get(result.decoded, "session", null);
     return next();
   }
 
