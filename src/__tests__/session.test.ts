@@ -52,6 +52,10 @@ const sessionPayload = {
 };
 
 const sessionDocument = new SessionModel(sessionPayload);
+const updatedSessionDocument = new SessionModel({ 
+  ...sessionPayload, 
+  valid: false 
+});
 
 const jwtPayload = {
   ...userPayload, 
@@ -289,9 +293,8 @@ describe('session', () => {
           .mockResolvedValueOnce(userDocument);
 
         const updateSessionServiceMock = jest
-          .spyOn(SessionService, 'updateSession')
-          // @ts-ignore
-          .mockResolvedValueOnce({});
+          .spyOn(SessionService, 'findAndUpdateSession')
+          .mockResolvedValueOnce(updatedSessionDocument);
 
         const { body, statusCode } = await supertest(app)
           .delete('/api/v2/sessions')
@@ -299,6 +302,7 @@ describe('session', () => {
 
         expect(statusCode).toBe(200);
         expect(body).toEqual({
+          session: { ...sessionDocument.toJSON({ flattenObjectIds: true }), valid: false },
           accessToken: null,
           refreshToken: null
         });

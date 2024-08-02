@@ -1,4 +1,4 @@
-import { FilterQuery, UpdateQuery } from "mongoose";
+import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
 import { get } from 'lodash';
 import config from "config";
 import SessionModel, { Session, SessionInput } from "../models/session.model";
@@ -15,11 +15,12 @@ export async function findSessions(query: FilterQuery<Session>) {
   return SessionModel.find(query).lean();
 }
 
-export async function updateSession(
+export async function findAndUpdateSession(
   query: FilterQuery<Session>, 
-  update: UpdateQuery<Session>
+  update: UpdateQuery<Session>,
+  options: QueryOptions
 ) {
-  return SessionModel.updateOne(query, update);
+  return SessionModel.findOneAndUpdate(query, update, options);
 }
 
 export async function reIssueAccessToken({
