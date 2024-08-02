@@ -19,7 +19,6 @@ export interface Post extends PostCreate {
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
-  isLiked?: boolean;
   numLikes?: number;
   numComments?: number;
 };
@@ -56,10 +55,6 @@ postSchema.virtual("numLikes").get(function () {
 
 postSchema.virtual("numComments").get(function () {
   return this.comments?.length ?? 0;
-});
-
-postSchema.virtual("isLiked").get(function () {
-  return false;
 });
 
 postSchema.plugin(mongooseLeanVirtuals);

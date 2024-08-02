@@ -44,8 +44,6 @@ export async function getPostHandler(
   req: Request<ReadPostInput["params"]>, 
   res: Response
 ) {
-  const user: FindUserResult = res.locals.user;
-  const userId = user._id;
   const postId = req.params.postId;
 
   const post = await findPost({ _id: postId });
@@ -53,8 +51,6 @@ export async function getPostHandler(
   if (!post) {
     return res.sendStatus(404);
   }
-
-  post.isLiked = post.likes.includes(userId);
 
   return res.json(post);
 }

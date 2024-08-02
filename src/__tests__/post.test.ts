@@ -174,28 +174,6 @@ describe('post', () => {
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
       });
-
-      it('should return isLiked as true if user liked the post', async () => { 
-        const findUserServiceMock = jest
-          .spyOn(UserService, 'findUser')
-          .mockResolvedValueOnce(userDocument);
-
-        const findPostServiceMock = jest
-          .spyOn(PostService, 'findPost')
-          .mockResolvedValueOnce({
-            ...postDocument.toJSON(),
-            likes: [ userObjectId ],
-          });
-
-        const { body, statusCode } = await supertest(app)
-          .get(`/api/v2/posts/${postId}`)
-          .set('Authorization', `Bearer ${jwt}`);
-        
-        expect(statusCode).toBe(200);
-        expect(body.isLiked).toBe(true);
-        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
-        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
-      });
     });
   });
   
