@@ -225,25 +225,25 @@ function routes(app: Express) {
   );
 
   app.get(
-    '/api/v2/posts/:postId/comments/:commentId',
+    '/api/v2/comments/:commentId',
     [requireUser, validateResource(getCommentSchema)], 
     getCommentHandler
   );
 
   app.put(
-    '/api/v2/posts/:postId/comments/:commentId',
+    '/api/v2/comments/:commentId',
     [requireUser, validateResource(updateCommentSchema)],
     updateCommentHandler
   );
 
   app.delete(
-    '/api/v2/posts/:postId/comments/:commentId',
+    '/api/v2/comments/:commentId',
     [requireUser, validateResource(deleteCommentSchema)], 
     deleteCommentHandler
   );
 
   app.post(
-    '/api/v2/posts/:postId/comments/:commentId/like',
+    '/api/v2/comments/:commentId/like',
     [requireUser, validateResource(likeCommentSchema)], 
     likeCommentHandler
   );
