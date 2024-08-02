@@ -48,10 +48,6 @@ export async function getUserHandler(
   const requestingUserId = requestingUser.id;
   const userId = req.params.userId;
 
-  const projection = {
-    password: -1,
-  };
-
   const user = await findUser({ _id: userId });
 
   if (!user) {
