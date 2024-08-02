@@ -25,7 +25,10 @@ export interface Comment extends CommentCreate {
 };
 
 const opts = { 
-  toJSON: { virtuals: true } 
+  toJSON: { 
+    virtuals: true,
+    flattenObjectIds: true 
+  } 
 };
 
 const commentSchema = new Schema<Comment>({
