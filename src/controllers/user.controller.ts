@@ -110,7 +110,7 @@ export async function getUserListHandler(
 
   const users = await findManyUsers(query, projection, options);
 
-  return res.json(users);
+  return res.json({ data: users });
 }
 
 export async function updateUserHandler(
