@@ -1,6 +1,7 @@
 import supertest from 'supertest';
 import config from 'config';
 import mongoose from 'mongoose';
+import { omit } from 'lodash';
 import createServer from '../utils/server';
 import { signJwt } from '../utils/jwt.utils';
 import UserModel from '../models/user.model';
@@ -83,11 +84,11 @@ const updatedUserDocument = new UserModel({
 
 const otherUserDocument = new UserModel(otherUserPayload);
 
-const userResponse = {
+const userResponse = omit({
   ...userDocument.toJSON(),
   "_id": userId,
   "followedByMe": false,
-};
+}, "password");
 
 const jwt = signJwt(userPayload, 'accessTokenSecret');
 const adminJwt = signJwt(

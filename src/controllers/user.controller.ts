@@ -53,7 +53,7 @@ export async function getUserHandler(
     return res.sendStatus(404);
   }
 
-  const userObject = user.toJSON();
+  const userObject = omit(user.toJSON(), "password");
 
   userObject.followedByMe = userObject.followers.includes(requestingUserId);
 
