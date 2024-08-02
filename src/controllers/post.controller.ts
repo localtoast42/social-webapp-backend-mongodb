@@ -37,7 +37,7 @@ export async function createPostHandler(
     isPublicPost: !user.isGuest
   });
 
-  return res.status(201).send(post);
+  return res.status(201).json(post);
 }
 
 export async function getPostHandler(
@@ -56,7 +56,7 @@ export async function getPostHandler(
 
   post.isLiked = post.likes.includes(userId);
 
-  return res.send(post);
+  return res.json(post);
 }
 
 export async function getRecentPostsHandler(
