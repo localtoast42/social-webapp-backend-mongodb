@@ -86,7 +86,7 @@ export async function getRecentPostsHandler(
     return res.sendStatus(404);
   }
 
-  return res.json(posts);
+  return res.json({ data: posts });
 }
 
 export async function getFollowedPostsHandler(
@@ -112,7 +112,7 @@ export async function getFollowedPostsHandler(
     return res.sendStatus(404);
   }
 
-  return res.json(posts);
+  return res.json({ data: posts });
 }
 
 export async function getPostsByUserHandler(
@@ -146,7 +146,7 @@ export async function getPostsByUserHandler(
     return res.sendStatus(404);
   }
 
-  return res.json(posts);
+  return res.json({ data: posts });
 }
 
 export async function updatePostHandler(
