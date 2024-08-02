@@ -360,7 +360,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .get(`/api/v2/posts/${postId}/comments/${commentId}`);
+          .get(`/api/v2/comments/${commentId}`);
 
         expect(statusCode).toBe(401);
       });
@@ -377,7 +377,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .get(`/api/v2/posts/${postId}/comments/not_valid_id`)
+          .get(`/api/v2/comments/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
@@ -398,7 +398,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(null);
 
         const { statusCode } = await supertest(app)
-          .get(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .get(`/api/v2/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(404);
@@ -418,7 +418,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .get(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .get(`/api/v2/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
@@ -441,7 +441,7 @@ describe('comment', () => {
           });
 
         const { body, statusCode } = await supertest(app)
-          .get(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .get(`/api/v2/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
@@ -456,7 +456,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/comments/${commentId}`)
           .send(updateCommentInput);
 
         expect(statusCode).toBe(401);
@@ -481,7 +481,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .put(`/api/v2/posts/${postId}/comments/not_valid_id`)
+          .put(`/api/v2/comments/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updateCommentInput);
         
@@ -511,7 +511,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ text: "" });
         
@@ -541,7 +541,7 @@ describe('comment', () => {
           });
 
         const { statusCode } = await supertest(app)
-          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updateCommentInput);
         
@@ -570,7 +570,7 @@ describe('comment', () => {
           });
 
         const { statusCode } = await supertest(app)
-          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updateCommentInput);
         
@@ -603,7 +603,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updateCommentInput);
 
@@ -627,7 +627,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .delete(`/api/v2/posts/${postId}/comments/${commentId}`);
+          .delete(`/api/v2/comments/${commentId}`);
 
         expect(statusCode).toBe(401);
       });
@@ -638,14 +638,14 @@ describe('comment', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           .mockResolvedValueOnce(userDocument);
-
-        const findPostServiceMock = jest
-          .spyOn(PostService, 'findPost')
-          .mockResolvedValueOnce(postDocument.toJSON());
         
         const findCommentServiceMock = jest
           .spyOn(CommentService, 'findComment')
           .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockResolvedValueOnce(postDocument.toJSON());
 
         const updatePostServiceMock = jest
           .spyOn(PostService, 'findAndUpdatePost')
@@ -659,14 +659,14 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .delete(`/api/v2/posts/${postId}/comments/not_valid_id`)
+          .delete(`/api/v2/comments/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
         expect(body[0].message).toEqual("Invalid commentId");
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
-        expect(findPostServiceMock).not.toHaveBeenCalled();
         expect(findCommentServiceMock).not.toHaveBeenCalled();
+        expect(findPostServiceMock).not.toHaveBeenCalled();
         expect(updatePostServiceMock).not.toHaveBeenCalled();
         expect(deleteCommentServiceMock).not.toHaveBeenCalled();
       });
@@ -677,52 +677,14 @@ describe('comment', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           .mockResolvedValueOnce(userDocument);
-
-        const findPostServiceMock = jest
-          .spyOn(PostService, 'findPost')
-          .mockResolvedValueOnce(postDocument.toJSON());
         
         const findCommentServiceMock = jest
           .spyOn(CommentService, 'findComment')
           .mockResolvedValueOnce(null);
 
-        const updatePostServiceMock = jest
-          .spyOn(PostService, 'findAndUpdatePost')
-          .mockResolvedValueOnce(postDocument);
-
-        const deleteCommentServiceMock = jest
-          .spyOn(CommentService, 'deleteComment')
-          .mockResolvedValueOnce({ 
-            acknowledged: true,
-            deletedCount: 1,
-          });
-
-        const { statusCode, body } = await supertest(app)
-          .delete(`/api/v2/posts/${postId}/comments/${commentId}`)
-          .set('Authorization', `Bearer ${jwt}`);
-        
-        expect(statusCode).toBe(404);
-        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
-        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
-        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
-        expect(updatePostServiceMock).not.toHaveBeenCalled();
-        expect(deleteCommentServiceMock).not.toHaveBeenCalled();
-      });
-    });
-
-    describe('given the user is not the comment author', () => {
-      it('should return a 403', async () => {
-        const findUserServiceMock = jest
-          .spyOn(UserService, 'findUser')
-          .mockResolvedValueOnce(otherUserDocument);
-
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
           .mockResolvedValueOnce(postDocument.toJSON());
-        
-        const findCommentServiceMock = jest
-          .spyOn(CommentService, 'findComment')
-          .mockResolvedValueOnce(commentDocument.toJSON());
 
         const updatePostServiceMock = jest
           .spyOn(PostService, 'findAndUpdatePost')
@@ -736,13 +698,51 @@ describe('comment', () => {
           });
 
         const { statusCode } = await supertest(app)
-          .delete(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .delete(`/api/v2/comments/${commentId}`)
+          .set('Authorization', `Bearer ${jwt}`);
+        
+        expect(statusCode).toBe(404);
+        expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
+        expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(findPostServiceMock).not.toHaveBeenCalled();
+        expect(updatePostServiceMock).not.toHaveBeenCalled();
+        expect(deleteCommentServiceMock).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('given the user is not the comment author', () => {
+      it('should return a 403', async () => {
+        const findUserServiceMock = jest
+          .spyOn(UserService, 'findUser')
+          .mockResolvedValueOnce(otherUserDocument);
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce(commentDocument.toJSON());
+
+        const findPostServiceMock = jest
+          .spyOn(PostService, 'findPost')
+          .mockResolvedValueOnce(postDocument.toJSON());
+
+        const updatePostServiceMock = jest
+          .spyOn(PostService, 'findAndUpdatePost')
+          .mockResolvedValueOnce(postDocument);
+
+        const deleteCommentServiceMock = jest
+          .spyOn(CommentService, 'deleteComment')
+          .mockResolvedValueOnce({ 
+            acknowledged: true,
+            deletedCount: 1,
+          });
+
+        const { statusCode } = await supertest(app)
+          .delete(`/api/v2/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(403);
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
-        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
         expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(findPostServiceMock).not.toHaveBeenCalled();
         expect(updatePostServiceMock).not.toHaveBeenCalled();
         expect(deleteCommentServiceMock).not.toHaveBeenCalled();
       });
@@ -753,6 +753,13 @@ describe('comment', () => {
         const findUserServiceMock = jest
           .spyOn(UserService, 'findUser')
           .mockResolvedValueOnce(userDocument);
+        
+        const findCommentServiceMock = jest
+          .spyOn(CommentService, 'findComment')
+          .mockResolvedValueOnce({
+            ...commentDocument.toJSON(),
+            author: userDocument.toJSON(),
+          });
 
         const findPostServiceMock = jest
           .spyOn(PostService, 'findPost')
@@ -760,13 +767,6 @@ describe('comment', () => {
             ...postDocument.toJSON(),
             comments: [ commentObjectId ],
             numComments: 1,
-          });
-        
-        const findCommentServiceMock = jest
-          .spyOn(CommentService, 'findComment')
-          .mockResolvedValueOnce({
-            ...commentDocument.toJSON(),
-            author: userDocument.toJSON(),
           });
 
         const updatePostServiceMock = jest
@@ -781,18 +781,17 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .delete(`/api/v2/posts/${postId}/comments/${commentId}`)
+          .delete(`/api/v2/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
         expect(body).toEqual({ 
           acknowledged: true,
-          deletedCount: 1,
-          numComments: 0,
+          deletedCount: 1
         });
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
-        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
         expect(findCommentServiceMock).toHaveBeenCalledWith({ _id: commentId });
+        expect(findPostServiceMock).toHaveBeenCalledWith({ _id: postId });
         expect(updatePostServiceMock).toHaveBeenCalledWith(
           { _id: postId }, 
           { comments: [] }, 
@@ -807,7 +806,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`);
+          .post(`/api/v2/comments/${commentId}/like`);
 
         expect(statusCode).toBe(401);
       });
@@ -828,7 +827,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v2/posts/${postId}/comments/not_valid_id/like`)
+          .post(`/api/v2/comments/not_valid_id/like`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
@@ -854,7 +853,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "yes" });
         
@@ -881,7 +880,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode } = await supertest(app)
-          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -910,7 +909,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -950,7 +949,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -984,7 +983,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "false" });
         
@@ -1018,7 +1017,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "false" });
         

@@ -138,15 +138,11 @@ export async function deleteCommentHandler(
   res: Response
 ) {
   const user: FindUserResult = res.locals.user;
-  const postId = req.params.postId;
   const commentId = req.params.commentId;
 
-  const [post, comment] = await Promise.all([
-    findPost({ _id: postId }),
-    findComment({ _id: commentId }),
-  ])
+  const comment = await findComment({ _id: commentId });
 
-  if (!post || !comment) {
+  if (!comment) {
     return res.sendStatus(404);
   }
 
@@ -154,20 +150,21 @@ export async function deleteCommentHandler(
     return res.sendStatus(403);
   }
 
-  post.comments = post.comments.filter((commentid) => commentid != comment.id);
+  const post = await findPost({ _id: comment.post });
 
-  const update = {
-    comments: post.comments,
+  if (post) {
+    post.comments = post.comments.filter((commentid) => commentid != comment.id);
+
+    const update = {
+      comments: post.comments,
+    }
+
+    await findAndUpdatePost({ _id: post.id }, update, { new: true });
   }
-
-  const postResult = await findAndUpdatePost({ _id: postId }, update, { new: true });
 
   const commentResult = await deleteComment({ _id: commentId });
 
-  return res.json({
-    ...commentResult,
-    numComments: postResult?.numComments,
-  });
+  return res.json(commentResult);
 }
 
 export async function likeCommentHandler(
