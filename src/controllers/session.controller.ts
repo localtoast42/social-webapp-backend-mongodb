@@ -32,7 +32,7 @@ export async function createUserSessionHandler(
     { expiresIn: config.get<string>("refreshTokenTtl") },
   );
 
-  return res.send({ accessToken, refreshToken });
+  return res.json({ accessToken, refreshToken });
 }
 
 export async function getUserSessionsHandler(req: Request, res: Response) {
@@ -41,7 +41,9 @@ export async function getUserSessionsHandler(req: Request, res: Response) {
 
   const sessions = await findSessions({ user: userId, valid: true });
 
-  return res.send(sessions);
+  return res.json({
+    data: sessions
+  });
 }
 
 export async function deleteUserSessionHandler(req: Request, res: Response) {
@@ -49,7 +51,7 @@ export async function deleteUserSessionHandler(req: Request, res: Response) {
 
   await updateSession({ _id: sessionId }, { valid: false });
 
-  return res.send({
+  return res.json({
     accessToken: null,
     refreshToken: null
   });
