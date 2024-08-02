@@ -36,7 +36,7 @@ export async function createUserHandler(
     return res.send(user);
   } catch (e: any) {
     logger.error(e);
-    return res.status(409).send(e.message);
+    return res.status(409).json(e.message);
   }
 }
 
@@ -58,7 +58,7 @@ export async function getUserHandler(
 
   userObject.followedByMe = userObject.followers.includes(requestingUserId);
 
-  return res.send(userObject);
+  return res.json(userObject);
 }
 
 export async function getSelfHandler(
@@ -67,7 +67,7 @@ export async function getSelfHandler(
 ) {
   const user: FindUserResult = res.locals.user;
 
-  return res.send(omit(user.toJSON(), "password"));
+  return res.json(omit(user.toJSON(), "password"));
 }
 
 export async function getUserListHandler(
@@ -137,7 +137,7 @@ export async function updateUserHandler(
     new: true, 
   });
 
-  return res.send(updatedUser);
+  return res.json(updatedUser);
 }
 
 export async function deleteUserHandler(
@@ -179,7 +179,7 @@ export async function getUserFollowsHandler(
     return res.sendStatus(404);
   }
 
-  return res.send(userFollows);
+  return res.json(userFollows);
 }
 
 export async function followUserHandler(
