@@ -127,7 +127,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments`)
+          .post(`/api/v2/posts/${postId}/comments`)
           .send(commentInput);
 
         expect(statusCode).toBe(401);
@@ -153,7 +153,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(postDocument);
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/not_valid_id/comments`)
+          .post(`/api/v2/posts/not_valid_id/comments`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(commentInput);
         
@@ -185,7 +185,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(postDocument);
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments`)
+          .post(`/api/v2/posts/${postId}/comments`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ text: "" });
         
@@ -217,7 +217,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(postDocument);
 
         const { statusCode } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments`)
+          .post(`/api/v2/posts/${postId}/comments`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(commentInput);
         
@@ -248,7 +248,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(postDocument);
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments`)
+          .post(`/api/v2/posts/${postId}/comments`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(commentInput);
 
@@ -272,7 +272,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .get(`/api/v1/posts/${postId}/comments`);
+          .get(`/api/v2/posts/${postId}/comments`);
 
         expect(statusCode).toBe(401);
       });
@@ -293,7 +293,7 @@ describe('comment', () => {
           .mockResolvedValueOnce([commentDocument.toJSON()]);
 
         const { statusCode, body } = await supertest(app)
-          .get(`/api/v1/posts/not_valid_id/comments`)
+          .get(`/api/v2/posts/not_valid_id/comments`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
@@ -319,7 +319,7 @@ describe('comment', () => {
           .mockResolvedValueOnce([commentDocument.toJSON()]);
 
         const { statusCode } = await supertest(app)
-          .get(`/api/v1/posts/${postId}/comments`)
+          .get(`/api/v2/posts/${postId}/comments`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(404);
@@ -344,7 +344,7 @@ describe('comment', () => {
           .mockResolvedValueOnce([commentDocument.toJSON()]);
 
         const { statusCode, body } = await supertest(app)
-          .get(`/api/v1/posts/${postId}/comments`)
+          .get(`/api/v2/posts/${postId}/comments`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
@@ -360,7 +360,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .get(`/api/v1/posts/${postId}/comments/${commentId}`);
+          .get(`/api/v2/posts/${postId}/comments/${commentId}`);
 
         expect(statusCode).toBe(401);
       });
@@ -377,7 +377,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .get(`/api/v1/posts/${postId}/comments/not_valid_id`)
+          .get(`/api/v2/posts/${postId}/comments/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
@@ -398,7 +398,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(null);
 
         const { statusCode } = await supertest(app)
-          .get(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .get(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(404);
@@ -418,7 +418,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .get(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .get(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
@@ -441,7 +441,7 @@ describe('comment', () => {
           });
 
         const { body, statusCode } = await supertest(app)
-          .get(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .get(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
@@ -456,7 +456,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .put(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
           .send(updateCommentInput);
 
         expect(statusCode).toBe(401);
@@ -481,7 +481,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .put(`/api/v1/posts/${postId}/comments/not_valid_id`)
+          .put(`/api/v2/posts/${postId}/comments/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updateCommentInput);
         
@@ -511,7 +511,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .put(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ text: "" });
         
@@ -541,7 +541,7 @@ describe('comment', () => {
           });
 
         const { statusCode } = await supertest(app)
-          .put(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updateCommentInput);
         
@@ -570,7 +570,7 @@ describe('comment', () => {
           });
 
         const { statusCode } = await supertest(app)
-          .put(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updateCommentInput);
         
@@ -603,7 +603,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .put(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .put(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updateCommentInput);
 
@@ -627,7 +627,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .delete(`/api/v1/posts/${postId}/comments/${commentId}`);
+          .delete(`/api/v2/posts/${postId}/comments/${commentId}`);
 
         expect(statusCode).toBe(401);
       });
@@ -659,7 +659,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .delete(`/api/v1/posts/${postId}/comments/not_valid_id`)
+          .delete(`/api/v2/posts/${postId}/comments/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
@@ -698,7 +698,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .delete(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .delete(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(404);
@@ -736,7 +736,7 @@ describe('comment', () => {
           });
 
         const { statusCode } = await supertest(app)
-          .delete(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .delete(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(403);
@@ -781,7 +781,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .delete(`/api/v1/posts/${postId}/comments/${commentId}`)
+          .delete(`/api/v2/posts/${postId}/comments/${commentId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
@@ -807,7 +807,7 @@ describe('comment', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`);
+          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`);
 
         expect(statusCode).toBe(401);
       });
@@ -828,7 +828,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments/not_valid_id/like`)
+          .post(`/api/v2/posts/${postId}/comments/not_valid_id/like`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
@@ -854,7 +854,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "yes" });
         
@@ -881,7 +881,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -910,7 +910,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -950,7 +950,7 @@ describe('comment', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -984,7 +984,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "false" });
         
@@ -1018,7 +1018,7 @@ describe('comment', () => {
           .mockResolvedValueOnce(commentDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/comments/${commentId}/like`)
+          .post(`/api/v2/posts/${postId}/comments/${commentId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "false" });
         

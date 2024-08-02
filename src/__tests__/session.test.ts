@@ -166,7 +166,7 @@ describe('session', () => {
           .mockResolvedValueOnce(sessionDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post('/api/v1/sessions')
+          .post('/api/v2/sessions')
           .send({});
           
         expect(statusCode).toBe(400);
@@ -189,7 +189,7 @@ describe('session', () => {
           .mockResolvedValueOnce(sessionDocument.toJSON());
 
         const { statusCode } = await supertest(app)
-          .post('/api/v1/sessions')
+          .post('/api/v2/sessions')
           .send({
             username: "",
             password: "",
@@ -241,7 +241,7 @@ describe('session', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .get('/api/v1/sessions');
+          .get('/api/v2/sessions');
           
         expect(statusCode).toBe(401);
       });
@@ -258,7 +258,7 @@ describe('session', () => {
           .mockResolvedValueOnce([sessionDocument.toJSON()]);
 
         const { body, statusCode } = await supertest(app)
-          .get('/api/v1/sessions')
+          .get('/api/v2/sessions')
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
@@ -276,7 +276,7 @@ describe('session', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .delete('/api/v1/sessions');
+          .delete('/api/v2/sessions');
           
         expect(statusCode).toBe(401);
       });
@@ -294,7 +294,7 @@ describe('session', () => {
           .mockResolvedValueOnce({});
 
         const { body, statusCode } = await supertest(app)
-          .delete('/api/v1/sessions')
+          .delete('/api/v2/sessions')
           .set('Authorization', `Bearer ${jwt}`);
 
         expect(statusCode).toBe(200);

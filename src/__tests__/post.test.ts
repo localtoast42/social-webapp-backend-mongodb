@@ -108,7 +108,7 @@ describe('post', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .get(`/api/v1/posts/${postId}`);
+          .get(`/api/v2/posts/${postId}`);
           
         expect(statusCode).toBe(401);
       });
@@ -125,7 +125,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .get(`/api/v1/posts/not_valid_id`)
+          .get(`/api/v2/posts/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
@@ -146,7 +146,7 @@ describe('post', () => {
           .mockResolvedValueOnce(null);
 
         const { statusCode } = await supertest(app)
-          .get(`/api/v1/posts/${postId}`)
+          .get(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(404);
@@ -166,7 +166,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { body, statusCode } = await supertest(app)
-          .get(`/api/v1/posts/${postId}`)
+          .get(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
@@ -188,7 +188,7 @@ describe('post', () => {
           });
 
         const { body, statusCode } = await supertest(app)
-          .get(`/api/v1/posts/${postId}`)
+          .get(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
@@ -203,7 +203,7 @@ describe('post', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .post('/api/v1/posts')
+          .post('/api/v2/posts')
           .send(postInput);
 
         expect(statusCode).toBe(401);
@@ -221,7 +221,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post('/api/v1/posts')
+          .post('/api/v2/posts')
           .set('Authorization', `Bearer ${jwt}`)
           .send({ text: "" });
         
@@ -243,7 +243,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post('/api/v1/posts')
+          .post('/api/v2/posts')
           .set('Authorization', `Bearer ${jwt}`)
           .send(postInput);
 
@@ -264,7 +264,7 @@ describe('post', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .put(`/api/v1/posts/${postId}`)
+          .put(`/api/v2/posts/${postId}`)
           .send(updatePostInput);
           
         expect(statusCode).toBe(401);
@@ -283,7 +283,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postPayload);
 
         const { statusCode, body } = await supertest(app)
-          .put(`/api/v1/posts/not_valid_id`)
+          .put(`/api/v2/posts/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updatePostInput);
         
@@ -305,7 +305,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .put(`/api/v1/posts/${postId}`)
+          .put(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ text: "" });
         
@@ -327,7 +327,7 @@ describe('post', () => {
           .mockResolvedValueOnce(null);
 
         const { statusCode } = await supertest(app)
-          .put(`/api/v1/posts/${postId}`)
+          .put(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updatePostInput);
         
@@ -349,7 +349,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postPayload);
 
         const { statusCode } = await supertest(app)
-          .put(`/api/v1/posts/${postId}`)
+          .put(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updatePostInput);
         
@@ -378,7 +378,7 @@ describe('post', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .put(`/api/v1/posts/${postId}`)
+          .put(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`)
           .send(updatePostInput);
 
@@ -402,7 +402,7 @@ describe('post', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/like`)
+          .post(`/api/v2/posts/${postId}/like`)
           .send({ like: "true" });
           
         expect(statusCode).toBe(401);
@@ -425,7 +425,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/not_valid_id/like`)
+          .post(`/api/v2/posts/not_valid_id/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -453,7 +453,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/like`)
+          .post(`/api/v2/posts/${postId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "yes" });
         
@@ -480,7 +480,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/like`)
+          .post(`/api/v2/posts/${postId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -510,7 +510,7 @@ describe('post', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/like`)
+          .post(`/api/v2/posts/${postId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -551,7 +551,7 @@ describe('post', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/like`)
+          .post(`/api/v2/posts/${postId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "true" });
         
@@ -586,7 +586,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/like`)
+          .post(`/api/v2/posts/${postId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "false" });
         
@@ -621,7 +621,7 @@ describe('post', () => {
           .mockResolvedValueOnce(postDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post(`/api/v1/posts/${postId}/like`)
+          .post(`/api/v2/posts/${postId}/like`)
           .set('Authorization', `Bearer ${jwt}`)
           .send({ like: "false" });
         
@@ -642,7 +642,7 @@ describe('post', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .delete(`/api/v1/posts/${postId}`);
+          .delete(`/api/v2/posts/${postId}`);
           
         expect(statusCode).toBe(401);
       });
@@ -674,7 +674,7 @@ describe('post', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .delete(`/api/v1/posts/not_valid_id`)
+          .delete(`/api/v2/posts/not_valid_id`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(400);
@@ -711,7 +711,7 @@ describe('post', () => {
           });
 
         const { statusCode } = await supertest(app)
-          .delete(`/api/v1/posts/${postId}`)
+          .delete(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(404);
@@ -748,7 +748,7 @@ describe('post', () => {
           });
 
         const { statusCode } = await supertest(app)
-          .delete(`/api/v1/posts/${postId}`)
+          .delete(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(403);
@@ -785,7 +785,7 @@ describe('post', () => {
           });
 
         const { statusCode, body } = await supertest(app)
-          .delete(`/api/v1/posts/${postId}`)
+          .delete(`/api/v2/posts/${postId}`)
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
