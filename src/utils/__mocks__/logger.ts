@@ -6,4 +6,4 @@ const mockLogger = {
   info: mockInfo,
 };
 
-export default mockLogger
+export default mockLogger;
