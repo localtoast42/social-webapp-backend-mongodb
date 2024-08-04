@@ -1,33 +1,30 @@
-import { isValidObjectId } from 'mongoose';
-import { object, string, enum as enum_, TypeOf } from 'zod';
+import { isValidObjectId } from "mongoose";
+import { object, string, enum as enum_, TypeOf } from "zod";
 
 const payload = {
   body: object({
     text: string({
-      required_error: 'Text is required',
-    }).min(1, { message: 'Post must not be empty' }),
+      required_error: "Text is required",
+    }).min(1, { message: "Post must not be empty" }),
   }),
 };
 
 const like = object({
-  like: enum_(
-    ["true", "false"], 
-    { message: "Like must be true or false" }
-  )
+  like: enum_(["true", "false"], { message: "Like must be true or false" }),
 });
 
 const params = object({
   postId: string({
-    required_error: 'postId is required',
+    required_error: "postId is required",
   }).refine((data) => isValidObjectId(data), {
     message: "Invalid postId",
   }),
   userId: string({
-    required_error: 'userId is required',
+    required_error: "userId is required",
   }).refine((data) => isValidObjectId(data), {
     message: "Invalid userId",
   }),
-})
+});
 
 export const createPostSchema = object({
   ...payload,
@@ -55,9 +52,9 @@ export const deletePostSchema = object({
   params: params.pick({ postId: true }),
 });
 
-export type CreatePostInput = TypeOf<typeof createPostSchema>
-export type ReadPostInput = TypeOf<typeof getPostSchema>
-export type ReadPostByUserInput = TypeOf<typeof getPostByUserSchema>
-export type UpdatePostInput = TypeOf<typeof updatePostSchema>
-export type LikePostInput = TypeOf<typeof likePostSchema>
-export type DeletePostInput = TypeOf<typeof deletePostSchema>
+export type CreatePostInput = TypeOf<typeof createPostSchema>;
+export type ReadPostInput = TypeOf<typeof getPostSchema>;
+export type ReadPostByUserInput = TypeOf<typeof getPostByUserSchema>;
+export type UpdatePostInput = TypeOf<typeof updatePostSchema>;
+export type LikePostInput = TypeOf<typeof likePostSchema>;
+export type DeletePostInput = TypeOf<typeof deletePostSchema>;

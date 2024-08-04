@@ -1,40 +1,37 @@
-import { Request, Response } from 'express';
-import config from 'config';
-import { 
-  FilterQuery, 
-  ProjectionType, 
-  QueryOptions, 
-  UpdateQuery
-} from 'mongoose';
-import { omit } from 'lodash';
-import logger from '../utils/logger';
-import { 
-  createUser, 
-  findUser, 
-  findManyUsers, 
-  findAndUpdateUser, 
+import { Request, Response } from "express";
+import config from "config";
+import {
+  FilterQuery,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
+} from "mongoose";
+import { omit } from "lodash";
+import logger from "../utils/logger";
+import {
+  createUser,
+  findUser,
+  findManyUsers,
+  findAndUpdateUser,
   deleteUser,
-  FindUserResult
-} from '../services/user.service';
-import { 
-  CreateUserInput, 
-  DeleteUserInput, 
-  FollowUserInput, 
-  PopulateUsersInput, 
-  ReadUserInput, 
-  UpdateUserInput 
-} from '../schemas/user.schema';
-import { 
-  createRandomPost, 
-  createRandomUser 
-} from '../utils/populateDatabase';
-import { User } from '../models/user.model';
+  FindUserResult,
+} from "../services/user.service";
+import {
+  CreateUserInput,
+  DeleteUserInput,
+  FollowUserInput,
+  PopulateUsersInput,
+  ReadUserInput,
+  UpdateUserInput,
+} from "../schemas/user.schema";
+import { createRandomPost, createRandomUser } from "../utils/populateDatabase";
+import { User } from "../models/user.model";
 
 export async function createUserHandler(
-  req: Request<{}, {}, CreateUserInput["body"]>, 
+  req: Request<{}, {}, CreateUserInput["body"]>,
   res: Response
 ) {
-  req.body.isGuest = !config.get<boolean>('allowNewPublicUsers');
+  req.body.isGuest = !config.get<boolean>("allowNewPublicUsers");
 
   try {
     const user = await createUser(req.body);
@@ -47,7 +44,7 @@ export async function createUserHandler(
 }
 
 export async function getUserHandler(
-  req: Request<ReadUserInput["params"]>, 
+  req: Request<ReadUserInput["params"]>,
   res: Response
 ) {
   const requestingUser: FindUserResult = res.locals.user;
@@ -67,36 +64,30 @@ export async function getUserHandler(
   return res.json(userObject);
 }
 
-export async function getSelfHandler(
-  req: Request, 
-  res: Response
-) {
+export async function getSelfHandler(req: Request, res: Response) {
   const user: FindUserResult = res.locals.user;
 
   return res.json(omit(user.toJSON(), "password"));
 }
 
-export async function getUserListHandler(
-  req: Request, 
-  res: Response
-) {
+export async function getUserListHandler(req: Request, res: Response) {
   const user: FindUserResult = res.locals.user;
   const userId = user._id;
 
   const queryTerms: object[] = [];
-  queryTerms.push({ _id: { $exists: true} });
+  queryTerms.push({ _id: { $exists: true } });
 
   if (req.query.q) {
     const queryString = req.query.q as string;
-    let regex = new RegExp(queryString,'i');
-    queryTerms.push({ $or: [{ firstName: regex }, { lastName: regex }]});
-  } 
+    let regex = new RegExp(queryString, "i");
+    queryTerms.push({ $or: [{ firstName: regex }, { lastName: regex }] });
+  }
 
-  const query: FilterQuery<User> = { 
-    _id: { $ne: userId }, 
+  const query: FilterQuery<User> = {
+    _id: { $ne: userId },
     isGuest: false,
     $and: queryTerms,
-  }
+  };
 
   const projection: ProjectionType<User> = {
     username: 1,
@@ -108,11 +99,11 @@ export async function getUserListHandler(
     imageUrl: 1,
     fullName: 1,
     url: 1,
-  }
+  };
 
   const options: QueryOptions = {
-    sort: { "lastName": 1 },
-  }
+    sort: { lastName: 1 },
+  };
 
   const users = await findManyUsers(query, projection, options);
 
@@ -120,7 +111,7 @@ export async function getUserListHandler(
 }
 
 export async function updateUserHandler(
-  req: Request<UpdateUserInput["params"], {}, UpdateUserInput["body"]>, 
+  req: Request<UpdateUserInput["params"], {}, UpdateUserInput["body"]>,
   res: Response
 ) {
   const requestingUser: FindUserResult = res.locals.user;
@@ -139,15 +130,15 @@ export async function updateUserHandler(
 
   const update: UpdateQuery<User> = req.body;
 
-  const updatedUser = await findAndUpdateUser({ _id: userId }, update, { 
-    new: true, 
+  const updatedUser = await findAndUpdateUser({ _id: userId }, update, {
+    new: true,
   });
 
   return res.json(omit(updatedUser?.toJSON(), "password"));
 }
 
 export async function deleteUserHandler(
-  req: Request<DeleteUserInput["params"]>, 
+  req: Request<DeleteUserInput["params"]>,
   res: Response
 ) {
   const requestingUser: FindUserResult = res.locals.user;
@@ -169,17 +160,17 @@ export async function deleteUserHandler(
   return res.json({
     ...result,
     accessToken: null,
-    refreshToken: null
+    refreshToken: null,
   });
 }
 
 export async function getUserFollowsHandler(
-  req: Request<ReadUserInput["params"]>, 
+  req: Request<ReadUserInput["params"]>,
   res: Response
 ) {
   const userId = req.params.userId;
 
-  const userFollows = await findUser({ _id: userId }, "following" );
+  const userFollows = await findUser({ _id: userId }, "following");
 
   if (userFollows === null) {
     return res.sendStatus(404);
@@ -189,7 +180,7 @@ export async function getUserFollowsHandler(
 }
 
 export async function followUserHandler(
-  req: Request<FollowUserInput["params"], {}, FollowUserInput["body"]>, 
+  req: Request<FollowUserInput["params"], {}, FollowUserInput["body"]>,
   res: Response
 ) {
   const follow = JSON.parse(req.body.follow);
@@ -216,30 +207,24 @@ export async function followUserHandler(
 
   const requestingUserUpdates: UpdateQuery<User> = {
     following: requestingUser.following,
-  }
+  };
 
   const targetUserUpdates: UpdateQuery<User> = {
     followers: targetUser.followers,
-  }
+  };
 
   await Promise.all([
-    findAndUpdateUser(
-      { _id: requestingUser.id }, 
-      requestingUserUpdates, 
-      { new: true }
-    ),
-    findAndUpdateUser(
-      { _id: targetUserId }, 
-      targetUserUpdates, 
-      { new: true }
-    )
-  ])
+    findAndUpdateUser({ _id: requestingUser.id }, requestingUserUpdates, {
+      new: true,
+    }),
+    findAndUpdateUser({ _id: targetUserId }, targetUserUpdates, { new: true }),
+  ]);
 
   return res.sendStatus(200);
 }
 
 export async function populateUsers(
-  req: Request<{}, {}, PopulateUsersInput["body"]>, 
+  req: Request<{}, {}, PopulateUsersInput["body"]>,
   res: Response
 ) {
   const userCount = req.body.userCount;

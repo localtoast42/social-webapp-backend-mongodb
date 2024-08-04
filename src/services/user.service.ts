@@ -1,12 +1,12 @@
-import { 
-  Document, 
-  FilterQuery, 
-  ProjectionType, 
-  QueryOptions, 
-  Types, 
-  UpdateQuery 
+import {
+  Document,
+  FilterQuery,
+  ProjectionType,
+  QueryOptions,
+  Types,
+  UpdateQuery,
 } from "mongoose";
-import { omit } from 'lodash';
+import { omit } from "lodash";
 import UserModel, { User, UserCreate } from "../models/user.model";
 import logger from "../utils/logger";
 
@@ -21,12 +21,13 @@ export async function createUser(input: UserCreate) {
 }
 
 export async function validatePassword({
-  username, password
+  username,
+  password,
 }: {
-  username: string, 
-  password: string
+  username: string;
+  password: string;
 }) {
-  const user = await UserModel.findOne({username});
+  const user = await UserModel.findOne({ username });
 
   if (!user) {
     return false;
@@ -66,13 +67,13 @@ export async function findManyUsers(
     imageUrl: 1,
     fullName: 1,
     url: 1,
-  }
+  };
 
   return UserModel.find(query, projection, options).select(publicFields);
 }
 
 export async function findAndUpdateUser(
-  query: FilterQuery<User>, 
+  query: FilterQuery<User>,
   update: UpdateQuery<User>,
   options: QueryOptions
 ) {
@@ -89,8 +90,8 @@ export async function deleteUser(query: FilterQuery<User>) {
   return UserModel.deleteOne(query);
 }
 
-export type FindUserResult = Document<unknown, {}, User> & 
-  User & 
+export type FindUserResult = Document<unknown, {}, User> &
+  User &
   Required<{
     _id: Types.ObjectId;
-  }>
+  }>;

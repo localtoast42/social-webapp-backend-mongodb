@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { findUser } from '../services/user.service';
+import { Request, Response, NextFunction } from "express";
+import { findUser } from "../services/user.service";
 
 const requireUser = async (req: Request, res: Response, next: NextFunction) => {
   const user = res.locals.user;

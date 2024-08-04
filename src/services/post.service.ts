@@ -1,4 +1,9 @@
-import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
+import {
+  FilterQuery,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
+} from "mongoose";
 import PostModel, { Post, PostCreate } from "../models/post.model";
 import { User } from "../models/user.model";
 import logger from "../utils/logger";
@@ -14,9 +19,9 @@ export async function createPost(input: PostCreate) {
 }
 
 export async function findPost(query: FilterQuery<Post>) {
-  const result = PostModel.findOne(query).
-    populate<{ author: User }>("author", "-password").
-    lean({ virtuals: true });
+  const result = PostModel.findOne(query)
+    .populate<{ author: User }>("author", "-password")
+    .lean({ virtuals: true });
   return result;
 }
 
@@ -25,9 +30,9 @@ export async function findManyPosts(
   projection?: ProjectionType<Post>,
   options?: QueryOptions
 ) {
-  const result = PostModel.find(query, projection, options).
-    populate<{ author: User }>("author", "-password").
-    lean({ virtuals: true });
+  const result = PostModel.find(query, projection, options)
+    .populate<{ author: User }>("author", "-password")
+    .lean({ virtuals: true });
   return result;
 }
 
@@ -36,7 +41,7 @@ export async function findPostsByUser(query: FilterQuery<Post>) {
 }
 
 export async function findAndUpdatePost(
-  query: FilterQuery<Post>, 
+  query: FilterQuery<Post>,
   update: UpdateQuery<Post>,
   options: QueryOptions
 ) {

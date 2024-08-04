@@ -1,4 +1,9 @@
-import { FilterQuery, ProjectionType, QueryOptions, UpdateQuery } from "mongoose";
+import {
+  FilterQuery,
+  ProjectionType,
+  QueryOptions,
+  UpdateQuery,
+} from "mongoose";
 import CommentModel, { Comment, CommentCreate } from "../models/comment.model";
 import { User } from "../models/user.model";
 import logger from "../utils/logger";
@@ -13,9 +18,9 @@ export async function createComment(input: CommentCreate) {
 }
 
 export async function findComment(query: FilterQuery<Comment>) {
-  const result = CommentModel.findOne(query).
-    populate<{ author: User }>("author", "-password").
-    lean({ virtuals: true });
+  const result = CommentModel.findOne(query)
+    .populate<{ author: User }>("author", "-password")
+    .lean({ virtuals: true });
   return result;
 }
 
@@ -24,14 +29,14 @@ export async function findManyComments(
   projection?: ProjectionType<Comment>,
   options?: QueryOptions
 ) {
-  const result = CommentModel.find(query, projection, options).
-    populate<{ author: User }>("author", "-password").
-    lean({ virtuals: true });
+  const result = CommentModel.find(query, projection, options)
+    .populate<{ author: User }>("author", "-password")
+    .lean({ virtuals: true });
   return result;
 }
 
 export async function findAndUpdateComment(
-  query: FilterQuery<Comment>, 
+  query: FilterQuery<Comment>,
   update: UpdateQuery<Comment>,
   options: QueryOptions
 ) {

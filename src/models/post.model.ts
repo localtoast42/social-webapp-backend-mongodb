@@ -1,14 +1,14 @@
-import { Schema, Types, model } from 'mongoose';
-import mongooseLeanVirtuals from 'mongoose-lean-virtuals';
-import { DateTime } from 'luxon';
-import { User } from './user.model';
+import { Schema, Types, model } from "mongoose";
+import mongooseLeanVirtuals from "mongoose-lean-virtuals";
+import { DateTime } from "luxon";
+import { User } from "./user.model";
 
 export interface PostCreate {
   author: User["_id"];
   text: string;
   postDate: Date;
   isPublicPost?: boolean;
-};
+}
 
 export interface Post extends PostCreate {
   _id: Types.ObjectId;
@@ -21,32 +21,39 @@ export interface Post extends PostCreate {
   lastEditDateFormatted: string;
   numLikes?: number;
   numComments?: number;
+}
+
+const opts = {
+  toJSON: { virtuals: true },
 };
 
-const opts = { 
-  toJSON: { virtuals: true } 
-};
-
-const postSchema = new Schema<Post>({
-  author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  text: { type: String, minLength: 1, required: true },
-  postDate: { type: Date, required: true },
-  lastEditDate: { type: Date },
-  isPublicPost: { type: Boolean, required: true, default: false },
-  likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
-  comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }]
-}, opts);
+const postSchema = new Schema<Post>(
+  {
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    text: { type: String, minLength: 1, required: true },
+    postDate: { type: Date, required: true },
+    lastEditDate: { type: Date },
+    isPublicPost: { type: Boolean, required: true, default: false },
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
+  },
+  opts
+);
 
 postSchema.virtual("url").get(function () {
   return `/posts/${this._id}`;
 });
 
 postSchema.virtual("postDateFormatted").get(function () {
-  return this.postDate ? DateTime.fromJSDate(this.postDate).toLocaleString(DateTime.DATE_MED) : '';
+  return this.postDate
+    ? DateTime.fromJSDate(this.postDate).toLocaleString(DateTime.DATE_MED)
+    : "";
 });
 
 postSchema.virtual("lastEditDateFormatted").get(function () {
-  return this.lastEditDate ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATE_MED) : '';
+  return this.lastEditDate
+    ? DateTime.fromJSDate(this.lastEditDate).toLocaleString(DateTime.DATE_MED)
+    : "";
 });
 
 postSchema.virtual("numLikes").get(function () {

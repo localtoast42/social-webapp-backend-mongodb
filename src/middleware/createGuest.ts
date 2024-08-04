@@ -1,11 +1,11 @@
-import { NextFunction, Request, Response } from 'express';
-import { faker } from '@faker-js/faker';
-import logger from '../utils/logger';
-import { UserCreate } from '../models/user.model';
-import { createUser } from '../services/user.service';
+import { NextFunction, Request, Response } from "express";
+import { faker } from "@faker-js/faker";
+import logger from "../utils/logger";
+import { UserCreate } from "../models/user.model";
+import { createUser } from "../services/user.service";
 
 export async function createGuest(
-  req: Request, 
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
@@ -17,7 +17,7 @@ export async function createGuest(
     firstName: "Guest",
     lastName: `#${guestNum}`,
     isGuest: true,
-  }
+  };
 
   try {
     const user = await createUser(userInput);

@@ -9,11 +9,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "exclude": [
-    "build",
-    "node_modules"
-  ],
-  "include": [
-    "**/*.ts"
-  ]
+  "exclude": ["build", "node_modules"],
+  "include": ["**/*.ts"]
 }

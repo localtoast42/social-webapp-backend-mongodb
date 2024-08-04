@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
-import config from 'config';
+import jwt from "jsonwebtoken";
+import config from "config";
 
 export function signJwt(
-  object: Object, 
+  object: Object,
   secretName: "accessTokenSecret" | "refreshTokenSecret",
   options?: jwt.SignOptions | undefined
 ) {
@@ -10,7 +10,7 @@ export function signJwt(
 
   return jwt.sign(object, appSecret, {
     ...(options && options),
-    algorithm: 'HS256',
+    algorithm: "HS256",
   });
 }
 
@@ -26,13 +26,13 @@ export function verifyJwt(
     return {
       valid: true,
       expired: false,
-      decoded: decoded
-    }
+      decoded: decoded,
+    };
   } catch (err: any) {
     return {
       valid: false,
-      expired: err.message === 'jwt expired',
-      decoded: null
-    }
+      expired: err.message === "jwt expired",
+      decoded: null,
+    };
   }
 }

@@ -1,14 +1,14 @@
-import { object, string, TypeOf } from 'zod';
+import { object, string, TypeOf } from "zod";
 
 export const createSessionSchema = object({
   body: object({
     username: string({
-      required_error: 'Username is required'
+      required_error: "Username is required",
     }),
     password: string({
-      required_error: 'Password is required'
+      required_error: "Password is required",
     }),
   }),
 });
 
-export type CreateSessionInput = TypeOf<typeof createSessionSchema>
+export type CreateSessionInput = TypeOf<typeof createSessionSchema>;

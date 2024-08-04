@@ -1,5 +1,5 @@
 import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
-import { get } from 'lodash';
+import { get } from "lodash";
 import config from "config";
 import SessionModel, { Session, SessionInput } from "../models/session.model";
 import { signJwt, verifyJwt } from "../utils/jwt.utils";
@@ -16,7 +16,7 @@ export async function findSessions(query: FilterQuery<Session>) {
 }
 
 export async function findAndUpdateSession(
-  query: FilterQuery<Session>, 
+  query: FilterQuery<Session>,
   update: UpdateQuery<Session>,
   options: QueryOptions
 ) {
@@ -24,17 +24,17 @@ export async function findAndUpdateSession(
 }
 
 export async function reIssueAccessToken({
-  refreshToken
+  refreshToken,
 }: {
-  refreshToken: string
+  refreshToken: string;
 }) {
   const { decoded } = verifyJwt(refreshToken, "refreshTokenSecret");
 
-  if (!decoded || !get(decoded, '_id')) return '';
+  if (!decoded || !get(decoded, "_id")) return "";
 
   const session = await SessionModel.findById(get(decoded, "session"));
 
-  if (!session || !session.valid) return '';
+  if (!session || !session.valid) return "";
 
   const projection = {
     password: -1,
@@ -42,14 +42,14 @@ export async function reIssueAccessToken({
 
   const result = await findUser({ _id: session.user.toString() }, projection);
 
-  if (!result) return '';
+  if (!result) return "";
 
   const user = result.toJSON();
 
   const accessToken = signJwt(
     { ...user, session: session._id },
     "accessTokenSecret",
-    { expiresIn: config.get<string>("accessTokenTtl") },
+    { expiresIn: config.get<string>("accessTokenTtl") }
   );
 
   return accessToken;
