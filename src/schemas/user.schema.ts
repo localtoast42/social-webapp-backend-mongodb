@@ -1,5 +1,12 @@
 import { isValidObjectId } from 'mongoose';
-import { boolean, number, object, string, TypeOf } from 'zod';
+import { 
+  boolean, 
+  number, 
+  object, 
+  string, 
+  enum as enum_, 
+  TypeOf 
+} from 'zod';
 
 const payload = {
   body: object({
@@ -15,6 +22,13 @@ const payload = {
     imageUrl: string(),
   }),
 }
+
+const follow = object({
+  follow: enum_(
+    ["true", "false"], 
+    { message: "Follow must be true or false" }
+  )
+});
 
 const params = {
   params: object({
@@ -61,10 +75,7 @@ export const getUserSchema = object({
 
 export const followUserSchema = object({
   ...params,
-});
-
-export const unfollowUserSchema = object({
-  ...params,
+  body: follow,
 });
 
 export const updateUserSchema = object({
@@ -80,17 +91,16 @@ export const populateUsersSchema = object({
   body: object({
     userCount: number({
       required_error: 'User count must be provided'
-    }),
+    }).max(25, { message: 'No more than 25 users can be created at a time' }),
     postCount: number({
       required_error: 'Post count must be provided'
-    }),
+    }).max(10, { message: 'No more than 10 posts per user can be created at a time' }),
   }),
 });
 
 export type CreateUserInput = TypeOf<typeof createUserSchema>
 export type ReadUserInput = TypeOf<typeof getUserSchema>
 export type FollowUserInput = TypeOf<typeof followUserSchema>
-export type UnfollowUserInput = TypeOf<typeof unfollowUserSchema>
 export type UpdateUserInput = TypeOf<typeof updateUserSchema>
 export type DeleteUserInput = TypeOf<typeof deleteUserSchema>
 export type PopulateUsersInput = TypeOf<typeof populateUsersSchema>

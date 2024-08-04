@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { QueryOptions, UpdateQuery } from 'mongoose';
 import { 
   CreatePostInput, 
   ReadPostInput,
@@ -16,6 +17,7 @@ import {
 } from '../services/post.service';
 import { deleteManyComments } from '../services/comment.service';
 import { FindUserResult } from '../services/user.service';
+import { Post } from '../models/post.model';
 
 export async function createPostHandler(
   req: Request<{}, {}, CreatePostInput["body"]>, 
@@ -37,15 +39,13 @@ export async function createPostHandler(
     isPublicPost: !user.isGuest
   });
 
-  return res.status(201).send(post);
+  return res.status(201).json(post);
 }
 
 export async function getPostHandler(
   req: Request<ReadPostInput["params"]>, 
   res: Response
 ) {
-  const user: FindUserResult = res.locals.user;
-  const userId = user._id;
   const postId = req.params.postId;
 
   const post = await findPost({ _id: postId });
@@ -54,9 +54,7 @@ export async function getPostHandler(
     return res.sendStatus(404);
   }
 
-  post.isLiked = post.likes.includes(userId);
-
-  return res.send(post);
+  return res.json(post);
 }
 
 export async function getRecentPostsHandler(
@@ -72,12 +70,17 @@ export async function getRecentPostsHandler(
       { isPublicPost: true },
     ],
   }
-  
-  const postLimit = parseInt(req.query.limit as string);
 
-  const options = {
-    sort: { "postDate": -1 },
-    limit: postLimit
+  const options: QueryOptions = {
+    sort: { "postDate": -1 }
+  }
+
+  if (req.query.limit) {
+    options.limit = parseInt(req.query.limit as string);
+  }
+
+  if (req.query.skip) {
+    options.skip = parseInt(req.query.skip as string);
   }
 
   const posts = await findManyPosts(query, {}, options);
@@ -86,7 +89,7 @@ export async function getRecentPostsHandler(
     return res.sendStatus(404);
   }
 
-  return res.json(posts);
+  return res.json({ data: posts });
 }
 
 export async function getFollowedPostsHandler(
@@ -102,8 +105,16 @@ export async function getFollowedPostsHandler(
     isPublicPost: true,
   }
 
-  const options = {
+  const options: QueryOptions = {
     sort: { "postDate": -1 }
+  }
+
+  if (req.query.limit) {
+    options.limit = parseInt(req.query.limit as string);
+  }
+
+  if (req.query.skip) {
+    options.skip = parseInt(req.query.skip as string);
   }
 
   const posts = await findManyPosts(query, {}, options);
@@ -112,7 +123,7 @@ export async function getFollowedPostsHandler(
     return res.sendStatus(404);
   }
 
-  return res.json(posts);
+  return res.json({ data: posts });
 }
 
 export async function getPostsByUserHandler(
@@ -136,7 +147,7 @@ export async function getPostsByUserHandler(
     };
   }
 
-  const options = {
+  const options: QueryOptions = {
     sort: { "postDate": -1 }
   };
 
@@ -146,7 +157,7 @@ export async function getPostsByUserHandler(
     return res.sendStatus(404);
   }
 
-  return res.json(posts);
+  return res.json({ data: posts });
 }
 
 export async function updatePostHandler(
@@ -166,7 +177,7 @@ export async function updatePostHandler(
     return res.sendStatus(403);
   }
 
-  const update = {
+  const update: UpdateQuery<Post> = {
     ...req.body,
     lastEditDate: new Date(Date.now()),
   };

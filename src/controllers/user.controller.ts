@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
 import config from 'config';
+import { 
+  FilterQuery, 
+  ProjectionType, 
+  QueryOptions, 
+  UpdateQuery
+} from 'mongoose';
 import { omit } from 'lodash';
 import logger from '../utils/logger';
 import { 
@@ -16,13 +22,13 @@ import {
   FollowUserInput, 
   PopulateUsersInput, 
   ReadUserInput, 
-  UnfollowUserInput, 
   UpdateUserInput 
 } from '../schemas/user.schema';
 import { 
   createRandomPost, 
   createRandomUser 
 } from '../utils/populateDatabase';
+import { User } from '../models/user.model';
 
 export async function createUserHandler(
   req: Request<{}, {}, CreateUserInput["body"]>, 
@@ -36,7 +42,7 @@ export async function createUserHandler(
     return res.send(user);
   } catch (e: any) {
     logger.error(e);
-    return res.status(409).send(e.message);
+    return res.status(409).json(e.message);
   }
 }
 
@@ -48,21 +54,17 @@ export async function getUserHandler(
   const requestingUserId = requestingUser.id;
   const userId = req.params.userId;
 
-  const projection = {
-    password: -1,
-  };
-
   const user = await findUser({ _id: userId });
 
   if (!user) {
     return res.sendStatus(404);
   }
 
-  const userObject = user.toJSON();
+  const userObject = omit(user.toJSON(), "password");
 
   userObject.followedByMe = userObject.followers.includes(requestingUserId);
 
-  return res.send(userObject);
+  return res.json(userObject);
 }
 
 export async function getSelfHandler(
@@ -71,7 +73,7 @@ export async function getSelfHandler(
 ) {
   const user: FindUserResult = res.locals.user;
 
-  return res.send(omit(user.toJSON(), "password"));
+  return res.json(omit(user.toJSON(), "password"));
 }
 
 export async function getUserListHandler(
@@ -90,13 +92,13 @@ export async function getUserListHandler(
     queryTerms.push({ $or: [{ firstName: regex }, { lastName: regex }]});
   } 
 
-  const query = { 
+  const query: FilterQuery<User> = { 
     _id: { $ne: userId }, 
     isGuest: false,
     $and: queryTerms,
   }
 
-  const projection = {
+  const projection: ProjectionType<User> = {
     username: 1,
     firstName: 1,
     lastName: 1,
@@ -108,13 +110,13 @@ export async function getUserListHandler(
     url: 1,
   }
 
-  const options = {
+  const options: QueryOptions = {
     sort: { "lastName": 1 },
   }
 
   const users = await findManyUsers(query, projection, options);
 
-  return res.json(users);
+  return res.json({ data: users });
 }
 
 export async function updateUserHandler(
@@ -135,13 +137,13 @@ export async function updateUserHandler(
     return res.sendStatus(403);
   }
 
-  const update = req.body;
+  const update: UpdateQuery<User> = req.body;
 
   const updatedUser = await findAndUpdateUser({ _id: userId }, update, { 
     new: true, 
   });
 
-  return res.send(updatedUser);
+  return res.json(omit(updatedUser?.toJSON(), "password"));
 }
 
 export async function deleteUserHandler(
@@ -183,62 +185,18 @@ export async function getUserFollowsHandler(
     return res.sendStatus(404);
   }
 
-  return res.send(userFollows);
+  return res.json(userFollows);
 }
 
 export async function followUserHandler(
-  req: Request<FollowUserInput["params"]>, 
+  req: Request<FollowUserInput["params"], {}, FollowUserInput["body"]>, 
   res: Response
 ) {
+  const follow = JSON.parse(req.body.follow);
   const requestingUser: FindUserResult = res.locals.user;
   const targetUserId = req.params.userId;
 
   const targetUser = await findUser({ _id: targetUserId });
-
-  if (!targetUser) {
-    return res.sendStatus(404);
-  }
-
-  if (!requestingUser.following.includes(targetUser._id)) {
-    requestingUser.following.push(targetUser._id);
-  }
-
-  if (!targetUser.followers.includes(requestingUser._id)) {
-    targetUser.followers.push(requestingUser._id);
-  }
-
-  const requestingUserUpdates = {
-    following: requestingUser.following,
-  }
-
-  const targetUserUpdates = {
-    followers: targetUser.followers,
-  }
-
-  await Promise.all([
-    findAndUpdateUser(
-      { _id: requestingUser._id }, 
-      requestingUserUpdates, 
-      { new: true }
-    ),
-    findAndUpdateUser(
-      { _id: targetUserId }, 
-      targetUserUpdates, 
-      { new: true }
-    )
-  ])
-
-  return res.sendStatus(200);
-}
-
-export async function unfollowUserHandler(
-  req: Request<UnfollowUserInput["params"]>, 
-  res: Response
-) {
-  const requestingUser: FindUserResult = res.locals.user;
-  const targetUserId = req.params.userId;
-
-  const targetUser = await findUser({ _id: targetUserId })
 
   if (!targetUser) {
     return res.sendStatus(404);
@@ -249,19 +207,24 @@ export async function unfollowUserHandler(
   });
   targetUser.followers = targetUser.followers.filter((userId) => {
     return userId.toString() !== requestingUser._id.toString();
-  })
+  });
 
-  const requestingUserUpdates = {
+  if (follow) {
+    requestingUser.following.push(targetUser._id);
+    targetUser.followers.push(requestingUser._id);
+  }
+
+  const requestingUserUpdates: UpdateQuery<User> = {
     following: requestingUser.following,
   }
 
-  const targetUserUpdates = {
+  const targetUserUpdates: UpdateQuery<User> = {
     followers: targetUser.followers,
   }
 
   await Promise.all([
     findAndUpdateUser(
-      { _id: requestingUser._id }, 
+      { _id: requestingUser.id }, 
       requestingUserUpdates, 
       { new: true }
     ),

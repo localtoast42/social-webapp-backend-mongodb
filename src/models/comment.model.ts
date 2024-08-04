@@ -20,12 +20,14 @@ export interface Comment extends CommentCreate {
   url: string;
   postDateFormatted: string;
   lastEditDateFormatted: string;
-  isLiked?: boolean;
   numLikes?: number;
 };
 
 const opts = { 
-  toJSON: { virtuals: true } 
+  toJSON: { 
+    virtuals: true,
+    flattenObjectIds: true 
+  } 
 };
 
 const commentSchema = new Schema<Comment>({
@@ -52,10 +54,6 @@ commentSchema.virtual("lastEditDateFormatted").get(function () {
 
 commentSchema.virtual("numLikes").get(function () {
   return this.likes?.length ?? 0;
-});
-
-commentSchema.virtual("isLiked").get(function () {
-  return false;
 });
 
 commentSchema.plugin(mongooseLeanVirtuals);

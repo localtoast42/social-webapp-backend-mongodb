@@ -52,6 +52,10 @@ const sessionPayload = {
 };
 
 const sessionDocument = new SessionModel(sessionPayload);
+const updatedSessionDocument = new SessionModel({ 
+  ...sessionPayload, 
+  valid: false 
+});
 
 const jwtPayload = {
   ...userPayload, 
@@ -166,7 +170,7 @@ describe('session', () => {
           .mockResolvedValueOnce(sessionDocument.toJSON());
 
         const { statusCode, body } = await supertest(app)
-          .post('/api/v1/sessions')
+          .post('/api/v2/sessions')
           .send({});
           
         expect(statusCode).toBe(400);
@@ -189,7 +193,7 @@ describe('session', () => {
           .mockResolvedValueOnce(sessionDocument.toJSON());
 
         const { statusCode } = await supertest(app)
-          .post('/api/v1/sessions')
+          .post('/api/v2/sessions')
           .send({
             username: "",
             password: "",
@@ -220,16 +224,16 @@ describe('session', () => {
           },
         };
 
-        const send = jest.fn();
+        const json = jest.fn();
 
         const res = {
-          send,
+          json,
         };
 
         // @ts-ignore
         await createUserSessionHandler(req, res);
 
-        expect(send).toHaveBeenCalledWith({
+        expect(json).toHaveBeenCalledWith({
           accessToken: expect.any(String),
           refreshToken: expect.any(String),
         });
@@ -241,7 +245,7 @@ describe('session', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .get('/api/v1/sessions');
+          .get('/api/v2/sessions');
           
         expect(statusCode).toBe(401);
       });
@@ -258,14 +262,16 @@ describe('session', () => {
           .mockResolvedValueOnce([sessionDocument.toJSON()]);
 
         const { body, statusCode } = await supertest(app)
-          .get('/api/v1/sessions')
+          .get('/api/v2/sessions')
           .set('Authorization', `Bearer ${jwt}`);
         
         expect(statusCode).toBe(200);
-        expect(body).toEqual([{
-          ...sessionPayload,
-          _id: sessionPayload._id.toString(),
-        }]);
+        expect(body).toEqual({
+          data: [{
+            ...sessionPayload,
+            _id: sessionPayload._id.toString(),
+          }]
+        });
         expect(findUserServiceMock).toHaveBeenCalledWith({ _id: userId });
         expect(findSessionsServiceMock).toHaveBeenCalled();
       })
@@ -276,7 +282,7 @@ describe('session', () => {
     describe('given the user is not logged in', () => {
       it('should return a 401', async () => {   
         const { statusCode } = await supertest(app)
-          .delete('/api/v1/sessions');
+          .delete('/api/v2/sessions');
           
         expect(statusCode).toBe(401);
       });
@@ -289,16 +295,16 @@ describe('session', () => {
           .mockResolvedValueOnce(userDocument);
 
         const updateSessionServiceMock = jest
-          .spyOn(SessionService, 'updateSession')
-          // @ts-ignore
-          .mockResolvedValueOnce({});
+          .spyOn(SessionService, 'findAndUpdateSession')
+          .mockResolvedValueOnce(updatedSessionDocument);
 
         const { body, statusCode } = await supertest(app)
-          .delete('/api/v1/sessions')
+          .delete('/api/v2/sessions')
           .set('Authorization', `Bearer ${jwt}`);
 
         expect(statusCode).toBe(200);
         expect(body).toEqual({
+          session: { ...sessionDocument.toJSON({ flattenObjectIds: true }), valid: false },
           accessToken: null,
           refreshToken: null
         });

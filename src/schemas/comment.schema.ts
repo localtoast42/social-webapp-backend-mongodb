@@ -53,7 +53,7 @@ export const likeCommentSchema = object({
 });
 
 export const deleteCommentSchema = object({
-  params: params,
+  params: params.pick({ commentId: true }),
 });
 
 export type CreateCommentInput = TypeOf<typeof createCommentSchema>

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
 import { 
   CreateCommentInput, 
   ReadCommentInput,
@@ -19,6 +20,8 @@ import {
   findPost 
 } from '../services/post.service';
 import { FindUserResult } from '../services/user.service';
+import { Post } from '../models/post.model';
+import { Comment } from '../models/comment.model';
 
 export async function createCommentHandler(
   req: Request<CreateCommentInput["params"], {}, CreateCommentInput["body"]>, 
@@ -46,7 +49,7 @@ export async function createCommentHandler(
 
   post.comments.push(comment._id);
 
-  const update = {
+  const update: UpdateQuery<Post> = {
     comments: post.comments,
   }
 
@@ -69,8 +72,6 @@ export async function getCommentHandler(
     return res.sendStatus(404);
   }
 
-  comment.isLiked = comment.likes.includes(userId);
-
   return res.json(comment);
 }
 
@@ -88,20 +89,20 @@ export async function getCommentsByPostHandler(
     return res.sendStatus(404);
   }
 
-  const query = {
+  const query: FilterQuery<Comment> = {
     $or: [
       { author: userId },
       { isPublicComment: true },
     ],
   }
 
-  const options = {
+  const options: QueryOptions = {
     sort: { "postDate": 1 }
   };
 
   const comments = await findManyComments(query, {}, options);
 
-  return res.json(comments);
+  return res.json({ data: comments });
 }
 
 export async function updateCommentHandler(
@@ -121,7 +122,7 @@ export async function updateCommentHandler(
     return res.sendStatus(403);
   }
 
-  const update = {
+  const update: UpdateQuery<Comment> = {
     ...req.body,
     lastEditDate: new Date(Date.now()),
   };
@@ -138,15 +139,11 @@ export async function deleteCommentHandler(
   res: Response
 ) {
   const user: FindUserResult = res.locals.user;
-  const postId = req.params.postId;
   const commentId = req.params.commentId;
 
-  const [post, comment] = await Promise.all([
-    findPost({ _id: postId }),
-    findComment({ _id: commentId }),
-  ])
+  const comment = await findComment({ _id: commentId });
 
-  if (!post || !comment) {
+  if (!comment) {
     return res.sendStatus(404);
   }
 
@@ -154,20 +151,21 @@ export async function deleteCommentHandler(
     return res.sendStatus(403);
   }
 
-  post.comments = post.comments.filter((commentid) => commentid != comment.id);
+  const post = await findPost({ _id: comment.post });
 
-  const update = {
-    comments: post.comments,
+  if (post) {
+    post.comments = post.comments.filter((commentid) => commentid != comment.id);
+
+    const update: UpdateQuery<Post> = {
+      comments: post.comments,
+    }
+
+    await findAndUpdatePost({ _id: post.id }, update, { new: true });
   }
-
-  const postResult = await findAndUpdatePost({ _id: postId }, update, { new: true });
 
   const commentResult = await deleteComment({ _id: commentId });
 
-  return res.json({
-    ...commentResult,
-    numComments: postResult?.numComments,
-  });
+  return res.json(commentResult);
 }
 
 export async function likeCommentHandler(
@@ -190,7 +188,7 @@ export async function likeCommentHandler(
     comment.likes.push(user.id);
   }
 
-  const update = {
+  const update: UpdateQuery<Comment> = {
     likes: comment.likes,
   }
 
