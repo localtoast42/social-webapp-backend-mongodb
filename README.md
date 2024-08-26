@@ -7,6 +7,7 @@ The website is comprised of a frontend application built with React & Vite, whic
 **This repo contains an older version of the application backend which was built using MongoDB for data persistence. It has since been replaced with a backend using PostgreSQL.**
 
 **Link to frontend repo:** https://github.com/localtoast42/social-webapp-frontend
+
 **Link to Postgres backend repo:** https://github.com/localtoast42/social-webapp-frontend
 
 ## Built with
