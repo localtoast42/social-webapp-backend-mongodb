@@ -8,7 +8,7 @@ The website is comprised of a frontend application built with React & Vite, whic
 
 **Link to frontend repo:** https://github.com/localtoast42/social-webapp-frontend
 
-**Link to Postgres backend repo:** https://github.com/localtoast42/social-webapp-frontend
+**Link to Postgres backend repo:** https://github.com/localtoast42/social-webapp-backend
 
 ## Built with
 
